@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Standardized Flows — Receipt Approval & User Management</title>
+<style>
+  :root{ --primary:#5a1a4d; --primary-light:#7d2b6e; --accent:#0e7c6b; --gold:#b8860b; --ink:#1f2430; --muted:#5b6472; --line:#d7dbe3; --soft:#f4f1f6; --soft2:#eef6f4; --warn:#b5532a; --green:#2d7d46;}
+  @page{ size:A4; margin:18mm 15mm 16mm 15mm;
+    @bottom-center{ content:"Umrah & Hajj ERP — Standardized Flows (Receipt Approval & User Management)"; font-family:Arial,sans-serif; font-size:7.3pt; color:#9aa1ad; }
+    @bottom-right{ content:"Page " counter(page) " of " counter(pages); font-family:Arial,sans-serif; font-size:7.5pt; color:#9aa1ad; }
+    @top-right{ content:"Phase 1 — standardized"; font-family:Arial,sans-serif; font-size:7.5pt; color:#c2c7d0; }
+  }
+  @page cover{ margin:0; @bottom-center{content:""} @bottom-right{content:""} @top-right{content:""} }
+  *{box-sizing:border-box}
+  body{font-family:'Helvetica Neue',Arial,'Segoe UI',sans-serif; color:var(--ink); font-size:10.3pt; line-height:1.5; margin:0;}
+  h2{font-family:Arial,sans-serif; font-size:15.5pt; color:var(--primary); border-bottom:2px solid var(--primary); padding-bottom:5px; margin:0 0 6px}
+  h3{font-family:Arial,sans-serif; font-size:12pt; color:var(--primary-light); margin:16px 0 4px}
+  h4{font-family:Arial,sans-serif; font-size:10.4pt; color:var(--accent); margin:12px 0 2px}
+  .crumb{font-size:8.6pt; color:var(--muted); letter-spacing:.5px; text-transform:uppercase; margin-bottom:8px}
+  p{margin:.45em 0}
+  .section{page-break-before:always}
+  figure{margin:12px 0; text-align:center}
+  figcaption{font-size:8.6pt; color:var(--muted); margin-top:5px}
+  ol.steps,ul.pts{margin:8px 0 4px; padding-left:20px; font-size:9.7pt}
+  ol.steps li,ul.pts li{margin:.25em 0}
+  .legend span{display:inline-block; margin-right:16px; font-size:8.6pt; color:var(--muted)}
+  .swatch{display:inline-block; width:12px; height:12px; border-radius:2px; vertical-align:middle; margin-right:5px}
+  .note{border-left:4px solid var(--accent); background:var(--soft2); padding:9px 13px; margin:11px 0; border-radius:0 6px 6px 0; font-size:9.4pt}
+  .note.gold{border-left-color:var(--gold); background:#fbf6e9}
+  .note.warn{border-left-color:var(--warn); background:#fbf1ec}
+  table{width:100%; border-collapse:collapse; margin:9px 0; font-size:9pt}
+  th,td{border:1px solid var(--line); padding:5px 8px; text-align:left; vertical-align:top}
+  th{background:var(--primary); color:#fff; font-weight:600; font-size:8.6pt}
+  tr:nth-child(even) td{background:var(--soft)}
+  .matrix td,.matrix th{text-align:center; font-size:8.3pt; padding:4px 5px}
+  .matrix td:first-child,.matrix th:first-child{text-align:left}
+  .y{color:var(--green); font-weight:700}
+  .n{color:#c2c7d0}
+  .p{color:var(--warn); font-weight:700}
+  .badge{display:inline-block; border-radius:4px; padding:1px 7px; font-size:8pt; font-weight:700; color:#fff}
+  .b1{background:#5b6472}.b2{background:#7d2b6e}.b3{background:#b5532a}.b4{background:#2d7d46}
+  .cover{page:cover; height:297mm; position:relative; color:#fff; overflow:hidden; background:linear-gradient(150deg,#3d0f34 0%,#5a1a4d 45%,#7d2b6e 100%);}
+  .cover .crest{position:absolute; right:-60mm; top:-60mm; width:160mm; height:160mm; border-radius:50%; background:radial-gradient(circle at 30% 30%, rgba(255,255,255,.16), rgba(255,255,255,0) 60%);}
+  .cover-inner{position:absolute; left:18mm; right:18mm; top:48mm}
+  .cover .kicker{letter-spacing:3px; font-size:10pt; text-transform:uppercase; color:#f0c674; font-weight:600}
+  .cover h1{color:#fff; font-size:31pt; line-height:1.12; margin:14px 0 6px; max-width:155mm}
+  .cover .sub{font-size:12.5pt; color:#e7d4e3; max-width:145mm}
+  .cover .client{margin-top:32mm; font-size:11pt}
+  .cover .client .big{font-size:16pt; font-weight:700; color:#fff}
+  .cover-foot{position:absolute; left:18mm; right:18mm; bottom:20mm; display:flex; justify-content:space-between; border-top:1px solid rgba(255,255,255,.3); padding-top:10px; font-size:9pt; color:#e7d4e3}
+  .cover-foot b{color:#fff}
+</style>
+</head>
+<body>
+
+<!-- COVER -->
+<section class="cover">
+  <div class="crest"></div>
+  <div class="cover-inner">
+    <div class="kicker">Standardized Flows — Phase 1 Addendum</div>
+    <h1>Receipt Approval &amp; User Management</h1>
+    <div class="sub">Two standardized flows: how a customer&rsquo;s multi-package receipts are sent to a manager for approval, and how users, roles and menu-wise permissions are managed. Extends the Complete Menus &amp; Flows document.</div>
+    <div class="client">
+      System for<br>
+      <span class="big">AL RAWDA GROUP HAJJ &amp; UMRAH SERVICES</span><br>
+      Bank Street, Street No. 910, Doha — Qatar
+    </div>
+  </div>
+  <div class="cover-foot">
+    <div>Document type: <b>Standardized flows (addendum)</b></div>
+    <div style="text-align:right">Ref: <b>FLOW-RAWDA-ERP-004</b> &nbsp;•&nbsp; Version 1.0 &nbsp;•&nbsp; 09 June 2026</div>
+  </div>
+</section>
+
+<!-- CONTENTS -->
+<section class="section">
+  <h2>Contents</h2>
+  <table>
+    <tr><th style="width:8%">#</th><th>Section</th></tr>
+    <tr><td>1</td><td>Receipt approval — overview &amp; standard terms</td></tr>
+    <tr><td>2</td><td>One customer, several packages — how it is captured</td></tr>
+    <tr><td>3</td><td>Receipt → Manager approval flow (standardized)</td></tr>
+    <tr><td>4</td><td>Receipt status model &amp; rules</td></tr>
+    <tr><td>5</td><td>User Management — concepts &amp; flow</td></tr>
+    <tr><td>6</td><td>Role &amp; menu-wise permission matrix</td></tr>
+    <tr><td>7</td><td>Sample roles &amp; enforcement</td></tr>
+  </table>
+  <div class="note">This addendum standardizes two areas requested for Phase 1. It sits alongside <i>FLOW-RAWDA-ERP-003 — Complete Menus &amp; Flows</i>; the receipt-approval step replaces the informal &ldquo;receipt = approval&rdquo; behaviour with a clear, auditable approval workflow, and adds the User Management menu.</div>
+</section>
+
+<!-- 1. OVERVIEW -->
+<section class="section">
+  <h2>1. Receipt Approval — Overview</h2>
+  <p>In day-to-day work, a customer often takes <b>several packages</b> at once (for example an Umrah package plus extra transport or an additional hotel night). The counter staff record the customer&rsquo;s payment as a <b>receipt</b>. At the end of the day, staff <b>select the receipts</b> they have created and <b>send them to the manager with the total amount</b>; the manager reviews and <b>approves</b> them. Only approved receipts are treated as confirmed income.</p>
+  <p>This document standardizes that process so every receipt follows the same path, the manager has one place to approve from, and the audit trail is complete.</p>
+  <h3>1.1 Standard terms</h3>
+  <table>
+    <tr><th style="width:26%">Term</th><th>Standard meaning</th></tr>
+    <tr><td>Booking / Invoice</td><td>The customer&rsquo;s order. May contain <b>multiple package line items</b> for one customer.</td></tr>
+    <tr><td>Receipt</td><td>A record of money received from the customer against their booking(s).</td></tr>
+    <tr><td>Submission (for approval)</td><td>A set of selected receipts sent to the manager together, with the total amount.</td></tr>
+    <tr><td>Approval</td><td>Manager&rsquo;s confirmation that the selected receipts are correct and accepted.</td></tr>
+    <tr><td>Posted</td><td>An approved, locked receipt that counts in income reports.</td></tr>
+  </table>
+</section>
+
+<!-- 2. MULTI PACKAGE -->
+<section class="section">
+  <h2>2. One Customer, Several Packages</h2>
+  <div class="crumb">How a multi-package booking is captured</div>
+  <p>Standard rule: a single <b>booking/invoice</b> for the customer can hold <b>several package line items</b>. The receipt is raised against that booking and can cover one or all of the packages. This keeps one customer&rsquo;s money in one place and makes the balance and approval straightforward.</p>
+  <figure>
+  <svg viewBox="0 0 740 220" xmlns="http://www.w3.org/2000/svg" font-family="Helvetica,Arial" font-size="9.4">
+    <defs><marker id="mp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#5b6472"/></marker></defs>
+    <rect x="20" y="80" width="120" height="56" rx="8" fill="#5b6472"/><text x="80" y="104" text-anchor="middle" fill="#fff">Customer</text><text x="80" y="120" text-anchor="middle" fill="#dfe3ea" font-size="8">one person / family</text>
+    <!-- invoice with line items -->
+    <rect x="200" y="40" width="220" height="140" rx="8" fill="#f4f1f6" stroke="#5a1a4d"/>
+    <text x="310" y="60" text-anchor="middle" fill="#5a1a4d" font-weight="bold">Booking / Invoice</text>
+    <rect x="216" y="72" width="188" height="26" rx="5" fill="#fff" stroke="#7d2b6e"/><text x="226" y="89" font-size="8.5">Pkg 1 — 5 Days Umrah w/ Visa — 1,050</text>
+    <rect x="216" y="102" width="188" height="26" rx="5" fill="#fff" stroke="#7d2b6e"/><text x="226" y="119" font-size="8.5">Pkg 2 — Transport &amp; Visa — 850</text>
+    <rect x="216" y="132" width="188" height="26" rx="5" fill="#fff" stroke="#7d2b6e"/><text x="226" y="149" font-size="8.5">Pkg 3 — Hotel &amp; Visa — 550</text>
+    <text x="310" y="174" text-anchor="middle" font-size="8.5" fill="#5b6472">Net total = 2,450</text>
+    <!-- receipt -->
+    <rect x="470" y="58" width="120" height="50" rx="8" fill="#7d2b6e"/><text x="530" y="80" text-anchor="middle" fill="#fff">Receipt</text><text x="530" y="95" text-anchor="middle" fill="#f0e3ee" font-size="8">against booking</text>
+    <rect x="470" y="120" width="120" height="50" rx="8" fill="#eef6f4" stroke="#0e7c6b"/><text x="530" y="140" text-anchor="middle" font-size="9">Balance tracked</text><text x="530" y="154" text-anchor="middle" font-size="8" fill="#5b6472">across all packages</text>
+    <rect x="630" y="84" width="96" height="50" rx="8" fill="#fbf1ec" stroke="#b5532a"/><text x="678" y="104" text-anchor="middle" font-size="9">To manager</text><text x="678" y="118" text-anchor="middle" font-size="8" fill="#5b6472">for approval</text>
+    <line x1="140" y1="108" x2="198" y2="108" stroke="#5b6472" marker-end="url(#mp)"/>
+    <line x1="420" y1="92" x2="468" y2="84" stroke="#5b6472" marker-end="url(#mp)"/>
+    <line x1="420" y1="120" x2="468" y2="140" stroke="#5b6472" marker-end="url(#mp)"/>
+    <line x1="590" y1="92" x2="628" y2="100" stroke="#5b6472" marker-end="url(#mp)"/>
+  </svg>
+  <figcaption>Figure 1 — Several packages on one booking; one receipt collects against them; balance tracked across all.</figcaption>
+  </figure>
+  <ul class="pts">
+    <li>Each package is a <b>line item</b> on the booking (package, qty/pax, rate, line total). The booking net is the sum of lines.</li>
+    <li>A receipt records the amount received and reduces the booking <b>balance</b> regardless of how many packages it contains.</li>
+    <li>The printed receipt voucher lists the packages covered, the amount paid, and the remaining balance — matching today&rsquo;s bilingual voucher.</li>
+  </ul>
+  <div class="note">If the agency prefers, several separate invoices for the same customer can instead be <b>grouped under the customer</b> and a single receipt applied across them. The standardized rule is simply: <b>one receipt, clearly linked to the customer&rsquo;s booking(s), with a correct balance.</b></div>
+</section>
+
+<!-- 3. RECEIPT APPROVAL FLOW -->
+<section class="section">
+  <h2>3. Receipt → Manager Approval Flow</h2>
+  <div class="crumb">Standardized — counter staff &amp; manager</div>
+  <p class="legend">
+    <span><span class="swatch" style="background:#5b6472"></span>Counter staff</span>
+    <span><span class="swatch" style="background:#b5532a"></span>Manager</span>
+    <span><span class="swatch" style="background:#0e7c6b"></span>System</span>
+  </p>
+  <figure>
+  <svg viewBox="0 0 740 300" xmlns="http://www.w3.org/2000/svg" font-family="Helvetica,Arial" font-size="9.3">
+    <defs><marker id="ra" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#5b6472"/></marker></defs>
+    <!-- lane labels -->
+    <rect x="0" y="20" width="26" height="120" fill="#5b6472"/><text x="13" y="80" fill="#fff" font-size="8.5" transform="rotate(-90 13,80)" text-anchor="middle">COUNTER STAFF</text>
+    <rect x="0" y="150" width="26" height="130" fill="#b5532a"/><text x="13" y="215" fill="#fff" font-size="8.5" transform="rotate(-90 13,215)" text-anchor="middle">MANAGER</text>
+    <line x1="26" y1="146" x2="740" y2="146" stroke="#d7dbe3"/>
+    <!-- staff lane -->
+    <rect x="40" y="40" width="120" height="44" rx="7" fill="#5b6472"/><text x="100" y="58" text-anchor="middle" fill="#fff">Create receipts</text><text x="100" y="72" text-anchor="middle" fill="#dfe3ea" font-size="8">for the day&rsquo;s customers</text>
+    <rect x="200" y="40" width="130" height="44" rx="7" fill="#5b6472"/><text x="265" y="58" text-anchor="middle" fill="#fff">Select receipts</text><text x="265" y="72" text-anchor="middle" fill="#dfe3ea" font-size="8">tick the ones to submit</text>
+    <rect x="370" y="40" width="140" height="44" rx="7" fill="#5b6472"/><text x="440" y="55" text-anchor="middle" fill="#fff">Submit to manager</text><text x="440" y="69" text-anchor="middle" fill="#dfe3ea" font-size="8">shows count + total amount</text>
+    <rect x="200" y="98" width="130" height="38" rx="7" fill="#fbf1ec" stroke="#b5532a"/><text x="265" y="116" text-anchor="middle" font-size="9">Rejected → correct</text><text x="265" y="129" text-anchor="middle" font-size="8" fill="#5b6472">&amp; resubmit</text>
+    <line x1="160" y1="62" x2="198" y2="62" stroke="#5b6472" marker-end="url(#ra)"/>
+    <line x1="330" y1="62" x2="368" y2="62" stroke="#5b6472" marker-end="url(#ra)"/>
+    <line x1="440" y1="84" x2="440" y2="160" stroke="#5b6472" marker-end="url(#ra)"/>
+    <!-- manager lane -->
+    <rect x="370" y="166" width="140" height="44" rx="7" fill="#b5532a"/><text x="440" y="184" text-anchor="middle" fill="#fff">Approval queue</text><text x="440" y="198" text-anchor="middle" fill="#f3ddd2" font-size="8">selected receipts + total</text>
+    <polygon points="250,210 318,182 386,210 318,238" fill="#fbf1ec" stroke="#b5532a"/><text x="318" y="208" text-anchor="middle" font-size="8.5">Review</text><text x="318" y="221" text-anchor="middle" font-size="8">each receipt</text>
+    <rect x="40" y="188" width="150" height="44" rx="7" fill="#2d7d46"/><text x="115" y="206" text-anchor="middle" fill="#fff">Approve</text><text x="115" y="220" text-anchor="middle" fill="#d8efe0" font-size="8">→ posted, locked</text>
+    <rect x="430" y="244" width="160" height="40" rx="7" fill="#eef6f4" stroke="#0e7c6b"/><text x="510" y="262" text-anchor="middle" font-size="9">Income reports update</text><text x="510" y="275" text-anchor="middle" font-size="8" fill="#5b6472">only approved receipts count</text>
+    <line x1="370" y1="195" x2="388" y2="206" stroke="#5b6472" marker-end="url(#ra)"/>
+    <line x1="250" y1="210" x2="192" y2="210" stroke="#5b6472" marker-end="url(#ra)"/><text x="220" y="204" font-size="7.5" fill="#2d7d46">approve</text>
+    <line x1="318" y1="182" x2="290" y2="138" stroke="#b5532a" stroke-dasharray="3,3" marker-end="url(#ra)"/><text x="330" y="160" font-size="7.5" fill="#b5532a">reject</text>
+    <line x1="190" y1="216" x2="430" y2="260" stroke="#5b6472" marker-end="url(#ra)"/>
+  </svg>
+  <figcaption>Figure 2 — Standardized receipt-approval flow across the counter-staff and manager lanes.</figcaption>
+  </figure>
+  <ol class="steps">
+    <li><b>Create receipts.</b> Counter staff record each customer&rsquo;s payment as a receipt (covering one or several packages). Each new receipt is <span class="badge b1">Draft</span>.</li>
+    <li><b>Select receipts.</b> On the Receipt Approval screen, staff tick the receipts to submit (typically the day&rsquo;s collection).</li>
+    <li><b>Submit to manager.</b> Staff submit the selected set; the system shows the <b>number of receipts and the total amount</b> and marks them <span class="badge b3">Submitted</span> (pending approval).</li>
+    <li><b>Manager reviews.</b> The manager opens the approval queue, sees the selected receipts and total, and checks each (customer, packages, amount, mode).</li>
+    <li><b>Approve / reject.</b> Approved receipts become <span class="badge b4">Approved / Posted</span> and lock; rejected ones return to staff with a comment to correct and resubmit.</li>
+    <li><b>Reports update.</b> Only approved receipts count as confirmed income in the reports.</li>
+  </ol>
+  <div class="note gold"><b>What changes vs today.</b> Instead of the receipt itself being the informal approval, the manager now formally approves a <b>selected batch of receipts with its total</b> — exactly the daily routine described — and the system records who approved what and when.</div>
+</section>
+
+<!-- 4. STATUS + RULES -->
+<section class="section">
+  <h2>4. Receipt Status Model &amp; Rules</h2>
+  <figure>
+  <svg viewBox="0 0 740 110" xmlns="http://www.w3.org/2000/svg" font-family="Helvetica,Arial" font-size="9.2">
+    <defs><marker id="ss" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#5b6472"/></marker></defs>
+    <rect x="20" y="40" width="110" height="34" rx="16" fill="#5b6472"/><text x="75" y="61" text-anchor="middle" fill="#fff">Draft</text>
+    <rect x="180" y="40" width="120" height="34" rx="16" fill="#b5532a"/><text x="240" y="61" text-anchor="middle" fill="#fff">Submitted</text>
+    <rect x="350" y="40" width="120" height="34" rx="16" fill="#2d7d46"/><text x="410" y="61" text-anchor="middle" fill="#fff">Approved / Posted</text>
+    <rect x="520" y="40" width="120" height="34" rx="16" fill="#fbf1ec" stroke="#b5532a"/><text x="580" y="61" text-anchor="middle" fill="#b5532a">Rejected</text>
+    <line x1="130" y1="57" x2="178" y2="57" stroke="#5b6472" marker-end="url(#ss)"/><text x="154" y="50" font-size="7.5" fill="#5b6472">submit</text>
+    <line x1="300" y1="57" x2="348" y2="57" stroke="#5b6472" marker-end="url(#ss)"/><text x="324" y="50" font-size="7.5" fill="#2d7d46">approve</text>
+    <line x1="300" y1="64" x2="520" y2="64" stroke="#b5532a" stroke-dasharray="3,3" marker-end="url(#ss)"/><text x="430" y="86" font-size="7.5" fill="#b5532a">reject (with comment)</text>
+    <line x1="580" y1="74" x2="75" y2="80" stroke="#b5532a" stroke-dasharray="3,3" marker-end="url(#ss)"/><text x="320" y="98" font-size="7.5" fill="#b5532a">returns to Draft for correction</text>
+    <line x1="75" y1="74" x2="75" y2="80" stroke="#b5532a" stroke-dasharray="3,3"/>
+  </svg>
+  <figcaption>Figure 3 — Receipt status lifecycle.</figcaption>
+  </figure>
+  <table>
+    <tr><th style="width:22%">Rule</th><th>Standard behaviour</th></tr>
+    <tr><td>Editable when</td><td>Only in <b>Draft</b>. Once Submitted it is read-only to staff; once Approved it is locked to everyone (changes need a void + re-entry, audited).</td></tr>
+    <tr><td>Income recognition</td><td>Only <b>Approved</b> receipts count in Income Summary / Income Detail. Submitted receipts show as &ldquo;pending approval&rdquo;.</td></tr>
+    <tr><td>Batch total</td><td>On submission the system computes and displays the total of selected receipts for the manager to confirm against the cash/bank handed over.</td></tr>
+    <tr><td>Partial approval</td><td>The manager may approve some and reject others in a batch; rejected ones return individually.</td></tr>
+    <tr><td>Audit</td><td>Every submit, approve and reject records the user, timestamp and comment.</td></tr>
+    <tr><td>Permissions</td><td><b>Submit</b> = counter staff; <b>Approve/Reject</b> = manager only (see Section 6).</td></tr>
+  </table>
+</section>
+
+<!-- 5. USER MGMT -->
+<section class="section">
+  <h2>5. User Management — Concepts &amp; Flow</h2>
+  <div class="crumb">Settings → User Management</div>
+  <p>Access is controlled by <b>roles</b>. A role is a named set of permissions defined <b>per menu</b> and <b>per action</b> (View, Create, Edit, Delete, Print, Approve). Each user is given a role; the user then sees and can use only what the role allows.</p>
+  <figure>
+  <svg viewBox="0 0 740 130" xmlns="http://www.w3.org/2000/svg" font-family="Helvetica,Arial" font-size="9.3">
+    <defs><marker id="um" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#5b6472"/></marker></defs>
+    <rect x="14" y="48" width="120" height="44" rx="7" fill="#5a1a4d"/><text x="74" y="66" text-anchor="middle" fill="#fff">Create role</text><text x="74" y="80" text-anchor="middle" fill="#e7d4e3" font-size="8">e.g. Counter</text>
+    <rect x="160" y="48" width="140" height="44" rx="7" fill="#f4f1f6" stroke="#7d2b6e"/><text x="230" y="63" text-anchor="middle">Set permissions</text><text x="230" y="77" text-anchor="middle" font-size="8">menu × action</text>
+    <rect x="326" y="48" width="130" height="44" rx="7" fill="#5a1a4d"/><text x="391" y="66" text-anchor="middle" fill="#fff">Create user</text><text x="391" y="80" text-anchor="middle" fill="#e7d4e3" font-size="8">login + details</text>
+    <rect x="482" y="48" width="120" height="44" rx="7" fill="#f4f1f6" stroke="#7d2b6e"/><text x="542" y="66" text-anchor="middle">Assign role</text><text x="542" y="80" text-anchor="middle" font-size="8">to the user</text>
+    <rect x="628" y="48" width="100" height="44" rx="7" fill="#eef6f4" stroke="#0e7c6b"/><text x="678" y="63" text-anchor="middle" font-size="9">User sees only</text><text x="678" y="77" text-anchor="middle" font-size="8">allowed menus</text>
+    <line x1="134" y1="70" x2="158" y2="70" stroke="#5b6472" marker-end="url(#um)"/>
+    <line x1="300" y1="70" x2="324" y2="70" stroke="#5b6472" marker-end="url(#um)"/>
+    <line x1="456" y1="70" x2="480" y2="70" stroke="#5b6472" marker-end="url(#um)"/>
+    <line x1="602" y1="70" x2="626" y2="70" stroke="#5b6472" marker-end="url(#um)"/>
+  </svg>
+  <figcaption>Figure 4 — Define role &amp; permissions once, then assign to users.</figcaption>
+  </figure>
+  <ol class="steps">
+    <li><b>Roles:</b> create/edit roles and set their menu-wise, action-wise permissions.</li>
+    <li><b>Users:</b> create a user (name, login, email/mobile, password), assign a role, set active/inactive, optional 2FA.</li>
+    <li><b>Login:</b> the user sees only permitted menus; blocked actions are hidden or disabled.</li>
+    <li><b>Maintenance:</b> reset password, deactivate on exit, reassign role; every change is audited.</li>
+  </ol>
+</section>
+
+<!-- 6. PERMISSION MATRIX -->
+<section class="section">
+  <h2>6. Role &amp; Menu-wise Permission Matrix</h2>
+  <div class="crumb">Per menu × per action</div>
+  <p>Each role is configured by ticking the actions it may perform on each menu. The matrix below shows a recommended default; it is fully editable by the administrator.</p>
+  <p class="legend"><span><span class="y">●</span> allowed</span><span><span class="p">▲</span> own records only</span><span><span class="n">—</span> not allowed</span></p>
+
+  <h4>Actions available per menu</h4>
+  <table>
+    <tr><th style="width:30%">Menu</th><th>Actions</th></tr>
+    <tr><td>Master Data (Package, Visa Type, Nationality)</td><td>View, Create, Edit, Delete</td></tr>
+    <tr><td>Invoice</td><td>View, Create, Edit, Delete, Print</td></tr>
+    <tr><td>Receipt</td><td>View, Create, Edit, Delete, Print, Submit</td></tr>
+    <tr><td>Receipt Approval</td><td>View, Approve, Reject</td></tr>
+    <tr><td>Payment (Expense/Refund)</td><td>View, Create, Edit, Delete, Print</td></tr>
+    <tr><td>Reports</td><td>View, Export/Print</td></tr>
+    <tr><td>User Management</td><td>View, Create, Edit, Delete</td></tr>
+    <tr><td>Settings</td><td>View, Edit</td></tr>
+  </table>
+
+  <h4>Default role × menu access</h4>
+  <table class="matrix">
+    <tr><th>Menu</th><th>Admin</th><th>Manager</th><th>Counter</th><th>Accountant</th><th>Viewer</th></tr>
+    <tr><td>Master Data</td><td class="y">Full</td><td class="y">Full</td><td class="p">View</td><td class="p">View</td><td class="p">View</td></tr>
+    <tr><td>Invoice</td><td class="y">Full</td><td class="y">Full</td><td class="y">Create/Edit/Print</td><td class="p">View</td><td class="p">View</td></tr>
+    <tr><td>Receipt</td><td class="y">Full</td><td class="y">Full</td><td class="y">Create/Print/Submit</td><td class="y">Create/Print</td><td class="p">View</td></tr>
+    <tr><td>Receipt Approval</td><td class="y">Approve</td><td class="y">Approve/Reject</td><td class="n">—</td><td class="n">—</td><td class="n">—</td></tr>
+    <tr><td>Payment</td><td class="y">Full</td><td class="y">Full</td><td class="n">—</td><td class="y">Create/Edit/Print</td><td class="p">View</td></tr>
+    <tr><td>Reports</td><td class="y">All</td><td class="y">All</td><td class="p">Limited</td><td class="y">Financial</td><td class="p">View</td></tr>
+    <tr><td>User Management</td><td class="y">Full</td><td class="n">—</td><td class="n">—</td><td class="n">—</td><td class="n">—</td></tr>
+    <tr><td>Settings</td><td class="y">Full</td><td class="p">View</td><td class="n">—</td><td class="n">—</td><td class="n">—</td></tr>
+  </table>
+  <p class="small">&ldquo;Full&rdquo; = all actions on that menu. The administrator can change any cell; new roles can be added at any time.</p>
+</section>
+
+<!-- 7. SAMPLE ROLES -->
+<section class="section">
+  <h2>7. Sample Roles &amp; Enforcement</h2>
+  <h3>7.1 Sample roles</h3>
+  <table>
+    <tr><th style="width:22%">Role</th><th>Purpose</th></tr>
+    <tr><td><span class="badge b1">Administrator</span></td><td>Full system access including User Management, master data, settings.</td></tr>
+    <tr><td><span class="badge b3">Manager</span></td><td>Approves/rejects receipts, sees all reports, manages bookings; no user administration.</td></tr>
+    <tr><td><span class="badge b1">Counter staff</span></td><td>Creates invoices and receipts, prints vouchers, submits receipts for approval. Cannot approve, delete or see financial settings.</td></tr>
+    <tr><td><span class="badge b2">Accountant</span></td><td>Handles payments, expenses, refunds and financial reports.</td></tr>
+    <tr><td><span class="badge b4">Viewer / Auditor</span></td><td>Read-only access to records and reports.</td></tr>
+  </table>
+
+  <h3>7.2 How permissions are enforced</h3>
+  <ul class="pts">
+    <li><b>Menu visibility:</b> a user only sees menu items their role permits — the rest are hidden.</li>
+    <li><b>Action control:</b> buttons (New, Edit, Delete, Print, Submit, Approve) are shown only if allowed.</li>
+    <li><b>Server-side check:</b> every request is also checked on the server, so permissions cannot be bypassed.</li>
+    <li><b>Separation of duties:</b> the person who <b>submits</b> a receipt cannot be the one who <b>approves</b> it — Approve is manager-only.</li>
+    <li><b>Audit log:</b> logins, permission changes and approvals are all recorded.</li>
+  </ul>
+
+  <h3>7.3 Where these sit in the menus</h3>
+  <table>
+    <tr><th style="width:30%">New / changed menu</th><th>Location</th></tr>
+    <tr><td>Receipt Approval</td><td>Transaction → Activity → Receipt Approval (manager); staff submit from the Receipt screen</td></tr>
+    <tr><td>User Management</td><td>Settings → Users &amp; Roles</td></tr>
+  </table>
+
+  <div class="note">These two flows are standardized for Phase 1 and integrate with the existing menus and reports. The later phase (enquiry/quotation, Nusuk operational chain, dashboards) can build on the same role/permission framework without rework.</div>
+  <p class="legend" style="margin-top:14px; text-align:center; display:block; color:#5b6472; font-size:8.6pt">FLOW-RAWDA-ERP-004 &nbsp;•&nbsp; Version 1.0 &nbsp;•&nbsp; Standardized flows — Receipt Approval &amp; User Management</p>
+</section>
+
+</body>
+</html>

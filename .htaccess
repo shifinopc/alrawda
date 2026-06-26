@@ -1,0 +1,18 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    
+    # Force HTTPS
+    RewriteCond %{HTTPS} off
+    RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+    
+    # If the following conditions are true, then rewrite the URL:
+    # - the requested filename is not a directory,
+    # - the requested filename is not a file,
+    # - we haven't already rewritten to public/
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_URI} !^/public/
+    
+    # Rewrite all requests to go through /public/
+    RewriteRule ^(.*)$ /public/$1 [L]
+</IfModule>

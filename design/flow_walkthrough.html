@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AL RAWDA ERP — Annotated Flow Walkthrough</title>
+<style>
+:root{
+  --bg:#f4f2fb; --bg2:#fbfaff; --panel:#fff; --panel2:#f2effb;
+  --accent:#7c00ff; --accent2:#6500cf; --accent-soft:#f1e7ff;
+  --ink:#221a35; --muted:#6f6886; --faint:#9b95ad; --line:#e8e3f3; --soft:#f7f4ff; --rowsel:#f1e7ff;
+  --green:#2d9d57; --green-soft:#e6f4ea; --warn:#c2761f; --warn-soft:#f7eddc; --teal:#0e9e84;
+}
+@page{ size:A4 landscape; margin:11mm 12mm 12mm;
+  @bottom-center{content:"AL RAWDA ERP — Annotated Flow Walkthrough"; font-family:Arial; font-size:7.5pt; color:#9b95ad;}
+  @bottom-right{content:"Page " counter(page) " / " counter(pages); font-family:Arial; font-size:7.5pt; color:#9b95ad;}
+}
+@page cover{margin:0;@bottom-center{content:""}@bottom-right{content:""}}
+*{box-sizing:border-box}
+body{font-family:Arial,'Segoe UI',sans-serif;color:var(--ink);margin:0;font-size:10.5px}
+.page{page-break-after:always;padding:2mm}
+h2{font-size:15pt;color:var(--accent2);margin:0 0 2px}
+.sub{font-size:9.5pt;color:var(--muted);margin:0 0 10px}
+.legendbox{margin-top:10px;border:1px solid var(--line);border-radius:10px;padding:10px 14px;background:#fff}
+.legendbox h4{margin:0 0 6px;font-size:11pt;color:var(--accent2)}
+.lg{display:flex;gap:10px;margin:5px 0;font-size:10px;align-items:flex-start}
+.mk{display:inline-flex;width:18px;height:18px;min-width:18px;border-radius:50%;background:var(--accent);color:#fff;font-size:10px;font-weight:700;align-items:center;justify-content:center;box-shadow:0 0 0 3px rgba(124,0,255,.16)}
+.mk.g{background:var(--green)}
+
+/* cover */
+.cover{page:cover;height:210mm;background:radial-gradient(700px 400px at 78% 12%,rgba(124,0,255,.20),rgba(124,0,255,0) 60%),linear-gradient(150deg,#2a0052,#7c00ff);color:#fff;position:relative}
+.cover .in{position:absolute;left:20mm;top:54mm;right:20mm}
+.cover .k{letter-spacing:3px;text-transform:uppercase;color:#e6c9ff;font-size:10pt;font-weight:700}
+.cover h1{font-size:30pt;margin:12px 0 6px;max-width:200mm}
+.cover p{font-size:12pt;color:#eadcff;max-width:180mm}
+.cover .ft{position:absolute;left:20mm;right:20mm;bottom:18mm;border-top:1px solid rgba(255,255,255,.3);padding-top:9px;font-size:9pt;color:#eadcff;display:flex;justify-content:space-between}
+
+/* flow strip */
+.strip{display:flex;align-items:center;gap:6px;margin:6px 0 4px;flex-wrap:wrap}
+.step{background:#fff;border:1px solid var(--line);border-radius:9px;padding:6px 11px;font-size:9.5px;font-weight:700;color:var(--accent2)}
+.step .n{display:inline-block;width:15px;height:15px;border-radius:50%;background:var(--accent);color:#fff;font-size:8.5px;text-align:center;line-height:15px;margin-right:5px}
+.arrow{color:var(--accent);font-weight:700}
+
+/* app screenshot frame */
+.shot{border:1px solid #d9d3ec;border-radius:12px;overflow:hidden;box-shadow:0 10px 28px rgba(43,30,70,.14);background:#fff}
+.winbar{height:22px;background:#efeaf8;display:flex;align-items:center;gap:6px;padding:0 10px;border-bottom:1px solid var(--line)}
+.winbar i{width:9px;height:9px;border-radius:50%;display:inline-block}
+.c1{background:#ff6058}.c2{background:#ffbd2e}.c3{background:#28c840}
+.winbar .u{margin-left:10px;font-size:8px;color:#8b85a3}
+.app{display:flex;min-height:300px}
+.topbar{height:34px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:9px;padding:0 12px}
+.logo{width:22px;height:22px;border-radius:7px;background:var(--accent);color:#fff;font-weight:700;font-size:9px;display:flex;align-items:center;justify-content:center}
+.tt{font-weight:700;font-size:10px}
+.tt small{display:block;font-size:6.5px;color:var(--muted);font-weight:400}
+.spacer{flex:1}
+.tmeta{font-size:8px;color:var(--muted)}
+.user{background:var(--accent-soft);color:var(--accent2);border:1px solid #e0cdfa;border-radius:11px;padding:3px 9px;font-size:8px;font-weight:700}
+.layout{display:flex;flex:1}
+.side{width:118px;background:#fff;border-right:1px solid var(--line);padding:6px 0}
+.sg{padding:6px 11px 2px;font-size:6.5px;letter-spacing:.5px;text-transform:uppercase;color:var(--faint);font-weight:700}
+.ni{padding:5px 11px;font-size:9px;color:#463f57;border-left:3px solid transparent}
+.ni.active{background:var(--accent-soft);color:var(--accent2);border-left-color:var(--accent);font-weight:700}
+.ni .nb{float:right;font-size:6px;background:var(--accent);color:#fff;padding:0 5px;border-radius:7px;font-weight:700}
+.content{flex:1;background:var(--bg);padding:10px}
+
+.cardw{background:#fff;border:1px solid var(--line);border-radius:11px;overflow:hidden;margin-bottom:9px}
+.dh{background:var(--panel2);padding:7px 11px;font-weight:700;font-size:9.5px;border-bottom:1px solid var(--line)}
+.form{padding:9px 11px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px 11px}
+.fld{display:flex;flex-direction:column;gap:2px}
+.fld label{font-size:7.5px;color:var(--muted);font-weight:700}
+.fld .inp{height:22px;border:1px solid var(--line);border-radius:7px;background:#fff;font-size:8.5px;display:flex;align-items:center;padding:0 8px;color:var(--ink)}
+.fld .inp.ro{background:var(--bg2);color:var(--faint)}
+.fld .inp.hl{border-color:var(--accent);box-shadow:0 0 0 3px rgba(124,0,255,.16)}
+.tbar{background:#fff;border:1px solid var(--line);border-top:none;padding:7px 10px;display:flex;gap:7px;align-items:center}
+.btn{border:1px solid var(--line);background:#fff;border-radius:8px;padding:4px 10px;font-size:8.5px;font-weight:700;color:#463f57}
+.btn.pri{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn.ok{background:var(--green);color:#fff;border-color:var(--green)}
+.ph{background:var(--accent-soft);color:var(--accent2);padding:8px 11px;font-weight:700;font-size:9.5px;border:1px solid var(--line);border-bottom:none;border-radius:10px 10px 0 0}
+table{width:100%;border-collapse:collapse;font-size:8.5px}
+th{background:var(--bg2);color:var(--muted);text-align:left;padding:5px 8px;font-size:7.5px;border-bottom:1px solid var(--line)}
+td{padding:5px 8px;border-bottom:1px solid #efebf7;color:#3a3450}
+.tablewrap{background:#fff;border:1px solid var(--line);border-top:none;border-radius:0 0 10px 10px}
+.chk{width:12px;height:12px;border-radius:3px;border:1.5px solid #cabfe0;display:inline-block;vertical-align:-2px;background:#fff}
+.chk.on{background:var(--accent);border-color:var(--accent);position:relative}
+.chk.on:after{content:'✓';color:#fff;font-size:8px;position:absolute;left:1px;top:-3px}
+.badge{display:inline-block;border-radius:9px;padding:1px 8px;font-size:7.5px;font-weight:700}
+.bd{background:#efecf6;color:#6f6886}.br{background:var(--warn-soft);color:var(--warn);border:1px solid #e6c79d}.ba{background:var(--green-soft);color:var(--green);border:1px solid #b6d6c0}
+.marker{position:relative}
+.dot{display:inline-flex;width:17px;height:17px;border-radius:50%;background:var(--accent);color:#fff;font-size:9px;font-weight:700;align-items:center;justify-content:center;box-shadow:0 0 0 3px rgba(124,0,255,.18);vertical-align:middle}
+.dot.g{background:var(--green);box-shadow:0 0 0 3px rgba(45,157,87,.18)}
+
+/* request card */
+.reqc{background:#fff;border:1px solid var(--line);border-radius:11px;overflow:hidden;margin-top:9px}
+.reqh{display:flex;align-items:center;gap:12px;padding:9px 12px;background:var(--panel2);border-bottom:1px solid var(--line)}
+.reqh .id{font-weight:700;color:var(--accent2);font-size:10px}
+.reqh .m{font-size:8px;color:var(--muted)}
+.reqh .tot{margin-left:auto;text-align:right}
+.reqh .tot .l{font-size:7px;color:var(--muted)}
+.reqh .tot .v{font-size:13px;font-weight:700}
+.reqa{padding:8px 12px;display:flex;gap:7px;justify-content:flex-end;border-top:1px solid var(--line)}
+</style>
+</head>
+<body>
+
+<!-- COVER -->
+<section class="cover">
+  <div class="in">
+    <div class="k">Annotated Flow Walkthrough</div>
+    <h1>How the AL RAWDA ERP Works</h1>
+    <p>The app screens, marked step-by-step — focusing on creating receipts, multi-selecting them, requesting approval, and the manager approving the combined receipt.</p>
+  </div>
+  <div class="ft"><div>AL RAWDA GROUP HAJJ &amp; UMRAH SERVICES — Doha, Qatar</div><div>Prototype walkthrough · v1.0 · 09 June 2026</div></div>
+</section>
+
+<!-- PAGE: OVERVIEW -->
+<section class="page">
+  <h2>The flow at a glance</h2>
+  <div class="sub">A receipt travels from the counter staff to the manager. The numbered steps below are marked on the screens that follow.</div>
+  <div class="strip">
+    <span class="step"><span class="n">1</span>Login</span><span class="arrow">→</span>
+    <span class="step"><span class="n">2</span>Create invoice</span><span class="arrow">→</span>
+    <span class="step"><span class="n">3</span>Create receipt</span><span class="arrow">→</span>
+    <span class="step"><span class="n">4</span>Select receipts</span><span class="arrow">→</span>
+    <span class="step"><span class="n">5</span>Request approval</span><span class="arrow">→</span>
+    <span class="step"><span class="n">6</span>Manager reviews combined</span><span class="arrow">→</span>
+    <span class="step"><span class="n">7</span>Approve → posted</span>
+  </div>
+
+  <div class="legendbox">
+    <h4>Who does what</h4>
+    <div class="lg"><span class="mk">3</span><div><b>Counter staff</b> create receipts against a customer's invoice (one receipt can cover several packages).</div></div>
+    <div class="lg"><span class="mk">4</span><div><b>Counter staff</b> tick the day's receipts in the list (multi-select) — the combined total is shown.</div></div>
+    <div class="lg"><span class="mk">5</span><div><b>Counter staff</b> press <b>Request approval</b> — the ticked receipts become one combined request sent to the manager.</div></div>
+    <div class="lg"><span class="mk">6</span><div><b>Manager</b> opens Receipt Approval and sees the combined request: all receipts grouped with one total.</div></div>
+    <div class="lg"><span class="mk g">7</span><div><b>Manager</b> approves — the receipts lock and count as income (or rejects, sending them back to draft).</div></div>
+  </div>
+</section>
+
+<!-- PAGE: RECEIPT SCREEN -->
+<section class="page">
+  <h2>Screen A — Receipt (create + select + request)</h2>
+  <div class="sub">Transaction → Activity → Receipt. This one area is where receipts are created and sent for approval.</div>
+  <div class="shot">
+    <div class="winbar"><i class="c1"></i><i class="c2"></i><i class="c3"></i><span class="u">AL RAWDA ERP — Receipt</span></div>
+    <div class="topbar"><div class="logo">AR</div><div class="tt">AL RAWDA ERP <small>Doha, Qatar</small></div><div class="spacer"></div><div class="tmeta">09-06-2026</div><div class="user">HASNAIN · Admin</div></div>
+    <div class="layout">
+      <div class="side">
+        <div class="sg">Activity</div>
+        <div class="ni">Invoice</div>
+        <div class="ni active">Receipt</div>
+        <div class="ni">Receipt Approval <span class="nb">NEW</span></div>
+        <div class="ni">Payment</div>
+        <div class="sg">Reports</div><div class="ni">All Report</div>
+        <div class="sg">Basic</div><div class="ni">Package</div>
+      </div>
+      <div class="content">
+        <div class="cardw">
+          <div class="dh">Create / Edit Receipt &nbsp; <span class="dot">3</span></div>
+          <div class="form"><div class="g3">
+            <div class="fld"><label>Receipt No</label><div class="inp ro">12756</div></div>
+            <div class="fld"><label>Receipt Date</label><div class="inp">09/06/2026</div></div>
+            <div class="fld"><label>Mode</label><div class="inp">Cash</div></div>
+            <div class="fld"><label>Select Invoice</label><div class="inp">8457 — Mohammad Jahirul Islam</div></div>
+            <div class="fld"><label>Previous Balance</label><div class="inp ro">6,450</div></div>
+            <div class="fld"><label>Received Amount</label><div class="inp hl">5,000</div></div>
+          </div></div>
+        </div>
+        <div class="ph">Receipts — select &amp; request approval</div>
+        <div class="tbar"><span style="font-size:8.5px;color:var(--muted)">Selected: <b style="color:var(--accent2)">3</b> · Total <b>QAR 6,950</b></span> <span class="dot">4</span><span class="spacer"></span><span class="btn pri">↦ Request approval</span> <span class="dot">5</span></div>
+        <div class="tablewrap"><table><thead><tr><th style="width:22px"><span class="chk"></span></th><th>Rec No</th><th>Customer</th><th>Packages</th><th>Mode</th><th>Amount</th><th>Status</th></tr></thead><tbody>
+          <tr><td><span class="chk on"></span></td><td>12750</td><td>Mohammad Jahirul Islam</td><td>Umrah ×5</td><td>Cash</td><td>QAR 5,000</td><td><span class="badge bd">Draft</span></td></tr>
+          <tr><td><span class="chk on"></span></td><td>12751</td><td>Suman Meah</td><td>Umrah + Transport</td><td>Bank</td><td>QAR 1,400</td><td><span class="badge bd">Draft</span></td></tr>
+          <tr><td><span class="chk on"></span></td><td>12752</td><td>Md Amdadullah</td><td>Umrah</td><td>Cash</td><td>QAR 600</td><td><span class="badge bd">Draft</span></td></tr>
+          <tr><td><span class="chk"></span></td><td>12753</td><td>Habib Ali</td><td>Only Transport</td><td>Cash</td><td>QAR 350</td><td><span class="badge bd">Draft</span></td></tr>
+        </tbody></table></div>
+      </div>
+    </div>
+  </div>
+  <div class="legendbox">
+    <div class="lg"><span class="mk">3</span><div>Create a receipt against the customer's invoice — balance and received amount captured here.</div></div>
+    <div class="lg"><span class="mk">4</span><div>Tick the receipts to send (here 3 selected) — the system shows the <b>combined total QAR 6,950</b>.</div></div>
+    <div class="lg"><span class="mk">5</span><div>Click <b>Request approval</b> — the 3 ticked receipts become one combined request and move to the Receipt Approval menu.</div></div>
+  </div>
+</section>
+
+<!-- PAGE: APPROVAL SCREEN -->
+<section class="page">
+  <h2>Screen B — Receipt Approval (manager sees the combined receipt)</h2>
+  <div class="sub">Transaction → Activity → Receipt Approval. The manager reviews and approves the grouped request.</div>
+  <div class="shot">
+    <div class="winbar"><i class="c1"></i><i class="c2"></i><i class="c3"></i><span class="u">AL RAWDA ERP — Receipt Approval</span></div>
+    <div class="topbar"><div class="logo">AR</div><div class="tt">AL RAWDA ERP <small>Doha, Qatar</small></div><div class="spacer"></div><div class="tmeta">09-06-2026</div><div class="user">MANAGER</div></div>
+    <div class="layout">
+      <div class="side">
+        <div class="sg">Activity</div>
+        <div class="ni">Invoice</div>
+        <div class="ni">Receipt</div>
+        <div class="ni active">Receipt Approval <span class="nb">NEW</span></div>
+        <div class="ni">Payment</div>
+        <div class="sg">Reports</div><div class="ni">All Report</div>
+      </div>
+      <div class="content">
+        <div class="ph" style="border-radius:10px">Receipt Approval — Manager</div>
+        <div class="reqc">
+          <div class="reqh">
+            <div><div class="id">REQ-1002 <span class="dot">6</span></div><div class="m">Requested by Hasnain · 09-06-2026 · 3 receipts</div></div>
+            <div style="margin-left:6px"><span class="badge br">Pending</span></div>
+            <div class="tot"><div class="l">Combined total</div><div class="v">QAR 6,950</div></div>
+          </div>
+          <table><thead><tr><th>Rec No</th><th>Customer</th><th>Packages</th><th>Mode</th><th>Amount</th></tr></thead><tbody>
+            <tr><td>12750</td><td>Mohammad Jahirul Islam</td><td>Umrah ×5</td><td>Cash</td><td>QAR 5,000</td></tr>
+            <tr><td>12751</td><td>Suman Meah</td><td>Umrah + Transport</td><td>Bank</td><td>QAR 1,400</td></tr>
+            <tr><td>12752</td><td>Md Amdadullah</td><td>Umrah</td><td>Cash</td><td>QAR 600</td></tr>
+            <tr style="font-weight:700;background:var(--panel2)"><td colspan="4">Combined receipt total</td><td>QAR 6,950</td></tr>
+          </tbody></table>
+          <div class="reqa"><span class="btn">✖ Reject</span><span class="btn ok">✔ Approve request</span> <span class="dot g">7</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="legendbox">
+    <div class="lg"><span class="mk">6</span><div>The request <b>REQ-1002</b> shows all 3 receipts grouped into one <b>combined receipt</b> with a single total (QAR 6,950) — exactly the set the staff sent.</div></div>
+    <div class="lg"><span class="mk g">7</span><div><b>Approve request</b> → every receipt in it locks to <b>Approved</b> and counts as income. <b>Reject</b> sends them back to Draft for correction. Only the manager can do this (separation of duties).</div></div>
+  </div>
+</section>
+
+<!-- PAGE: RESULT + PERMISSIONS -->
+<section class="page">
+  <h2>After approval — status &amp; who's allowed</h2>
+  <div class="sub">Once approved, receipts are locked and the dashboard request count clears. Permissions decide who can request vs approve.</div>
+  <div style="display:flex;gap:14px;align-items:flex-start">
+    <div style="flex:1">
+      <div class="shot">
+        <div class="winbar"><i class="c1"></i><i class="c2"></i><i class="c3"></i><span class="u">Receipts — after approval</span></div>
+        <div style="padding:10px;background:var(--bg)">
+          <div class="tablewrap" style="border-top:1px solid var(--line);border-radius:10px">
+            <table><thead><tr><th>Rec No</th><th>Customer</th><th>Amount</th><th>Status</th></tr></thead><tbody>
+              <tr><td>12750</td><td>Mohammad Jahirul Islam</td><td>QAR 5,000</td><td><span class="badge ba">Approved</span></td></tr>
+              <tr><td>12751</td><td>Suman Meah</td><td>QAR 1,400</td><td><span class="badge ba">Approved</span></td></tr>
+              <tr><td>12752</td><td>Md Amdadullah</td><td>QAR 600</td><td><span class="badge ba">Approved</span></td></tr>
+              <tr><td>12753</td><td>Habib Ali</td><td>QAR 350</td><td><span class="badge bd">Draft</span></td></tr>
+            </tbody></table>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="flex:1">
+      <div class="shot">
+        <div class="winbar"><i class="c1"></i><i class="c2"></i><i class="c3"></i><span class="u">User Management — permissions</span></div>
+        <div style="padding:10px;background:var(--bg)">
+          <div style="background:#fff;border:1px solid var(--line);border-radius:10px;overflow:hidden">
+            <table style="font-size:8px"><thead><tr><th>Menu</th><th>Counter staff</th><th>Manager</th></tr></thead><tbody>
+              <tr><td>Receipt — create</td><td><span class="chk on"></span></td><td><span class="chk on"></span></td></tr>
+              <tr><td>Receipt — request approval</td><td><span class="chk on"></span></td><td><span class="chk on"></span></td></tr>
+              <tr><td>Receipt Approval — approve</td><td><span class="badge bd">No</span></td><td><span class="chk on"></span></td></tr>
+            </tbody></table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="legendbox">
+    <h4>Summary of the flow</h4>
+    <div class="lg"><span class="mk">3</span><div>Staff create receipts (multi-package allowed).</div></div>
+    <div class="lg"><span class="mk">4</span><div>Staff multi-select the day's receipts.</div></div>
+    <div class="lg"><span class="mk">5</span><div>Staff request approval → one combined request to the manager.</div></div>
+    <div class="lg"><span class="mk">6</span><div>Manager sees the combined receipt (grouped, one total).</div></div>
+    <div class="lg"><span class="mk g">7</span><div>Manager approves → receipts locked, counted as income, dashboard request count clears.</div></div>
+  </div>
+</section>
+
+</body>
+</html>

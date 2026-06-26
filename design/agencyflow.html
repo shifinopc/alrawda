@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Umrah & Hajj Agency — Standard Application Flow</title>
+<style>
+  :root{ --primary:#5a1a4d; --primary-light:#7d2b6e; --accent:#0e7c6b; --gold:#b8860b; --ink:#1f2430; --muted:#5b6472; --line:#d7dbe3; --soft:#f4f1f6; --soft2:#eef6f4; --warn:#b5532a; }
+  @page{ size:A4; margin:18mm 15mm 16mm 15mm;
+    @bottom-center{ content:"Umrah & Hajj Agency — Standard Application Flow"; font-family:Arial,sans-serif; font-size:7.5pt; color:#9aa1ad; }
+    @bottom-right{ content:"Page " counter(page) " of " counter(pages); font-family:Arial,sans-serif; font-size:7.5pt; color:#9aa1ad; }
+    @top-right{ content:"Flow Blueprint — v2.0"; font-family:Arial,sans-serif; font-size:7.5pt; color:#c2c7d0; }
+  }
+  @page cover{ margin:0; @bottom-center{content:""} @bottom-right{content:""} @top-right{content:""} }
+  *{box-sizing:border-box}
+  body{font-family:'Helvetica Neue',Arial,'Segoe UI',sans-serif; color:var(--ink); font-size:10.3pt; line-height:1.5; margin:0;}
+  h2{font-family:Arial,sans-serif; font-size:15.5pt; color:var(--primary); border-bottom:2px solid var(--primary); padding-bottom:5px; margin:0 0 6px}
+  h3{font-family:Arial,sans-serif; font-size:12pt; color:var(--primary-light); margin:16px 0 4px}
+  h4{font-family:Arial,sans-serif; font-size:10.6pt; color:var(--accent); margin:12px 0 2px}
+  .crumb{font-size:8.6pt; color:var(--muted); letter-spacing:.5px; text-transform:uppercase; margin-bottom:8px}
+  p{margin:.45em 0}
+  .section{page-break-before:always}
+  figure{margin:12px 0; text-align:center}
+  figcaption{font-size:8.6pt; color:var(--muted); margin-top:5px}
+  ol.steps,ul.pts{margin:8px 0 4px; padding-left:20px; font-size:9.7pt}
+  ol.steps li,ul.pts li{margin:.25em 0}
+  .legend span{display:inline-block; margin-right:16px; font-size:8.6pt; color:var(--muted)}
+  .swatch{display:inline-block; width:12px; height:12px; border-radius:2px; vertical-align:middle; margin-right:5px}
+  .note{border-left:4px solid var(--accent); background:var(--soft2); padding:9px 13px; margin:11px 0; border-radius:0 6px 6px 0; font-size:9.4pt}
+  .note.gold{border-left-color:var(--gold); background:#fbf6e9}
+  .note.warn{border-left-color:var(--warn); background:#fbf1ec}
+  table{width:100%; border-collapse:collapse; margin:9px 0; font-size:9pt}
+  th,td{border:1px solid var(--line); padding:5px 8px; text-align:left; vertical-align:top}
+  th{background:var(--primary); color:#fff; font-weight:600; font-size:8.8pt}
+  tr:nth-child(even) td{background:var(--soft)}
+  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:12px}
+  .card{border:1px solid var(--line); border-radius:8px; padding:10px 13px; background:#fff}
+  .card h4{margin-top:0}
+  .badge{display:inline-block; border-radius:4px; padding:1px 7px; font-size:8pt; font-weight:700; color:#fff}
+  .b-new{background:#5b6472} .b-pay{background:#7d2b6e} .b-appr{background:#b5532a} .b-ops{background:#0e7c6b} .b-done{background:#2d7d46}
+  .cover{page:cover; height:297mm; position:relative; color:#fff; overflow:hidden; background:linear-gradient(150deg,#3d0f34 0%,#5a1a4d 45%,#7d2b6e 100%);}
+  .cover .crest{position:absolute; right:-60mm; top:-60mm; width:160mm; height:160mm; border-radius:50%; background:radial-gradient(circle at 30% 30%, rgba(255,255,255,.16), rgba(255,255,255,0) 60%);}
+  .cover-inner{position:absolute; left:18mm; right:18mm; top:46mm}
+  .cover .kicker{letter-spacing:3px; font-size:10pt; text-transform:uppercase; color:#f0c674; font-weight:600}
+  .cover h1{color:#fff; font-size:32pt; line-height:1.12; margin:14px 0 6px; max-width:155mm}
+  .cover .sub{font-size:12.5pt; color:#e7d4e3; max-width:145mm}
+  .cover .client{margin-top:30mm; font-size:11pt}
+  .cover .client .big{font-size:16pt; font-weight:700; color:#fff}
+  .cover-foot{position:absolute; left:18mm; right:18mm; bottom:20mm; display:flex; justify-content:space-between; border-top:1px solid rgba(255,255,255,.3); padding-top:10px; font-size:9pt; color:#e7d4e3}
+  .cover-foot b{color:#fff}
+</style>
+</head>
+<body>
+
+<!-- COVER -->
+<section class="cover">
+  <div class="crest"></div>
+  <div class="cover-inner">
+    <div class="kicker">Standard Application Flow — Blueprint</div>
+    <h1>Umrah &amp; Hajj Travel Agency Management System</h1>
+    <div class="sub">A modern, end-to-end operational flow — from enquiry to return — redesigned around how agencies actually work today, including the Nusuk Masar hotel → transport → visa chain. Improves on the legacy invoice / receipt / report model.</div>
+    <div class="client">
+      Prepared for<br>
+      <span class="big">AL RAWDA GROUP HAJJ &amp; UMRAH SERVICES</span><br>
+      Bank Street, Street No. 910, Doha — Qatar
+    </div>
+  </div>
+  <div class="cover-foot">
+    <div>Document type: <b>Flow blueprint (redesigned)</b></div>
+    <div style="text-align:right">Ref: <b>FLOW-RAWDA-ERP-002</b> &nbsp;•&nbsp; Version 2.0 &nbsp;•&nbsp; 09 June 2026</div>
+  </div>
+</section>
+
+<!-- 0. APPROACH -->
+<section class="section">
+  <h2>Why this flow is different</h2>
+  <p>The current system models three screens — <b>Invoice</b>, <b>Receipt</b> and <b>Reports</b> — which capture the <i>money</i> but not the <i>journey</i>. A modern Umrah/Hajj agency runs a longer lifecycle: an enquiry becomes a quotation, a confirmed booking, a documented pilgrim, a collected payment, an approved file, and then a fulfilment chain of hotel, transport, visa and ticket before departure — followed by post-travel close-out.</p>
+
+  <h3>What changed in the real world (and why it matters)</h3>
+  <p>Since mid-2025, Saudi Arabia&rsquo;s <b>Nusuk Masar</b> platform sits at the centre of operations. A visa can no longer be issued on its own: the agency must first confirm a Ministry-approved <b>hotel</b> (which generates a Booking Reference Number, BRN) and pre-arrange <b>transport</b>, and only then submit the <b>visa</b>. The application flow must follow this sequence, track each step&rsquo;s status, and store the documents each step produces.</p>
+
+  <div class="grid2">
+    <div class="card"><h4>Legacy flow (today)</h4>
+      <p class="small">Create Invoice → Create Receipt → (receipt used as the approval) → Print reports.</p>
+      <ul class="pts" style="font-size:9.2pt">
+        <li>No enquiry / quotation stage</li>
+        <li>No pilgrim document (passport) capture</li>
+        <li>No hotel / transport / visa / ticket tracking</li>
+        <li>Approval is informal (via the receipt)</li>
+        <li>No departure manifest or post-travel close</li>
+      </ul>
+    </div>
+    <div class="card"><h4>Improved flow (proposed)</h4>
+      <p class="small">Enquiry → Quotation → Booking → KYC → Payment → <b>Approval gate</b> → Fulfilment (hotel→transport→visa→ticket) → Documents → Departure → Return.</p>
+      <ul class="pts" style="font-size:9.2pt">
+        <li>Full lifecycle with clear status at every stage</li>
+        <li>Nusuk Masar hotel → BRN → transport → visa chain</li>
+        <li>Formal approval gate before fulfilment spend</li>
+        <li>Installment-friendly payments &amp; balance control</li>
+        <li>Group manifest, vouchers, refunds, reconciliation</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="note gold"><b>Design principle.</b> Money and operations are <i>linked but separate</i>. Payment confirms commitment; approval authorises spend; fulfilment consumes supplier cost. Keeping these as distinct, tracked stages prevents the common problem of paying suppliers for a booking the customer never fully paid for.</div>
+</section>
+
+<!-- 1. END TO END -->
+<section class="section">
+  <h2>1. End-to-End Booking Lifecycle</h2>
+  <div class="crumb">The master flow — every booking moves left to right</div>
+  <p class="legend">
+    <span><span class="swatch" style="background:#5b6472"></span>Sales / front desk</span>
+    <span><span class="swatch" style="background:#7d2b6e"></span>Payment</span>
+    <span><span class="swatch" style="background:#b5532a"></span>Approval gate</span>
+    <span><span class="swatch" style="background:#0e7c6b"></span>Operations / Nusuk</span>
+    <span><span class="swatch" style="background:#2d7d46"></span>Travel &amp; close</span>
+  </p>
+  <figure>
+  <svg viewBox="0 0 740 470" xmlns="http://www.w3.org/2000/svg" font-family="Helvetica,Arial" font-size="9.5">
+    <defs><marker id="e" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#5b6472"/></marker></defs>
+    <!-- row1 sales -->
+    <rect x="20" y="20" width="120" height="40" rx="7" fill="#5b6472"/><text x="80" y="38" text-anchor="middle" fill="#fff">1. Enquiry / Lead</text><text x="80" y="52" text-anchor="middle" fill="#dfe3ea" font-size="8">capture customer</text>
+    <rect x="180" y="20" width="120" height="40" rx="7" fill="#5b6472"/><text x="240" y="38" text-anchor="middle" fill="#fff">2. Quotation</text><text x="240" y="52" text-anchor="middle" fill="#dfe3ea" font-size="8">package + price</text>
+    <rect x="340" y="20" width="120" height="40" rx="7" fill="#5b6472"/><text x="400" y="38" text-anchor="middle" fill="#fff">3. Booking</text><text x="400" y="52" text-anchor="middle" fill="#dfe3ea" font-size="8">invoice + passengers</text>
+    <rect x="500" y="20" width="120" height="40" rx="7" fill="#5b6472"/><text x="560" y="38" text-anchor="middle" fill="#fff">4. KYC / Docs</text><text x="560" y="52" text-anchor="middle" fill="#dfe3ea" font-size="8">passport, photo</text>
+    <line x1="140" y1="40" x2="178" y2="40" stroke="#5b6472" marker-end="url(#e)"/>
+    <line x1="300" y1="40" x2="338" y2="40" stroke="#5b6472" marker-end="url(#e)"/>
+    <line x1="460" y1="40" x2="498" y2="40" stroke="#5b6472" marker-end="url(#e)"/>
+    <line x1="620" y1="40" x2="660" y2="40" stroke="#5b6472"/><line x1="660" y1="40" x2="660" y2="90" stroke="#5b6472" marker-end="url(#e)"/>
+    <!-- row2 payment+approval (right to left) -->
+    <rect x="500" y="92" width="120" height="44" rx="7" fill="#7d2b6e"/><text x="560" y="110" text-anchor="middle" fill="#fff">5. Payment / Receipt</text><text x="560" y="124" text-anchor="middle" fill="#f0e3ee" font-size="8">full / installment</text>
+    <polygon points="340,114 410,86 480,114 410,142" fill="#fbf1ec" stroke="#b5532a"/><text x="410" y="110" text-anchor="middle" font-size="8.5" fill="#b5532a">6. Approval</text><text x="410" y="123" text-anchor="middle" font-size="8" fill="#b5532a">gate?</text>
+    <rect x="180" y="92" width="120" height="44" rx="7" fill="#fbf1ec" stroke="#b5532a"/><text x="240" y="110" text-anchor="middle" font-size="9">On hold</text><text x="240" y="123" text-anchor="middle" font-size="8" fill="#5b6472">await payment/fix</text>
+    <line x1="500" y1="114" x2="482" y2="114" stroke="#5b6472" marker-end="url(#e)"/>
+    <line x1="340" y1="120" x2="302" y2="120" stroke="#5b6472" marker-end="url(#e)"/><text x="320" y="113" font-size="7.5" fill="#b5532a">no</text>
+    <line x1="410" y1="142" x2="410" y2="170" stroke="#5b6472" marker-end="url(#e)"/><text x="418" y="160" font-size="7.5" fill="#0e7c6b">yes → fulfil</text>
+    <!-- row3 operations -->
+    <rect x="40" y="180" width="660" height="120" rx="10" fill="#eef6f4" stroke="#bfe0d9"/>
+    <text x="54" y="200" fill="#0e7c6b" font-weight="bold">7. Fulfilment via Nusuk Masar (sequence matters)</text>
+    <rect x="60" y="212" width="140" height="46" rx="7" fill="#fff" stroke="#0e7c6b"/><text x="130" y="231" text-anchor="middle">7a. Hotel booking</text><text x="130" y="245" text-anchor="middle" font-size="8" fill="#5b6472">→ generates BRN</text>
+    <rect x="225" y="212" width="140" height="46" rx="7" fill="#fff" stroke="#0e7c6b"/><text x="295" y="231" text-anchor="middle">7b. Transport</text><text x="295" y="245" text-anchor="middle" font-size="8" fill="#5b6472">pre-arranged</text>
+    <rect x="390" y="212" width="140" height="46" rx="7" fill="#fff" stroke="#0e7c6b"/><text x="460" y="231" text-anchor="middle">7c. Visa (Nusuk)</text><text x="460" y="245" text-anchor="middle" font-size="8" fill="#5b6472">submit → approved</text>
+    <rect x="555" y="212" width="130" height="46" rx="7" fill="#fff" stroke="#0e7c6b"/><text x="620" y="231" text-anchor="middle">7d. Flight ticket</text><text x="620" y="245" text-anchor="middle" font-size="8" fill="#5b6472">issue PNR</text>
+    <line x1="200" y1="235" x2="223" y2="235" stroke="#0e7c6b" marker-end="url(#e)"/>
+    <line x1="365" y1="235" x2="388" y2="235" stroke="#0e7c6b" marker-end="url(#e)"/>
+    <line x1="530" y1="235" x2="553" y2="235" stroke="#0e7c6b" marker-end="url(#e)"/>
+    <text x="370" y="285" text-anchor="middle" font-size="8.5" fill="#5b6472">Each step stores its confirmation/voucher; status updates automatically on the booking file.</text>
+    <line x1="410" y1="170" x2="410" y2="178" stroke="#5b6472" marker-end="url(#e)"/>
+    <!-- row4 documents + travel -->
+    <rect x="40" y="320" width="150" height="44" rx="7" fill="#0e7c6b"/><text x="115" y="338" text-anchor="middle" fill="#fff">8. Documents</text><text x="115" y="352" text-anchor="middle" fill="#dff0ec" font-size="8">vouchers, e-ticket, visa</text>
+    <rect x="230" y="320" width="150" height="44" rx="7" fill="#2d7d46"/><text x="305" y="338" text-anchor="middle" fill="#fff">9. Pre-departure</text><text x="305" y="352" text-anchor="middle" fill="#d8efe0" font-size="8">manifest, reminders</text>
+    <rect x="420" y="320" width="140" height="44" rx="7" fill="#2d7d46"/><text x="490" y="338" text-anchor="middle" fill="#fff">10. Departure</text><text x="490" y="352" text-anchor="middle" fill="#d8efe0" font-size="8">travel</text>
+    <rect x="600" y="320" width="100" height="44" rx="7" fill="#2d7d46"/><text x="650" y="338" text-anchor="middle" fill="#fff">11. Return</text><text x="650" y="352" text-anchor="middle" fill="#d8efe0" font-size="8">close / feedback</text>
+    <line x1="370" y1="300" x2="115" y2="318" stroke="#5b6472" marker-end="url(#e)"/>
+    <line x1="190" y1="342" x2="228" y2="342" stroke="#5b6472" marker-end="url(#e)"/>
+    <line x1="380" y1="342" x2="418" y2="342" stroke="#5b6472" marker-end="url(#e)"/>
+    <line x1="560" y1="342" x2="598" y2="342" stroke="#5b6472" marker-end="url(#e)"/>
+    <!-- back office band -->
+    <rect x="40" y="392" width="660" height="56" rx="10" fill="#f4f1f6" stroke="#d7dbe3"/>
+    <text x="54" y="410" fill="#5a1a4d" font-weight="bold">Back office (runs alongside)</text>
+    <text x="54" y="427" font-size="8.6" fill="#5b6472">Supplier payments · Office expenses · Refunds &amp; cancellations · Reconciliation · Reports &amp; live dashboard · Audit log</text>
+    <text x="54" y="441" font-size="8.6" fill="#5b6472">AI assists: passport OCR · duplicate detection · balance reminders · departure alerts · anomaly flags</text>
+  </svg>
+  <figcaption>Figure 1 — The complete lifecycle. Stages 1–4 sales, 5–6 money &amp; approval, 7–8 operations, 9–11 travel; back office runs throughout.</figcaption>
+  </figure>
+</section>
+
+<!-- 2. ENQUIRY TO BOOKING -->
+<section class="section">
+  <h2>2. Enquiry → Quotation → Booking</h2>
+  <div class="crumb">Front desk / sales</div>
+  <p>Capturing the enquiry first means no walk-in is lost, quotations are tracked, and the booking inherits all the data already entered — instead of re-typing everything onto an invoice.</p>
+  <figure>
+  <svg viewBox="0 0 740 150" xmlns="http://www.w3.org/2000/svg" font-family="Helvetica,Arial" font-size="9.4">
+    <defs><marker id="b2" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#5b6472"/></marker></defs>
+    <rect x="10" y="54" width="116" height="44" rx="7" fill="#5b6472"/><text x="68" y="72" text-anchor="middle" fill="#fff">Enquiry / lead</text><text x="68" y="86" text-anchor="middle" fill="#dfe3ea" font-size="8">name, contact, intent</text>
+    <rect x="150" y="54" width="120" height="44" rx="7" fill="#f4f1f6" stroke="#7d2b6e"/><text x="210" y="72" text-anchor="middle">Choose package</text><text x="210" y="86" text-anchor="middle" font-size="8">pax, dates, visa type</text>
+    <rect x="294" y="54" width="120" height="44" rx="7" fill="#eef6f4" stroke="#0e7c6b"/><text x="354" y="72" text-anchor="middle">Quotation</text><text x="354" y="86" text-anchor="middle" font-size="8">auto price, send PDF</text>
+    <polygon points="440,76 488,52 536,76 488,100" fill="#fbf1ec" stroke="#b5532a"/><text x="488" y="80" text-anchor="middle" font-size="8.5">Accepted?</text>
+    <rect x="560" y="32" width="120" height="40" rx="7" fill="#5b6472"/><text x="620" y="50" text-anchor="middle" fill="#fff">Convert to Booking</text><text x="620" y="63" text-anchor="middle" fill="#dfe3ea" font-size="8">invoice + passengers</text>
+    <rect x="560" y="92" width="120" height="40" rx="7" fill="#f4f1f6" stroke="#5b6472"/><text x="620" y="110" text-anchor="middle" font-size="9">Follow-up</text><text x="620" y="123" text-anchor="middle" font-size="8">reminder / drop</text>
+    <line x1="126" y1="76" x2="148" y2="76" stroke="#5b6472" marker-end="url(#b2)"/>
+    <line x1="270" y1="76" x2="292" y2="76" stroke="#5b6472" marker-end="url(#b2)"/>
+    <line x1="414" y1="76" x2="438" y2="76" stroke="#5b6472" marker-end="url(#b2)"/>
+    <line x1="536" y1="66" x2="558" y2="52" stroke="#5b6472" marker-end="url(#b2)"/><text x="548" y="60" font-size="7.5" fill="#0e7c6b">yes</text>
+    <line x1="536" y1="86" x2="558" y2="108" stroke="#5b6472" marker-end="url(#b2)"/><text x="548" y="104" font-size="7.5" fill="#b5532a">no</text>
+  </svg>
+  <figcaption>Figure 2 — Lead to confirmed booking.</figcaption>
+  </figure>
+  <ol class="steps">
+    <li><b>Enquiry:</b> capture customer name, contact, nationality and what they want (Umrah/Hajj, dates, group size). Source tracked (walk-in, phone, referral, online).</li>
+    <li><b>Quotation:</b> pick a package; the system prices it (rate × pax, add-ons) and produces a bilingual quote PDF the customer can take away.</li>
+    <li><b>Convert:</b> when accepted, the quote becomes a <b>Booking</b> (the equivalent of today&rsquo;s invoice) — carrying customer, package, passengers, departure date and amounts forward with no re-entry. Status: <span class="badge b-new">Draft → Confirmed</span></li>
+  </ol>
+</section>
+
+<!-- 3. KYC -->
+<section class="section">
+  <h2>3. Pilgrim KYC &amp; Document Capture</h2>
+  <div class="crumb">Per passenger — required before visa</div>
+  <p>Nusuk and visa submission need accurate passenger data and a passport scan. Capturing this early (with AI OCR) removes the biggest cause of visa rejections: wrong or missing details.</p>
+  <figure>
+  <svg viewBox="0 0 740 130" xmlns="http://www.w3.org/2000/svg" font-family="Helvetica,Arial" font-size="9.4">
+    <defs><marker id="k" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#5b6472"/></marker></defs>
+    <rect x="10" y="48" width="120" height="44" rx="7" fill="#5b6472"/><text x="70" y="66" text-anchor="middle" fill="#fff">Scan passport</text><text x="70" y="80" text-anchor="middle" fill="#dfe3ea" font-size="8">photo / upload</text>
+    <rect x="158" y="48" width="130" height="44" rx="7" fill="#eef6f4" stroke="#0e7c6b"/><text x="223" y="66" text-anchor="middle">AI OCR extracts</text><text x="223" y="80" text-anchor="middle" font-size="8">name, no, expiry, nat.</text>
+    <rect x="316" y="48" width="120" height="44" rx="7" fill="#f4f1f6" stroke="#7d2b6e"/><text x="376" y="66" text-anchor="middle">Staff confirms</text><text x="376" y="80" text-anchor="middle" font-size="8">+ photo, visa type</text>
+    <polygon points="464,70 512,46 560,70 512,94" fill="#fbf1ec" stroke="#b5532a"/><text x="512" y="68" text-anchor="middle" font-size="8">Valid 6+</text><text x="512" y="80" text-anchor="middle" font-size="8">months?</text>
+    <rect x="588" y="48" width="120" height="44" rx="7" fill="#eef6f4" stroke="#0e7c6b"/><text x="648" y="66" text-anchor="middle" font-size="9">Passenger ready</text><text x="648" y="80" text-anchor="middle" font-size="8">for Nusuk/visa</text>
+    <line x1="130" y1="70" x2="156" y2="70" stroke="#5b6472" marker-end="url(#k)"/>
+    <line x1="288" y1="70" x2="314" y2="70" stroke="#5b6472" marker-end="url(#k)"/>
+    <line x1="436" y1="70" x2="462" y2="70" stroke="#5b6472" marker-end="url(#k)"/>
+    <line x1="560" y1="70" x2="586" y2="70" stroke="#5b6472" marker-end="url(#k)"/><text x="573" y="64" font-size="7.5" fill="#0e7c6b">yes</text>
+  </svg>
+  <figcaption>Figure 3 — KYC with passport OCR and validity check.</figcaption>
+  </figure>
+  <ul class="pts">
+    <li>Capture per passenger: passport scan, photo, passport no &amp; expiry, nationality, date of birth, visa type, relationship (for families).</li>
+    <li>AI OCR pre-fills the fields; staff confirm. System flags passports expiring within 6 months.</li>
+    <li>Documents stored against the passenger and reused for Nusuk, visa and the manifest.</li>
+  </ul>
+</section>
+
+<!-- 4. PAYMENT + APPROVAL -->
+<section class="section">
+  <h2>4. Payment, Balance &amp; Approval Gate</h2>
+  <div class="crumb">Receipt → approval — the control point</div>
+  <p>This is where the legacy &ldquo;receipt = approval&rdquo; idea is formalised. Payments are recorded as receipts (full or installment); a manager then <b>approves the booking for fulfilment</b> based on the payment position. Fulfilment (which costs the agency real supplier money) cannot start until the gate is passed.</p>
+  <figure>
+  <svg viewBox="0 0 740 200" xmlns="http://www.w3.org/2000/svg" font-family="Helvetica,Arial" font-size="9.4">
+    <defs><marker id="pa" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#5b6472"/></marker></defs>
+    <rect x="20" y="30" width="120" height="44" rx="7" fill="#7d2b6e"/><text x="80" y="48" text-anchor="middle" fill="#fff">Receipt entry</text><text x="80" y="62" text-anchor="middle" fill="#f0e3ee" font-size="8">cash / bank / card</text>
+    <rect x="170" y="30" width="130" height="44" rx="7" fill="#eef6f4" stroke="#0e7c6b"/><text x="235" y="48" text-anchor="middle">Update balance</text><text x="235" y="62" text-anchor="middle" font-size="8">paid vs net amount</text>
+    <polygon points="330,52 392,26 454,52 392,78" fill="#fbf1ec" stroke="#b5532a"/><text x="392" y="48" text-anchor="middle" font-size="8.5">Paid enough</text><text x="392" y="61" text-anchor="middle" font-size="8">to fulfil?</text>
+    <rect x="490" y="30" width="130" height="44" rx="7" fill="#fbf1ec" stroke="#b5532a"/><text x="555" y="48" text-anchor="middle">Manager review</text><text x="555" y="62" text-anchor="middle" font-size="8">approve / reject</text>
+    <rect x="170" y="108" width="130" height="40" rx="7" fill="#f4f1f6" stroke="#5b6472"/><text x="235" y="126" text-anchor="middle" font-size="9">Installment plan</text><text x="235" y="139" text-anchor="middle" font-size="8">schedule + reminders</text>
+    <rect x="490" y="100" width="130" height="40" rx="7" fill="#eef6f4" stroke="#0e7c6b"/><text x="555" y="118" text-anchor="middle" font-size="9">Approved</text><text x="555" y="131" text-anchor="middle" font-size="8">→ start fulfilment</text>
+    <rect x="490" y="150" width="130" height="40" rx="7" fill="#fbf1ec" stroke="#b5532a"/><text x="555" y="168" text-anchor="middle" font-size="9">On hold</text><text x="555" y="181" text-anchor="middle" font-size="8">await balance</text>
+    <line x1="140" y1="52" x2="168" y2="52" stroke="#5b6472" marker-end="url(#pa)"/>
+    <line x1="300" y1="52" x2="328" y2="52" stroke="#5b6472" marker-end="url(#pa)"/>
+    <line x1="454" y1="52" x2="488" y2="52" stroke="#5b6472" marker-end="url(#pa)"/><text x="468" y="46" font-size="7.5" fill="#0e7c6b">yes</text>
+    <line x1="392" y1="78" x2="235" y2="106" stroke="#5b6472" marker-end="url(#pa)"/><text x="300" y="100" font-size="7.5" fill="#b5532a">partial → plan</text>
+    <line x1="555" y1="74" x2="555" y2="98" stroke="#5b6472" marker-end="url(#pa)"/>
+    <line x1="555" y1="74" x2="555" y2="148" stroke="#b5532a" stroke-dasharray="3,3" marker-end="url(#pa)"/>
+  </svg>
+  <figcaption>Figure 4 — Payments, installment handling and the approval gate before fulfilment.</figcaption>
+  </figure>
+  <ul class="pts">
+    <li><b>Receipts</b> record each payment (cash / bank / card) against the booking; the running <b>balance</b> updates automatically. Over-collection is blocked unless overridden and audited.</li>
+    <li><b>Installments:</b> a plan with due dates can be set; the system sends reminders and shows what&rsquo;s outstanding.</li>
+    <li><b>Approval gate:</b> a manager approves the booking for fulfilment when the agreed payment threshold is met (e.g. deposit % or full). Rejected/under-paid bookings sit <span class="badge b-appr">On hold</span> and cannot consume supplier cost.</li>
+  </ul>
+  <div class="note">This single change protects cash flow: the agency never books a non-refundable hotel or visa for a customer who has only paid a token amount, unless a manager explicitly authorises it.</div>
+</section>
+
+<!-- 5. FULFILMENT / NUSUK -->
+<section class="section">
+  <h2>5. Fulfilment via Nusuk Masar</h2>
+  <div class="crumb">Operations — the sequence is mandatory</div>
+  <p>After approval, the operations team executes the supplier chain in the order Saudi rules now require: <b>hotel first</b> (which produces the BRN), <b>transport</b>, then the <b>visa</b>, and the <b>flight</b>. Each step is a tracked task with its own status and stored confirmation.</p>
+  <figure>
+  <svg viewBox="0 0 740 230" xmlns="http://www.w3.org/2000/svg" font-family="Helvetica,Arial" font-size="9.4">
+    <defs><marker id="fu" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#5b6472"/></marker></defs>
+    <rect x="20" y="20" width="130" height="50" rx="7" fill="#0e7c6b"/><text x="85" y="40" text-anchor="middle" fill="#fff">Hotel booking</text><text x="85" y="54" text-anchor="middle" fill="#dff0ec" font-size="8">Makkah + Madinah</text><text x="85" y="65" text-anchor="middle" fill="#dff0ec" font-size="8">(Ministry-approved)</text>
+    <rect x="180" y="28" width="100" height="34" rx="7" fill="#fbf6e9" stroke="#b8860b"/><text x="230" y="49" text-anchor="middle" font-size="9" fill="#7a5b07">BRN generated</text>
+    <rect x="310" y="20" width="120" height="50" rx="7" fill="#0e7c6b"/><text x="370" y="40" text-anchor="middle" fill="#fff">Transport</text><text x="370" y="54" text-anchor="middle" fill="#dff0ec" font-size="8">airport, intercity,</text><text x="370" y="65" text-anchor="middle" fill="#dff0ec" font-size="8">ziyarat (pre-arranged)</text>
+    <rect x="460" y="20" width="120" height="50" rx="7" fill="#0e7c6b"/><text x="520" y="40" text-anchor="middle" fill="#fff">Visa application</text><text x="520" y="54" text-anchor="middle" fill="#dff0ec" font-size="8">submit on Nusuk</text><text x="520" y="65" text-anchor="middle" fill="#dff0ec" font-size="8">with BRN + transport</text>
+    <rect x="610" y="20" width="110" height="50" rx="7" fill="#0e7c6b"/><text x="665" y="40" text-anchor="middle" fill="#fff">Flight ticket</text><text x="665" y="54" text-anchor="middle" fill="#dff0ec" font-size="8">issue PNR /</text><text x="665" y="65" text-anchor="middle" fill="#dff0ec" font-size="8">series seat</text>
+    <line x1="150" y1="45" x2="178" y2="45" stroke="#5b6472" marker-end="url(#fu)"/>
+    <line x1="280" y1="45" x2="308" y2="45" stroke="#5b6472" marker-end="url(#fu)"/>
+    <line x1="430" y1="45" x2="458" y2="45" stroke="#5b6472" marker-end="url(#fu)"/>
+    <line x1="580" y1="45" x2="608" y2="45" stroke="#5b6472" marker-end="url(#fu)"/>
+    <!-- status tracking -->
+    <polygon points="450,110 520,84 590,110 520,136" fill="#fbf1ec" stroke="#b5532a"/><text x="520" y="106" text-anchor="middle" font-size="8.5">Visa status?</text><text x="520" y="119" text-anchor="middle" font-size="8">approved / rejected</text>
+    <line x1="520" y1="70" x2="520" y2="82" stroke="#5b6472" marker-end="url(#fu)"/>
+    <rect x="610" y="92" width="110" height="36" rx="7" fill="#eef6f4" stroke="#0e7c6b"/><text x="665" y="114" text-anchor="middle" font-size="9">Approved → docs</text>
+    <rect x="350" y="92" width="120" height="36" rx="7" fill="#fbf1ec" stroke="#b5532a"/><text x="410" y="110" text-anchor="middle" font-size="9">Rejected → fix &amp; resubmit</text>
+    <line x1="590" y1="110" x2="608" y2="110" stroke="#5b6472" marker-end="url(#fu)"/>
+    <line x1="450" y1="110" x2="470" y2="110" stroke="#b5532a" marker-end="url(#fu)"/>
+    <!-- task board note -->
+    <rect x="40" y="160" width="660" height="56" rx="10" fill="#f4f1f6" stroke="#d7dbe3"/>
+    <text x="54" y="179" fill="#5a1a4d" font-weight="bold">Operations board</text>
+    <text x="54" y="196" font-size="8.6" fill="#5b6472">Every booking shows a checklist: Hotel ☐ &nbsp; Transport ☐ &nbsp; Visa ☐ &nbsp; Ticket ☐ — with supplier, cost, confirmation no &amp; document.</text>
+    <text x="54" y="210" font-size="8.6" fill="#5b6472">Booking status moves to &ldquo;Ready to travel&rdquo; only when all four are complete.</text>
+  </svg>
+  <figcaption>Figure 5 — Nusuk fulfilment chain with visa status loop and an operations checklist.</figcaption>
+  </figure>
+  <div class="note gold"><b>Why hotel before visa.</b> Since June 2025 the visa cannot be submitted without a confirmed, Ministry-approved hotel (the BRN) and pre-arranged transport. The system enforces this order so staff can&rsquo;t submit a visa that will be rejected.</div>
+</section>
+
+<!-- 6. DOCUMENTS + DEPARTURE -->
+<section class="section">
+  <h2>6. Documents, Pre-Departure &amp; Return</h2>
+  <div class="crumb">Issue, manifest, travel, close</div>
+  <figure>
+  <svg viewBox="0 0 740 150" xmlns="http://www.w3.org/2000/svg" font-family="Helvetica,Arial" font-size="9.4">
+    <defs><marker id="d2" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#5b6472"/></marker></defs>
+    <rect x="14" y="54" width="128" height="44" rx="7" fill="#0e7c6b"/><text x="78" y="72" text-anchor="middle" fill="#fff">Issue documents</text><text x="78" y="86" text-anchor="middle" fill="#dff0ec" font-size="8">visa, hotel &amp; transport</text>
+    <rect x="166" y="54" width="128" height="44" rx="7" fill="#2d7d46"/><text x="230" y="72" text-anchor="middle" fill="#fff">Group manifest</text><text x="230" y="86" text-anchor="middle" fill="#d8efe0" font-size="8">by departure date</text>
+    <rect x="318" y="54" width="128" height="44" rx="7" fill="#2d7d46"/><text x="382" y="72" text-anchor="middle" fill="#fff">Reminders</text><text x="382" y="86" text-anchor="middle" fill="#d8efe0" font-size="8">SMS/WhatsApp/email</text>
+    <rect x="470" y="54" width="120" height="44" rx="7" fill="#2d7d46"/><text x="530" y="72" text-anchor="middle" fill="#fff">Departure</text><text x="530" y="86" text-anchor="middle" fill="#d8efe0" font-size="8">mark travelled</text>
+    <rect x="614" y="54" width="112" height="44" rx="7" fill="#2d7d46"/><text x="670" y="72" text-anchor="middle" fill="#fff">Return / close</text><text x="670" y="86" text-anchor="middle" fill="#d8efe0" font-size="8">feedback, archive</text>
+    <line x1="142" y1="76" x2="164" y2="76" stroke="#5b6472" marker-end="url(#d2)"/>
+    <line x1="294" y1="76" x2="316" y2="76" stroke="#5b6472" marker-end="url(#d2)"/>
+    <line x1="446" y1="76" x2="468" y2="76" stroke="#5b6472" marker-end="url(#d2)"/>
+    <line x1="590" y1="76" x2="612" y2="76" stroke="#5b6472" marker-end="url(#d2)"/>
+  </svg>
+  <figcaption>Figure 6 — From document issue to file close.</figcaption>
+  </figure>
+  <ul class="pts">
+    <li><b>Documents:</b> the dynamic print engine issues the bilingual visa slip, hotel voucher, transport voucher, e-ticket and a full itinerary — each pulled from the data already captured.</li>
+    <li><b>Manifest:</b> a passenger/group list by departure date (the modern version of today&rsquo;s Passengers List report) for airport and ground handling.</li>
+    <li><b>Reminders:</b> automated pre-departure messages (documents to carry, reporting time).</li>
+    <li><b>Return &amp; close:</b> mark the booking travelled, capture feedback, archive the file. Status: <span class="badge b-done">Completed</span></li>
+  </ul>
+</section>
+
+<!-- 7. CANCELLATION + STATUS -->
+<section class="section">
+  <h2>7. Cancellation / Refund &amp; Booking Status</h2>
+  <div class="crumb">Exceptions and the single source of truth</div>
+
+  <h3>7.1 Cancellation &amp; refund flow</h3>
+  <figure>
+  <svg viewBox="0 0 740 140" xmlns="http://www.w3.org/2000/svg" font-family="Helvetica,Arial" font-size="9.4">
+    <defs><marker id="cn" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#5b6472"/></marker></defs>
+    <rect x="14" y="50" width="120" height="44" rx="7" fill="#5b6472"/><text x="74" y="68" text-anchor="middle" fill="#fff">Cancellation</text><text x="74" y="82" text-anchor="middle" fill="#dfe3ea" font-size="8">request</text>
+    <rect x="160" y="50" width="130" height="44" rx="7" fill="#eef6f4" stroke="#0e7c6b"/><text x="225" y="64" text-anchor="middle">Compute refund</text><text x="225" y="78" text-anchor="middle" font-size="8">paid − supplier cost −</text><text x="225" y="89" text-anchor="middle" font-size="8">cancellation fee</text>
+    <polygon points="316,72 378,46 440,72 378,98" fill="#fbf1ec" stroke="#b5532a"/><text x="378" y="70" text-anchor="middle" font-size="8.5">Manager</text><text x="378" y="82" text-anchor="middle" font-size="8">approves?</text>
+    <rect x="470" y="50" width="120" height="44" rx="7" fill="#7d2b6e"/><text x="530" y="68" text-anchor="middle" fill="#fff">Refund payment</text><text x="530" y="82" text-anchor="middle" fill="#f0e3ee" font-size="8">voucher issued</text>
+    <rect x="612" y="50" width="116" height="44" rx="7" fill="#fbf1ec" stroke="#b5532a"/><text x="670" y="68" text-anchor="middle" font-size="9">Booking</text><text x="670" y="81" text-anchor="middle" font-size="8">Cancelled</text>
+    <line x1="134" y1="72" x2="158" y2="72" stroke="#5b6472" marker-end="url(#cn)"/>
+    <line x1="290" y1="72" x2="314" y2="72" stroke="#5b6472" marker-end="url(#cn)"/>
+    <line x1="440" y1="72" x2="468" y2="72" stroke="#5b6472" marker-end="url(#cn)"/>
+    <line x1="590" y1="72" x2="610" y2="72" stroke="#5b6472" marker-end="url(#cn)"/>
+  </svg>
+  <figcaption>Figure 7 — Cancellation with refund calculation and approval.</figcaption>
+  </figure>
+  <p class="small">Refund nets out what the agency already committed to suppliers (often non-refundable visa/hotel) so the customer refund is correct and the loss is visible.</p>
+
+  <h3>7.2 Booking status model</h3>
+  <figure>
+  <svg viewBox="0 0 740 120" xmlns="http://www.w3.org/2000/svg" font-family="Helvetica,Arial" font-size="9">
+    <defs><marker id="st" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#5b6472"/></marker></defs>
+    <rect x="10" y="46" width="86" height="34" rx="16" fill="#5b6472"/><text x="53" y="67" text-anchor="middle" fill="#fff">Enquiry</text>
+    <rect x="116" y="46" width="86" height="34" rx="16" fill="#5b6472"/><text x="159" y="67" text-anchor="middle" fill="#fff">Confirmed</text>
+    <rect x="222" y="46" width="86" height="34" rx="16" fill="#7d2b6e"/><text x="265" y="67" text-anchor="middle" fill="#fff">Paid</text>
+    <rect x="328" y="46" width="92" height="34" rx="16" fill="#b5532a"/><text x="374" y="67" text-anchor="middle" fill="#fff">Approved</text>
+    <rect x="440" y="46" width="100" height="34" rx="16" fill="#0e7c6b"/><text x="490" y="67" text-anchor="middle" fill="#fff">In fulfilment</text>
+    <rect x="560" y="46" width="86" height="34" rx="16" fill="#0e7c6b"/><text x="603" y="67" text-anchor="middle" fill="#fff">Ready</text>
+    <rect x="660" y="46" width="74" height="34" rx="16" fill="#2d7d46"/><text x="697" y="67" text-anchor="middle" fill="#fff">Completed</text>
+    <line x1="96" y1="63" x2="114" y2="63" stroke="#5b6472" marker-end="url(#st)"/>
+    <line x1="202" y1="63" x2="220" y2="63" stroke="#5b6472" marker-end="url(#st)"/>
+    <line x1="308" y1="63" x2="326" y2="63" stroke="#5b6472" marker-end="url(#st)"/>
+    <line x1="420" y1="63" x2="438" y2="63" stroke="#5b6472" marker-end="url(#st)"/>
+    <line x1="540" y1="63" x2="558" y2="63" stroke="#5b6472" marker-end="url(#st)"/>
+    <line x1="646" y1="63" x2="658" y2="63" stroke="#5b6472" marker-end="url(#st)"/>
+    <text x="370" y="20" text-anchor="middle" font-size="8.5" fill="#b5532a">Any state can branch to → On hold / Cancelled (with reason &amp; audit)</text>
+    <line x1="265" y1="46" x2="265" y2="30" stroke="#b5532a" stroke-dasharray="3,3"/>
+    <line x1="490" y1="46" x2="490" y2="30" stroke="#b5532a" stroke-dasharray="3,3"/>
+  </svg>
+  <figcaption>Figure 8 — Single booking-status lifecycle that every screen and report reads from.</figcaption>
+  </figure>
+  <table>
+    <tr><th>Status</th><th>Meaning</th><th>Who moves it</th></tr>
+    <tr><td>Enquiry</td><td>Lead captured, not yet booked</td><td>Sales</td></tr>
+    <tr><td>Confirmed</td><td>Booking created (invoice raised)</td><td>Sales</td></tr>
+    <tr><td>Paid / Part-paid</td><td>Deposit or full payment received</td><td>Accounts</td></tr>
+    <tr><td>Approved</td><td>Cleared the gate for fulfilment</td><td>Manager</td></tr>
+    <tr><td>In fulfilment</td><td>Hotel/transport/visa/ticket in progress</td><td>Operations</td></tr>
+    <tr><td>Ready</td><td>All documents issued, ready to travel</td><td>Operations</td></tr>
+    <tr><td>Completed</td><td>Travelled and closed</td><td>Operations</td></tr>
+    <tr><td>On hold / Cancelled</td><td>Blocked or cancelled (with reason)</td><td>Manager</td></tr>
+  </table>
+</section>
+
+<!-- 8. ROLES + BACK OFFICE -->
+<section class="section">
+  <h2>8. Roles &amp; Back-Office Flow</h2>
+  <div class="crumb">Who does what, and the money behind the scenes</div>
+
+  <h3>8.1 Roles across the flow</h3>
+  <table>
+    <tr><th style="width:22%">Role</th><th>Owns these stages</th></tr>
+    <tr><td>Sales / Counter</td><td>Enquiry, quotation, booking, KYC capture</td></tr>
+    <tr><td>Accounts</td><td>Receipts, installments, refunds, supplier payments, reconciliation</td></tr>
+    <tr><td>Manager</td><td>Approval gate, cancellation approval, discounts above limit, dashboards</td></tr>
+    <tr><td>Operations</td><td>Hotel, transport, visa (Nusuk), ticketing, documents, manifest</td></tr>
+    <tr><td>Administrator</td><td>Users &amp; roles, packages/master data, dynamic fields, print templates</td></tr>
+  </table>
+
+  <h3>8.2 Back-office &amp; supplier payments</h3>
+  <figure>
+  <svg viewBox="0 0 740 130" xmlns="http://www.w3.org/2000/svg" font-family="Helvetica,Arial" font-size="9.4">
+    <defs><marker id="bo" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#5b6472"/></marker></defs>
+    <rect x="20" y="50" width="130" height="44" rx="7" fill="#0e7c6b"/><text x="85" y="68" text-anchor="middle" fill="#fff">Supplier cost</text><text x="85" y="82" text-anchor="middle" fill="#dff0ec" font-size="8">hotel, visa, transport</text>
+    <rect x="180" y="50" width="120" height="44" rx="7" fill="#7d2b6e"/><text x="240" y="68" text-anchor="middle" fill="#fff">Supplier payment</text><text x="240" y="82" text-anchor="middle" fill="#f0e3ee" font-size="8">payment voucher</text>
+    <rect x="330" y="50" width="120" height="44" rx="7" fill="#7d2b6e"/><text x="390" y="68" text-anchor="middle" fill="#fff">Office expense</text><text x="390" y="82" text-anchor="middle" fill="#f0e3ee" font-size="8">salary, rent, misc</text>
+    <rect x="480" y="50" width="120" height="44" rx="7" fill="#eef6f4" stroke="#0e7c6b"/><text x="540" y="68" text-anchor="middle">Reconciliation</text><text x="540" y="82" text-anchor="middle" font-size="8">income vs cost</text>
+    <rect x="630" y="50" width="96" height="44" rx="7" fill="#2d7d46"/><text x="678" y="68" text-anchor="middle" fill="#fff">Dashboard</text><text x="678" y="82" text-anchor="middle" fill="#d8efe0" font-size="8">&amp; reports</text>
+    <line x1="150" y1="72" x2="178" y2="72" stroke="#5b6472" marker-end="url(#bo)"/>
+    <line x1="300" y1="72" x2="328" y2="72" stroke="#5b6472" marker-end="url(#bo)"/>
+    <line x1="450" y1="72" x2="478" y2="72" stroke="#5b6472" marker-end="url(#bo)"/>
+    <line x1="600" y1="72" x2="628" y2="72" stroke="#5b6472" marker-end="url(#bo)"/>
+  </svg>
+  <figcaption>Figure 9 — Back-office money flow feeding profitability per booking.</figcaption>
+  </figure>
+  <ul class="pts">
+    <li>Supplier cost is captured per booking (hotel, visa, transport, ticket), so <b>profit per booking</b> = received − supplier cost − allocated expense is always known.</li>
+    <li>Office expenses and refunds use the same payment voucher as today, but categorised for analysis.</li>
+    <li>Reports keep the six familiar outputs (Income Summary, Pending, Income Detail, Passengers List, Departure-wise, Expense) and add a live dashboard: today&rsquo;s collection, outstanding balances, upcoming departures, visa-pending count, and margin.</li>
+  </ul>
+
+  <div class="note">All six legacy reports remain — nothing the agency relies on is lost. The flow simply adds the missing operational stages around them and gives every booking a clear, trackable status.</div>
+
+  <h3>8.3 Where AI helps</h3>
+  <table>
+    <tr><th style="width:30%">Stage</th><th>AI assist</th></tr>
+    <tr><td>KYC</td><td>Passport OCR auto-fills passenger data; flags expiry &lt; 6 months</td></tr>
+    <tr><td>Enquiry / booking</td><td>Detect duplicate customers; suggest the right package</td></tr>
+    <tr><td>Payment</td><td>Draft bilingual balance-reminder messages</td></tr>
+    <tr><td>Fulfilment</td><td>Alert on visa-rejection risk (missing hotel/transport) and upcoming departures</td></tr>
+    <tr><td>Back office</td><td>Flag unusual discounts/expenses; natural-language report queries</td></tr>
+  </table>
+  <p class="legend" style="margin-top:16px; text-align:center; display:block; color:#5b6472; font-size:8.6pt">FLOW-RAWDA-ERP-002 &nbsp;•&nbsp; Version 2.0 &nbsp;•&nbsp; Standard Application Flow (redesigned)</p>
+</section>
+
+</body>
+</html>

@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Functional & Technical Specification — Cloud Umrah & Hajj ERP</title>
+<style>
+  :root{
+    --primary:#5a1a4d; --primary-light:#7d2b6e; --accent:#0e7c6b;
+    --ink:#1f2430; --muted:#5b6472; --line:#d7dbe3; --soft:#f4f1f6; --soft2:#eef6f4; --warn:#b5532a;
+  }
+  @page{
+    size:A4; margin:20mm 16mm 18mm 16mm;
+    @bottom-center{ content:"AL RAWDA Cloud ERP — Functional & Technical Specification";
+      font-family:'Helvetica Neue',Arial,sans-serif; font-size:7.5pt; color:#9aa1ad; }
+    @bottom-right{ content:"Page " counter(page) " of " counter(pages);
+      font-family:'Helvetica Neue',Arial,sans-serif; font-size:7.5pt; color:#9aa1ad; }
+    @top-right{ content:"Specification — v1.0"; font-family:'Helvetica Neue',Arial,sans-serif; font-size:7.5pt; color:#c2c7d0; }
+  }
+  @page cover{ margin:0; @bottom-center{content:""} @bottom-right{content:""} @top-right{content:""} }
+  *{box-sizing:border-box}
+  body{font-family:'Helvetica Neue',Arial,'Segoe UI',sans-serif; color:var(--ink); font-size:10.2pt; line-height:1.5; margin:0;}
+  h1,h2,h3,h4{font-family:'Helvetica Neue',Arial,sans-serif; color:var(--primary); line-height:1.25; margin:0 0 .4em}
+  h2{font-size:16pt; border-bottom:2px solid var(--primary); padding-bottom:5px; margin-top:6px}
+  h3{font-size:12.5pt; color:var(--primary-light); margin-top:18px}
+  h4{font-size:10.8pt; color:var(--accent); margin-top:14px; margin-bottom:.2em}
+  p{margin:.45em 0}
+  ul,ol{margin:.4em 0 .6em; padding-left:18px}
+  li{margin:.2em 0}
+  .small{font-size:8.8pt; color:var(--muted)}
+  .section{page-break-before:always}
+  table{width:100%; border-collapse:collapse; margin:10px 0; font-size:9pt}
+  th,td{border:1px solid var(--line); padding:6px 8px; text-align:left; vertical-align:top}
+  th{background:var(--primary); color:#fff; font-weight:600; font-size:8.8pt}
+  tr:nth-child(even) td{background:var(--soft)}
+  .tag{display:inline-block; background:var(--soft2); color:var(--accent); border:1px solid #bfe0d9; border-radius:10px; padding:1px 9px; font-size:8pt; font-weight:600; margin:1px}
+  .pill{display:inline-block; background:var(--primary); color:#fff; border-radius:4px; padding:1px 7px; font-size:8pt; font-weight:600}
+  .callout{border-left:4px solid var(--accent); background:var(--soft2); padding:9px 13px; margin:12px 0; border-radius:0 6px 6px 0}
+  .callout.warn{border-left-color:var(--warn); background:#fbf1ec}
+  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+  .card{border:1px solid var(--line); border-radius:8px; padding:10px 13px; background:#fff}
+  .card h4{margin-top:0}
+  code{background:#f1f0f4; padding:1px 5px; border-radius:4px; font-family:'Consolas',monospace; font-size:8.6pt; color:#7d2b6e}
+  .muted{color:var(--muted)}
+  .center{text-align:center}
+  .req td:first-child{font-family:Consolas,monospace; font-weight:700; color:var(--primary); white-space:nowrap; width:64px}
+  .cover{page:cover; height:297mm; position:relative; color:#fff; overflow:hidden; background:linear-gradient(150deg,#3d0f34 0%,#5a1a4d 45%,#7d2b6e 100%);}
+  .cover .crest{position:absolute; right:-60mm; top:-60mm; width:160mm; height:160mm; border-radius:50%; background:radial-gradient(circle at 30% 30%, rgba(255,255,255,.16), rgba(255,255,255,0) 60%);}
+  .cover-inner{position:absolute; left:18mm; right:18mm; top:46mm}
+  .cover .kicker{letter-spacing:3px; font-size:10pt; text-transform:uppercase; color:#f0c674; font-weight:600}
+  .cover h1{color:#fff; font-size:33pt; line-height:1.1; margin:14px 0 6px; max-width:155mm}
+  .cover .sub{font-size:13pt; color:#e7d4e3; max-width:145mm}
+  .cover .client{margin-top:32mm; font-size:11pt}
+  .cover .client .big{font-size:17pt; font-weight:700; color:#fff}
+  .cover-foot{position:absolute; left:18mm; right:18mm; bottom:20mm; display:flex; justify-content:space-between; border-top:1px solid rgba(255,255,255,.3); padding-top:10px; font-size:9pt; color:#e7d4e3}
+  .cover-foot b{color:#fff}
+  .toc li{list-style:none}
+  .toc ol{counter-reset:item; padding-left:0}
+  .toc>ol>li{font-weight:600; margin:6px 0}
+  .toc ol ol{padding-left:16px; font-weight:400; font-size:9.4pt}
+  .toc .dotline{display:flex; justify-content:space-between; border-bottom:1px dotted #cfd4dd}
+  figure{margin:14px 0; text-align:center}
+  figcaption{font-size:8.6pt; color:var(--muted); margin-top:5px}
+  .legend span{display:inline-block; margin-right:14px; font-size:8.4pt; color:var(--muted)}
+  .swatch{display:inline-block; width:11px; height:11px; border-radius:2px; vertical-align:middle; margin-right:4px}
+</style>
+</head>
+<body>
+
+<!-- COVER -->
+<section class="cover">
+  <div class="crest"></div>
+  <div class="cover-inner">
+    <div class="kicker">Functional &amp; Technical Specification</div>
+    <h1>Cloud-Based Umrah &amp; Hajj Travel ERP</h1>
+    <div class="sub">System specification and process flows for a secure, AI-assisted cloud platform on MySQL — with a dynamic field engine and dynamic bilingual (English / Arabic) printing.</div>
+    <div class="client">
+      System for<br>
+      <span class="big">AL RAWDA GROUP HAJJ &amp; UMRAH SERVICES</span><br>
+      Bank Street, Street No. 910, Doha — Qatar
+    </div>
+  </div>
+  <div class="cover-foot">
+    <div>Document type: <b>Specification &amp; Flow</b></div>
+    <div style="text-align:right">Ref: <b>SPEC-RAWDA-ERP-001</b> &nbsp;•&nbsp; Version 1.0 &nbsp;•&nbsp; 09 June 2026</div>
+  </div>
+</section>
+
+<!-- DOC INFO + TOC -->
+<section class="section">
+  <h2>Document Information</h2>
+  <table>
+    <tr><th style="width:30%">Field</th><th>Detail</th></tr>
+    <tr><td>Title</td><td>Functional &amp; Technical Specification — Cloud-Based Umrah &amp; Hajj Travel ERP</td></tr>
+    <tr><td>Reference</td><td>SPEC-RAWDA-ERP-001</td></tr>
+    <tr><td>Version</td><td>1.0</td></tr>
+    <tr><td>Date</td><td>09 June 2026</td></tr>
+    <tr><td>System owner</td><td>AL RAWDA GROUP HAJJ &amp; UMRAH SERVICES, Doha, Qatar</td></tr>
+    <tr><td>Type</td><td>System specification and process-flow reference</td></tr>
+  </table>
+
+  <h2 style="margin-top:22px">Contents</h2>
+  <div class="toc">
+    <ol>
+      <li><div class="dotline"><span>Introduction &amp; Purpose</span></div></li>
+      <li><div class="dotline"><span>System Overview &amp; Module Map</span></div></li>
+      <li><div class="dotline"><span>Architecture &amp; Technology</span></div></li>
+      <li><div class="dotline"><span>Module Specifications</span></div>
+        <ol>
+          <li>Master Data — Packages, Visa Types, Nationalities</li>
+          <li>Invoice</li>
+          <li>Receipt / Collection</li>
+          <li>Payment — Expense &amp; Refund</li>
+          <li>Approval Workflow</li>
+          <li>Reporting &amp; Dashboard</li>
+        </ol>
+      </li>
+      <li><div class="dotline"><span>Dynamic Field Engine</span></div></li>
+      <li><div class="dotline"><span>Dynamic Print &amp; Document Engine</span></div></li>
+      <li><div class="dotline"><span>AI &amp; Automation</span></div></li>
+      <li><div class="dotline"><span>Security &amp; Access Control</span></div></li>
+      <li><div class="dotline"><span>Data Model &amp; Database Design</span></div></li>
+      <li><div class="dotline"><span>Non-Functional Requirements</span></div></li>
+      <li><div class="dotline"><span>Process Flows</span></div>
+        <ol>
+          <li>System context &amp; navigation flow</li>
+          <li>End-to-end operational flow</li>
+          <li>Invoice creation flow</li>
+          <li>Receipt / collection flow</li>
+          <li>Payment (expense &amp; refund) flow</li>
+          <li>Approval flow</li>
+          <li>Dynamic field &amp; dynamic print flow</li>
+          <li>Data flow diagram</li>
+        </ol>
+      </li>
+      <li><div class="dotline"><span>Data Migration</span></div></li>
+      <li><div class="dotline"><span>Configuration Parameters (to confirm)</span></div></li>
+    </ol>
+  </div>
+</section>
+
+<!-- 1. INTRO -->
+<section class="section">
+  <h2>1. Introduction &amp; Purpose</h2>
+  <p>This document specifies the cloud-based Umrah &amp; Hajj travel ERP that replaces the current Windows desktop application (&ldquo;Stimes ERP Solution&rdquo;). It defines what the system must do (functional specification), how it is structured (technical specification), and how work moves through it (process flows). It is the reference for design, build and testing.</p>
+  <h3>1.1 Scope of the system</h3>
+  <p>The system runs the complete Umrah/Hajj sales-to-collection cycle: maintaining master data, issuing invoices, collecting payments through receipts, recording expenses and refunds, approving transactions, and producing bilingual vouchers and management reports. It is delivered as a secure cloud application on a MySQL database, accessible from desktop, tablet and mobile, with a dynamic field engine, a dynamic print engine, and AI-assisted automation.</p>
+  <h3>1.2 How requirements are written</h3>
+  <p>Functional requirements use the identifier <code>FR-&lt;module&gt;-&lt;n&gt;</code>; non-functional use <code>NFR-&lt;n&gt;</code>. Priority is shown as <span class="tag">M</span> Must, <span class="tag">S</span> Should, <span class="tag">C</span> Could. Items needing a client decision are marked <span class="pill">TBC</span>.</p>
+  <h3>1.3 Glossary</h3>
+  <table>
+    <tr><th style="width:24%">Term</th><th>Meaning</th></tr>
+    <tr><td>Master data</td><td>Reference data: packages, visa types, nationalities</td></tr>
+    <tr><td>Dynamic field</td><td>A user-configurable form field added without code changes</td></tr>
+    <tr><td>Dynamic print</td><td>A printed document driven by an editable template, not hard-coded layout</td></tr>
+    <tr><td>Voucher</td><td>A printed financial document (invoice, receipt, payment)</td></tr>
+    <tr><td>RBAC</td><td>Role-Based Access Control</td></tr>
+    <tr><td>RTL</td><td>Right-to-left text direction (Arabic)</td></tr>
+    <tr><td>Balance</td><td>Net invoice amount − received + refund</td></tr>
+  </table>
+</section>
+
+<!-- 2. SYSTEM OVERVIEW -->
+<section class="section">
+  <h2>2. System Overview &amp; Module Map</h2>
+  <p>The system is organised into transaction modules, master data, supporting engines (dynamic fields, dynamic print, AI), and cross-cutting services (security, audit, reporting). The map below shows how the modules relate.</p>
+
+  <figure>
+  <svg viewBox="0 0 740 380" xmlns="http://www.w3.org/2000/svg" font-family="Helvetica,Arial" font-size="10.5">
+    <defs><marker id="m1" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#5b6472"/></marker></defs>
+    <!-- master data band -->
+    <rect x="20" y="20" width="700" height="64" rx="10" fill="#f4f1f6" stroke="#d7dbe3"/>
+    <text x="34" y="40" fill="#5a1a4d" font-weight="bold">Master Data</text>
+    <rect x="150" y="30" width="150" height="44" rx="7" fill="#fff" stroke="#5a1a4d"/><text x="225" y="57" text-anchor="middle">Packages</text>
+    <rect x="320" y="30" width="150" height="44" rx="7" fill="#fff" stroke="#5a1a4d"/><text x="395" y="57" text-anchor="middle">Visa Types</text>
+    <rect x="490" y="30" width="200" height="44" rx="7" fill="#fff" stroke="#5a1a4d"/><text x="590" y="57" text-anchor="middle">Nationalities / Countries</text>
+
+    <!-- transactions band -->
+    <rect x="20" y="104" width="700" height="84" rx="10" fill="#eef6f4" stroke="#bfe0d9"/>
+    <text x="34" y="124" fill="#0e7c6b" font-weight="bold">Transactions</text>
+    <rect x="60" y="132" width="150" height="46" rx="7" fill="#fff" stroke="#0e7c6b"/><text x="135" y="160" text-anchor="middle">Invoice</text>
+    <rect x="240" y="132" width="150" height="46" rx="7" fill="#fff" stroke="#0e7c6b"/><text x="315" y="160" text-anchor="middle">Receipt</text>
+    <rect x="420" y="132" width="150" height="46" rx="7" fill="#fff" stroke="#0e7c6b"/><text x="495" y="160" text-anchor="middle">Payment</text>
+    <rect x="600" y="132" width="100" height="46" rx="7" fill="#fff" stroke="#b5532a"/><text x="650" y="160" text-anchor="middle">Approval</text>
+
+    <!-- engines band -->
+    <rect x="20" y="208" width="455" height="84" rx="10" fill="#f4f1f6" stroke="#d7dbe3"/>
+    <text x="34" y="228" fill="#5a1a4d" font-weight="bold">Engines</text>
+    <rect x="40" y="236" width="130" height="46" rx="7" fill="#fff" stroke="#7d2b6e"/><text x="105" y="258" text-anchor="middle" font-size="9.5">Dynamic Field</text><text x="105" y="272" text-anchor="middle" font-size="9.5">Engine</text>
+    <rect x="180" y="236" width="130" height="46" rx="7" fill="#fff" stroke="#7d2b6e"/><text x="245" y="258" text-anchor="middle" font-size="9.5">Dynamic Print</text><text x="245" y="272" text-anchor="middle" font-size="9.5">Engine</text>
+    <rect x="320" y="236" width="135" height="46" rx="7" fill="#fff" stroke="#0e7c6b"/><text x="387" y="258" text-anchor="middle" font-size="9.5">AI &amp; Automation</text>
+    <!-- outputs band -->
+    <rect x="495" y="208" width="225" height="84" rx="10" fill="#eef6f4" stroke="#bfe0d9"/>
+    <text x="509" y="228" fill="#0e7c6b" font-weight="bold">Outputs</text>
+    <rect x="510" y="236" width="95" height="46" rx="7" fill="#fff" stroke="#0e7c6b"/><text x="557" y="263" text-anchor="middle">Reports</text>
+    <rect x="615" y="236" width="95" height="46" rx="7" fill="#fff" stroke="#0e7c6b"/><text x="662" y="263" text-anchor="middle">Dashboard</text>
+
+    <!-- platform band -->
+    <rect x="20" y="312" width="700" height="50" rx="10" fill="#5a1a4d"/>
+    <text x="370" y="335" fill="#fff" text-anchor="middle" font-weight="bold">Platform services — Authentication · RBAC · Audit Log · Notifications · Backups · MySQL</text>
+    <text x="370" y="350" fill="#e7d4e3" text-anchor="middle" font-size="8.5">Cloud-hosted, accessed over HTTPS from desktop / tablet / mobile</text>
+
+    <line x1="225" y1="74" x2="135" y2="130" stroke="#5b6472" marker-end="url(#m1)"/>
+    <line x1="395" y1="74" x2="315" y2="130" stroke="#5b6472" marker-end="url(#m1)"/>
+    <line x1="135" y1="178" x2="135" y2="234" stroke="#5b6472" marker-end="url(#m1)"/>
+    <line x1="495" y1="178" x2="557" y2="234" stroke="#5b6472" marker-end="url(#m1)"/>
+  </svg>
+  <figcaption>Figure 2.1 — Module map: master data feeds transactions; engines and outputs sit on shared platform services.</figcaption>
+  </figure>
+
+  <h3>2.1 Modules at a glance</h3>
+  <table>
+    <tr><th style="width:22%">Module</th><th>Purpose</th></tr>
+    <tr><td>Master Data</td><td>Maintain packages (name + rate), visa types, nationalities — the reference data used everywhere</td></tr>
+    <tr><td>Invoice</td><td>Create the sale: customer, package, passengers, amount, discount, net, status</td></tr>
+    <tr><td>Receipt</td><td>Collect money against an invoice (cash/bank); track balance</td></tr>
+    <tr><td>Payment</td><td>Record office expenses and customer refunds</td></tr>
+    <tr><td>Approval</td><td>Review and approve/reject invoices with comments</td></tr>
+    <tr><td>Reports &amp; Dashboard</td><td>Income, pending, passengers, departure-wise, expense; live KPIs</td></tr>
+    <tr><td>Dynamic engines</td><td>Configure fields and printed documents without code</td></tr>
+  </table>
+</section>
+
+<!-- 3. ARCHITECTURE -->
+<section class="section">
+  <h2>3. Architecture &amp; Technology</h2>
+  <p>A cloud-hosted web application with a clear separation between the React front-end, a Node.js REST API, and a managed MySQL database. The app tier is stateless and scales horizontally; all access is over HTTPS with token-based authentication and role-based authorisation.</p>
+
+  <figure>
+  <svg viewBox="0 0 760 430" xmlns="http://www.w3.org/2000/svg" font-family="Helvetica,Arial" font-size="11.5">
+    <defs><marker id="ar" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#5b6472"/></marker></defs>
+    <rect x="20" y="16" width="720" height="78" rx="10" fill="#f4f1f6" stroke="#d7dbe3"/>
+    <text x="34" y="36" fill="#5a1a4d" font-weight="bold">Clients (HTTPS)</text>
+    <rect x="60" y="44" width="150" height="40" rx="7" fill="#fff" stroke="#7d2b6e"/><text x="135" y="69" text-anchor="middle">Desktop browser</text>
+    <rect x="240" y="44" width="150" height="40" rx="7" fill="#fff" stroke="#7d2b6e"/><text x="315" y="69" text-anchor="middle">Tablet</text>
+    <rect x="420" y="44" width="140" height="40" rx="7" fill="#fff" stroke="#7d2b6e"/><text x="490" y="69" text-anchor="middle">Mobile (PWA)</text>
+    <rect x="590" y="44" width="120" height="40" rx="7" fill="#fff" stroke="#7d2b6e"/><text x="650" y="69" text-anchor="middle">Admin</text>
+    <line x1="380" y1="94" x2="380" y2="118" stroke="#5b6472" stroke-width="1.5" marker-end="url(#ar)"/>
+    <rect x="200" y="120" width="360" height="36" rx="8" fill="#0e7c6b"/><text x="380" y="143" fill="#fff" text-anchor="middle" font-weight="bold">CDN · WAF · Load Balancer / TLS</text>
+    <line x1="380" y1="156" x2="380" y2="180" stroke="#5b6472" stroke-width="1.5" marker-end="url(#ar)"/>
+    <rect x="20" y="182" width="720" height="118" rx="10" fill="#f4f1f6" stroke="#d7dbe3"/>
+    <text x="34" y="202" fill="#5a1a4d" font-weight="bold">Application tier — Node.js</text>
+    <rect x="40" y="212" width="150" height="74" rx="7" fill="#fff" stroke="#5a1a4d"/><text x="115" y="242" text-anchor="middle">React SPA</text><text x="115" y="262" text-anchor="middle" font-size="9.5" fill="#5b6472">served as static</text>
+    <rect x="210" y="212" width="170" height="74" rx="7" fill="#fff" stroke="#5a1a4d"/><text x="295" y="238" text-anchor="middle">REST API</text><text x="295" y="256" text-anchor="middle" font-size="9.5" fill="#5b6472">Node + NestJS</text><text x="295" y="272" text-anchor="middle" font-size="9.5" fill="#5b6472">auth · RBAC · rules</text>
+    <rect x="400" y="212" width="155" height="74" rx="7" fill="#fff" stroke="#5a1a4d"/><text x="477" y="238" text-anchor="middle">Workers / Jobs</text><text x="477" y="256" text-anchor="middle" font-size="9.5" fill="#5b6472">PDF, email,</text><text x="477" y="272" text-anchor="middle" font-size="9.5" fill="#5b6472">reminders</text>
+    <rect x="575" y="212" width="145" height="74" rx="7" fill="#fff" stroke="#0e7c6b"/><text x="647" y="238" text-anchor="middle">AI Service</text><text x="647" y="256" text-anchor="middle" font-size="9.5" fill="#5b6472">LLM gateway,</text><text x="647" y="272" text-anchor="middle" font-size="9.5" fill="#5b6472">OCR, insights</text>
+    <line x1="295" y1="300" x2="295" y2="324" stroke="#5b6472" stroke-width="1.5" marker-end="url(#ar)"/>
+    <line x1="477" y1="300" x2="477" y2="324" stroke="#5b6472" stroke-width="1.5" marker-end="url(#ar)"/>
+    <rect x="20" y="326" width="720" height="92" rx="10" fill="#eef6f4" stroke="#bfe0d9"/>
+    <text x="34" y="346" fill="#0e7c6b" font-weight="bold">Data &amp; storage tier</text>
+    <rect x="60" y="356" width="180" height="48" rx="7" fill="#fff" stroke="#0e7c6b"/><text x="150" y="385" text-anchor="middle">MySQL (primary + replica)</text>
+    <rect x="270" y="356" width="160" height="48" rx="7" fill="#fff" stroke="#0e7c6b"/><text x="350" y="385" text-anchor="middle">Object storage (PDFs)</text>
+    <rect x="460" y="356" width="120" height="48" rx="7" fill="#fff" stroke="#0e7c6b"/><text x="520" y="385" text-anchor="middle">Redis cache</text>
+    <rect x="600" y="356" width="120" height="48" rx="7" fill="#fff" stroke="#0e7c6b"/><text x="660" y="385" text-anchor="middle">Encrypted backups</text>
+  </svg>
+  <figcaption>Figure 3.1 — Logical deployment architecture.</figcaption>
+  </figure>
+
+  <h3>3.1 Technology stack</h3>
+  <table>
+    <tr><th style="width:22%">Layer</th><th style="width:34%">Technology</th><th>Notes</th></tr>
+    <tr><td>Front-end</td><td>React 18 + TypeScript, Vite, i18next (EN/AR + RTL)</td><td>Responsive SPA/PWA, bilingual right-to-left support</td></tr>
+    <tr><td>Back-end</td><td>Node.js (LTS) + NestJS (TypeScript)</td><td>Structured REST API with validation, guards, modules</td></tr>
+    <tr><td>Database</td><td>MySQL 8 (InnoDB, utf8mb4), Prisma / TypeORM</td><td>Transactional integrity; JSON columns for dynamic fields</td></tr>
+    <tr><td>Cache / queue</td><td>Redis + BullMQ</td><td>Caching, background jobs (PDF, email, reminders)</td></tr>
+    <tr><td>PDF / print</td><td>Headless Chromium (Puppeteer) + HTML/CSS templates</td><td>Pixel-accurate bilingual documents</td></tr>
+    <tr><td>AI</td><td>LLM gateway (provider-agnostic), OCR engine</td><td>Document extraction, assistant, insights</td></tr>
+    <tr><td>Auth</td><td>JWT access/refresh, argon2/bcrypt, optional TOTP 2FA</td><td>Stateless secure sessions</td></tr>
+    <tr><td>Infrastructure</td><td>Docker containers; cloud host/region <span class="pill">TBC</span></td><td>Region near Qatar recommended for latency/residency</td></tr>
+  </table>
+</section>
+
+<!-- 4. MODULE SPECS -->
+<section class="section">
+  <h2>4. Module Specifications</h2>
+
+  <h3>4.1 Master Data — Packages, Visa Types, Nationalities</h3>
+  <table class="req">
+    <tr><th>ID</th><th>Requirement</th><th style="width:48px">Pri</th></tr>
+    <tr><td>FR-MD-1</td><td>Maintain <b>Packages</b>: name (EN + AR), rate, currency (QAR), status, optional attributes (duration, includes-visa, transport, hotel).</td><td>M</td></tr>
+    <tr><td>FR-MD-2</td><td>Maintain <b>Visa Types</b> (e.g. Umrah Visa, Tourist Visa): name EN/AR, status.</td><td>M</td></tr>
+    <tr><td>FR-MD-3</td><td>Maintain <b>Nationalities</b>: country name, short code, Arabic name.</td><td>M</td></tr>
+    <tr><td>FR-MD-4</td><td>All lists support search, inline filters, sort, pagination, soft-delete (deactivate).</td><td>M</td></tr>
+    <tr><td>FR-MD-5</td><td>A master record referenced by transactions cannot be hard-deleted; it is deactivated.</td><td>M</td></tr>
+    <tr><td>FR-MD-6</td><td>Bulk import/export of master data via spreadsheet.</td><td>S</td></tr>
+  </table>
+
+  <h3>4.2 Invoice</h3>
+  <table class="req">
+    <tr><th>ID</th><th>Requirement</th><th style="width:48px">Pri</th></tr>
+    <tr><td>FR-INV-1</td><td>Create/edit invoices with auto number &amp; date, customer, nationality, mobile 1/2, package, departure date, no. of passengers/seats/visas, room type (Normal/Separate/Nil), remarks.</td><td>M</td></tr>
+    <tr><td>FR-INV-2</td><td>Capture a <b>passenger grid</b> (SL no, name, visa type, visa-required) with dynamically added rows.</td><td>M</td></tr>
+    <tr><td>FR-INV-3</td><td>Compute amount, discount, net amount from package rate × passengers; manual override allowed and audited.</td><td>M</td></tr>
+    <tr><td>FR-INV-4</td><td>Track invoice status (Draft / Confirmed / Cancelled) and approval status (Pending / Approved / Rejected) with comments.</td><td>M</td></tr>
+    <tr><td>FR-INV-5</td><td>List view with filter/search by no, date, customer, departure, status; multiple invoices open in tabs.</td><td>M</td></tr>
+    <tr><td>FR-INV-6</td><td>Print/export invoice to PDF via the dynamic print engine (bilingual).</td><td>M</td></tr>
+    <tr><td>FR-INV-7</td><td>Maintain running balance = net − received + refund per invoice/customer.</td><td>M</td></tr>
+  </table>
+
+  <h3>4.3 Receipt / Collection</h3>
+  <table class="req">
+    <tr><th>ID</th><th>Requirement</th><th style="width:48px">Pri</th></tr>
+    <tr><td>FR-RCT-1</td><td>Create receipts with auto no &amp; date, linked invoice, customer, nationality, mobile 1/2, package, departure, passengers/seats/visas, room details.</td><td>M</td></tr>
+    <tr><td>FR-RCT-2</td><td>On selecting an invoice, auto-fill details and show invoice amount, previous balance, remaining balance.</td><td>M</td></tr>
+    <tr><td>FR-RCT-3</td><td>Record mode of payment (Cash / Bank) and received amount; prevent over-collection beyond balance unless overridden &amp; audited.</td><td>M</td></tr>
+    <tr><td>FR-RCT-4</td><td>Print bilingual <b>Receipt Voucher</b> (سند قبض) matching current format: terms text, received-amount box, package, passenger details, total &amp; remaining balance, three signatures.</td><td>M</td></tr>
+    <tr><td>FR-RCT-5</td><td>List, search, reprint; void with reason (audited).</td><td>M</td></tr>
+  </table>
+
+  <h3>4.4 Payment — Expense &amp; Refund</h3>
+  <table class="req">
+    <tr><th>ID</th><th>Requirement</th><th style="width:48px">Pri</th></tr>
+    <tr><td>FR-PAY-1</td><td>Record payments of type <b>Expense</b> or <b>Refund</b> with auto no &amp; date, paid-to, mobile, narration, amount, remarks.</td><td>M</td></tr>
+    <tr><td>FR-PAY-2</td><td>Refund payments link to an invoice and reduce its income/balance.</td><td>M</td></tr>
+    <tr><td>FR-PAY-3</td><td>Optional expense categories (office, salary, transport, tickets) for analysis.</td><td>S</td></tr>
+    <tr><td>FR-PAY-4</td><td>Print payment voucher; list, search, edit, delete (audited).</td><td>M</td></tr>
+  </table>
+
+  <h3>4.5 Approval Workflow</h3>
+  <table class="req">
+    <tr><th>ID</th><th>Requirement</th><th style="width:48px">Pri</th></tr>
+    <tr><td>FR-APR-1</td><td>Invoices carry approval status (Pending → Approved/Rejected) with approver, comment, timestamp.</td><td>M</td></tr>
+    <tr><td>FR-APR-2</td><td>Configurable rule: e.g. discounts above a threshold require manager approval. <span class="pill">TBC</span></td><td>S</td></tr>
+    <tr><td>FR-APR-3</td><td>Notifications to approvers (in-app / email) and an approvals queue.</td><td>S</td></tr>
+  </table>
+
+  <h3>4.6 Reporting &amp; Dashboard</h3>
+  <table class="req">
+    <tr><th>ID</th><th>Report / requirement</th><th style="width:48px">Pri</th></tr>
+    <tr><td>FR-RPT-1</td><td><b>Income Summary</b> — invoice/received/refund/income/balance per invoice with totals.</td><td>M</td></tr>
+    <tr><td>FR-RPT-2</td><td><b>Pending</b> — invoices with outstanding balance.</td><td>M</td></tr>
+    <tr><td>FR-RPT-3</td><td><b>Income Detail</b> — detailed income breakdown.</td><td>M</td></tr>
+    <tr><td>FR-RPT-4</td><td><b>Passengers List</b> — passengers grouped by departure date with invoice &amp; customer.</td><td>M</td></tr>
+    <tr><td>FR-RPT-5</td><td><b>Departure-Date-wise</b> — invoices grouped/filtered by departure with approval status.</td><td>M</td></tr>
+    <tr><td>FR-RPT-6</td><td><b>Expense</b> — payment vouchers with narration and totals.</td><td>M</td></tr>
+    <tr><td>FR-RPT-7</td><td><b>Dashboard</b> — KPI cards (today&rsquo;s collection, pending balance, departures this week, expenses) and charts.</td><td>S</td></tr>
+    <tr><td>FR-RPT-8</td><td>All reports date-range driven; export to PDF and Excel/CSV; column show/hide; saved filters.</td><td>S</td></tr>
+  </table>
+</section>
+
+<!-- 5. DYNAMIC FIELDS -->
+<section class="section">
+  <h2>5. Dynamic Field Engine</h2>
+  <p>Fields can be added or changed without a code release. An authorised administrator defines custom fields on any entity (invoice, receipt, payment, customer, passenger, package) through a configuration screen.</p>
+  <h3>5.1 Capabilities</h3>
+  <ul>
+    <li>Field types: text, number, currency, date, dropdown (managed list or master data), checkbox, multi-select, phone, email, file attachment, computed/formula.</li>
+    <li>Per field: label (EN + AR), help text, default, placeholder, required, min/max, regex validation, display order/section.</li>
+    <li>Role-based visibility and edit-ability; conditional display (&ldquo;show B when A = X&rdquo;).</li>
+    <li>Mark a field printable and map it into document templates.</li>
+    <li>Activate/deactivate or version a field without losing historical data.</li>
+  </ul>
+  <h3>5.2 Storage model</h3>
+  <p>Field <i>definitions</i> live in metadata tables; field <i>values</i> are stored per record in MySQL <code>JSON</code> columns, giving flexibility without schema migrations while core columns stay strongly typed for reporting.</p>
+  <table>
+    <tr><th>Table</th><th>Purpose</th></tr>
+    <tr><td><code>field_definitions</code></td><td>Entity, key, type, labels (EN/AR), validation, options, role visibility, print flag, order, status</td></tr>
+    <tr><td><code>&lt;entity&gt;.custom_data</code> (JSON)</td><td>Key→value store of custom field values per record</td></tr>
+    <tr><td><code>field_audit</code></td><td>Who changed which definition and when</td></tr>
+  </table>
+</section>
+
+<!-- 6. DYNAMIC PRINT -->
+<section class="section">
+  <h2>6. Dynamic Print &amp; Document Engine</h2>
+  <p>Every printed document is driven by an editable template, not hard-coded layout. Templates render to pixel-accurate PDF via headless Chromium, fully supporting bilingual English/Arabic content and right-to-left layout.</p>
+  <h3>6.1 Capabilities</h3>
+  <ul>
+    <li>Template editor with company header, logo, address, EN/AR blocks (matching current vouchers).</li>
+    <li>Insert any standard or dynamic field as a placeholder, e.g. <code>{{customer.name}}</code>, <code>{{invoice.net_amount}}</code>, <code>{{custom.passport_no}}</code>.</li>
+    <li>Repeating sections (passenger lists, line items) and conditional blocks (show terms only on receipts).</li>
+    <li>Per-document settings: page size, margins, header/footer, watermark, language(s), signature lines.</li>
+    <li>Multiple templates per document type with versioning; set default and preview before publishing.</li>
+    <li>One-click reprint, bulk print, email as PDF, download.</li>
+  </ul>
+  <h3>6.2 Documents reproduced</h3>
+  <table>
+    <tr><th>Document</th><th>Notes</th></tr>
+    <tr><td>Invoice</td><td>Bilingual, passenger grid, amount/discount/net, remarks</td></tr>
+    <tr><td>Receipt Voucher (سند قبض)</td><td>Terms text, received-amount box, package, passenger details, total &amp; remaining balance, three signatures</td></tr>
+    <tr><td>Payment Voucher</td><td>Expense/refund, paid-to, narration, amount</td></tr>
+    <tr><td>Reports</td><td>Income Summary, Departure-wise, Pending, Income Detail, Passengers List, Expense — company header + totals</td></tr>
+  </table>
+  <div class="callout"><b>Bilingual &amp; RTL.</b> The engine handles mixed Latin/Arabic strings, RTL alignment, and Arabic-Indic numerals where required, so new vouchers match the existing ones while remaining admin-editable.</div>
+</section>
+
+<!-- 7. AI -->
+<section class="section">
+  <h2>7. AI &amp; Automation</h2>
+  <p>AI is applied where it removes manual effort or reduces error. Features are optional, auditable, and keep a human in control of financial actions. The provider is configurable via an LLM gateway.</p>
+  <table>
+    <tr><th style="width:30%">Feature</th><th>What it does</th><th style="width:50px">Pri</th></tr>
+    <tr><td>Passport / ID OCR</td><td>Scan/photograph a passport; auto-extract name, nationality, passport no, expiry; pre-fill the form for staff to confirm.</td><td>S</td></tr>
+    <tr><td>Smart data entry</td><td>Suggest packages, detect duplicate customers, validate phone/visa formats, transliterate names EN↔AR.</td><td>S</td></tr>
+    <tr><td>Natural-language reports</td><td>Ask &ldquo;how much did we collect this week?&rdquo; and get an answer plus the underlying report.</td><td>C</td></tr>
+    <tr><td>Collection assistant</td><td>Draft polite bilingual payment-reminder messages for outstanding balances.</td><td>C</td></tr>
+    <tr><td>Anomaly hints</td><td>Flag unusual discounts, duplicate receipts, out-of-pattern expenses for review.</td><td>C</td></tr>
+    <tr><td>Departure reminders</td><td>Notify staff/customers of upcoming departures and missing documents.</td><td>S</td></tr>
+  </table>
+  <div class="callout warn"><b>Guardrails.</b> AI never posts transactions or approves records on its own — it suggests, a user confirms. Personal data sent to AI is minimised; provider/region is a client decision. <span class="pill">TBC</span></div>
+</section>
+
+<!-- 8. SECURITY -->
+<section class="section">
+  <h2>8. Security &amp; Access Control</h2>
+  <h3>8.1 Authentication &amp; access</h3>
+  <ul>
+    <li>Individual accounts, strong password policy, passwords hashed with argon2/bcrypt.</li>
+    <li>JWT access/refresh tokens; automatic session expiry/refresh.</li>
+    <li>Optional 2FA (TOTP) for admin and finance roles.</li>
+    <li>Role-Based Access Control down to module and action level.</li>
+    <li>Account lockout after repeated failed logins; forced password reset.</li>
+  </ul>
+  <h3>8.2 Roles (initial)</h3>
+  <table>
+    <tr><th>Role</th><th>Typical permissions</th></tr>
+    <tr><td>Administrator</td><td>Full access incl. users, roles, dynamic fields, templates, settings</td></tr>
+    <tr><td>Manager</td><td>Approve invoices, view all reports/dashboards, void/refund with reason</td></tr>
+    <tr><td>Counter staff / Agent</td><td>Create invoices, receipts, payments; print; no deletions/approvals</td></tr>
+    <tr><td>Accountant</td><td>Payments, expenses, refunds, financial reports &amp; exports</td></tr>
+    <tr><td>Viewer / Auditor</td><td>Read-only access to records, reports and audit log</td></tr>
+  </table>
+  <h3>8.3 Data protection &amp; auditability</h3>
+  <ul>
+    <li>TLS 1.2+ everywhere (HTTPS only, HSTS); encryption at rest for DB, backups and documents.</li>
+    <li>Tenant/branch data isolation; row-level scoping by branch where applicable.</li>
+    <li>Daily automated backups with tested restore; point-in-time recovery.</li>
+    <li>Full immutable audit trail: who created/edited/deleted/approved what and when.</li>
+    <li>Soft-delete with reason for financial records; OWASP Top 10 defences; WAF, rate limiting, dependency scanning.</li>
+  </ul>
+</section>
+
+<!-- 9. DATA MODEL -->
+<section class="section">
+  <h2>9. Data Model &amp; Database Design</h2>
+  <p>MySQL schema (InnoDB, utf8mb4 for full Arabic support) with foreign keys and indexed lookups. Core entities below; the dynamic field engine adds metadata tables and JSON value columns alongside.</p>
+  <figure>
+  <svg viewBox="0 0 740 420" xmlns="http://www.w3.org/2000/svg" font-family="Helvetica,Arial" font-size="10.5">
+    <defs><marker id="a3" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7d2b6e"/></marker></defs>
+    <rect x="300" y="16" width="150" height="56" rx="6" fill="#5a1a4d"/><text x="375" y="36" text-anchor="middle" fill="#fff" font-weight="bold">customer</text><text x="312" y="54" fill="#e7d4e3" font-size="9">id · name · nationality_id</text><text x="312" y="67" fill="#e7d4e3" font-size="9">mobile1 · mobile2 · custom</text>
+    <rect x="560" y="16" width="150" height="56" rx="6" fill="#5a1a4d"/><text x="635" y="36" text-anchor="middle" fill="#fff" font-weight="bold">visa_type</text><text x="572" y="54" fill="#e7d4e3" font-size="9">id · name · name_ar</text>
+    <rect x="40" y="116" width="150" height="66" rx="6" fill="#7d2b6e"/><text x="115" y="136" text-anchor="middle" fill="#fff" font-weight="bold">nationality</text><text x="52" y="154" fill="#f0e3ee" font-size="9">id · country_name</text><text x="52" y="167" fill="#f0e3ee" font-size="9">short_code · name_ar</text>
+    <rect x="300" y="116" width="150" height="78" rx="6" fill="#7d2b6e"/><text x="375" y="136" text-anchor="middle" fill="#fff" font-weight="bold">invoice</text><text x="312" y="154" fill="#f0e3ee" font-size="9">id · no · date · customer_id</text><text x="312" y="167" fill="#f0e3ee" font-size="9">package_id · departure_date</text><text x="312" y="180" fill="#f0e3ee" font-size="9">net_amount · status · approval</text>
+    <rect x="560" y="116" width="150" height="66" rx="6" fill="#7d2b6e"/><text x="635" y="136" text-anchor="middle" fill="#fff" font-weight="bold">package</text><text x="572" y="154" fill="#f0e3ee" font-size="9">id · name · name_ar</text><text x="572" y="167" fill="#f0e3ee" font-size="9">rate · includes_visa</text>
+    <rect x="120" y="246" width="150" height="72" rx="6" fill="#0e7c6b"/><text x="195" y="266" text-anchor="middle" fill="#fff" font-weight="bold">passenger</text><text x="132" y="284" fill="#dff0ec" font-size="9">id · invoice_id · sl_no</text><text x="132" y="297" fill="#dff0ec" font-size="9">name · visa_type_id</text><text x="132" y="310" fill="#dff0ec" font-size="9">visa_required</text>
+    <rect x="300" y="246" width="150" height="72" rx="6" fill="#0e7c6b"/><text x="375" y="266" text-anchor="middle" fill="#fff" font-weight="bold">receipt</text><text x="312" y="284" fill="#dff0ec" font-size="9">id · no · date · invoice_id</text><text x="312" y="297" fill="#dff0ec" font-size="9">mode · received_amount</text><text x="312" y="310" fill="#dff0ec" font-size="9">prev_balance</text>
+    <rect x="500" y="246" width="170" height="72" rx="6" fill="#0e7c6b"/><text x="585" y="266" text-anchor="middle" fill="#fff" font-weight="bold">payment</text><text x="512" y="284" fill="#dff0ec" font-size="9">id · no · date · type</text><text x="512" y="297" fill="#dff0ec" font-size="9">(expense/refund) · paid_to</text><text x="512" y="310" fill="#dff0ec" font-size="9">amount · invoice_id?</text>
+    <line x1="375" y1="72" x2="375" y2="114" stroke="#7d2b6e" marker-end="url(#a3)"/>
+    <line x1="300" y1="156" x2="192" y2="156" stroke="#7d2b6e" marker-end="url(#a3)"/>
+    <line x1="450" y1="156" x2="558" y2="156" stroke="#7d2b6e" marker-end="url(#a3)"/>
+    <line x1="340" y1="194" x2="230" y2="244" stroke="#0e7c6b" marker-end="url(#a3)"/>
+    <line x1="375" y1="194" x2="375" y2="244" stroke="#0e7c6b" marker-end="url(#a3)"/>
+    <line x1="430" y1="194" x2="560" y2="244" stroke="#0e7c6b" marker-end="url(#a3)"/>
+    <line x1="635" y1="72" x2="432" y2="244" stroke="#7d2b6e" stroke-dasharray="3,3" marker-end="url(#a3)"/>
+    <text x="700" y="360" font-size="9" fill="#5b6472" text-anchor="end">+ users, roles, field_definitions,</text>
+    <text x="700" y="372" font-size="9" fill="#5b6472" text-anchor="end">document_templates, audit_log, branch</text>
+  </svg>
+  <figcaption>Figure 9.1 — Core entity-relationship overview (simplified).</figcaption>
+  </figure>
+  <h3>9.1 Core tables</h3>
+  <table>
+    <tr><th>Table</th><th>Key columns</th></tr>
+    <tr><td><code>branch</code></td><td>id, name, address, contacts (multi-branch support)</td></tr>
+    <tr><td><code>user / role / permission</code></td><td>RBAC: users, roles, permissions, assignments, 2FA</td></tr>
+    <tr><td><code>nationality</code></td><td>id, country_name, short_code, name_ar</td></tr>
+    <tr><td><code>visa_type</code></td><td>id, name, name_ar, active</td></tr>
+    <tr><td><code>package</code></td><td>id, name, name_ar, rate, currency, includes_visa, active</td></tr>
+    <tr><td><code>customer</code></td><td>id, name, nationality_id, mobile1, mobile2, custom_data(JSON)</td></tr>
+    <tr><td><code>invoice</code></td><td>id, no, date, customer_id, package_id, departure_date, seats, visas, room_type, amount, discount, net_amount, status, approval_status, custom_data</td></tr>
+    <tr><td><code>passenger</code></td><td>id, invoice_id, sl_no, name, visa_type_id, visa_required, custom_data</td></tr>
+    <tr><td><code>receipt</code></td><td>id, no, date, invoice_id, mode, prev_balance, received_amount, custom_data</td></tr>
+    <tr><td><code>payment</code></td><td>id, no, date, type, paid_to, mobile, narration, amount, invoice_id, category_id</td></tr>
+    <tr><td><code>field_definition / document_template</code></td><td>Dynamic field &amp; print metadata</td></tr>
+    <tr><td><code>audit_log</code></td><td>entity, record_id, action, user_id, before/after, timestamp</td></tr>
+  </table>
+</section>
+
+<!-- 10. NFR -->
+<section class="section">
+  <h2>10. Non-Functional Requirements</h2>
+  <table class="req">
+    <tr><th>ID</th><th>Requirement</th></tr>
+    <tr><td>NFR-1</td><td><b>Performance.</b> Common screens load under 2s; report generation under 5s for typical ranges.</td></tr>
+    <tr><td>NFR-2</td><td><b>Availability.</b> Target 99.5%+ uptime with monitoring and alerting.</td></tr>
+    <tr><td>NFR-3</td><td><b>Scalability.</b> Horizontal scaling of the app tier; supports growth in branches, users, records.</td></tr>
+    <tr><td>NFR-4</td><td><b>Usability.</b> Familiar list+detail layout, keyboard-friendly entry, responsive on mobile/tablet.</td></tr>
+    <tr><td>NFR-5</td><td><b>Localisation.</b> Full EN/AR UI with RTL; Hijri/Gregorian date option. <span class="pill">TBC</span></td></tr>
+    <tr><td>NFR-6</td><td><b>Compatibility.</b> Latest Chrome, Edge, Safari, Firefox; installable PWA.</td></tr>
+    <tr><td>NFR-7</td><td><b>Maintainability.</b> Documented API, automated tests, CI/CD, coding standards.</td></tr>
+    <tr><td>NFR-8</td><td><b>Backup &amp; recovery.</b> Daily backups, tested restore, RPO ≤ 24h, RTO ≤ 4h. <span class="pill">TBC</span></td></tr>
+    <tr><td>NFR-9</td><td><b>Auditability.</b> All data changes logged and retained for an agreed period.</td></tr>
+    <tr><td>NFR-10</td><td><b>Accessibility.</b> WCAG-aligned contrast, labels, keyboard navigation.</td></tr>
+  </table>
+</section>
+
+<!-- 11. PROCESS FLOWS -->
+<section class="section">
+  <h2>11. Process Flows</h2>
+  <p class="small legend">
+    <span><span class="swatch" style="background:#5a1a4d"></span>Start / actor step</span>
+    <span><span class="swatch" style="background:#0e7c6b"></span>System / output</span>
+    <span><span class="swatch" style="background:#b5532a"></span>Decision</span>
+  </p>
+
+  <h3>11.1 System context &amp; navigation flow</h3>
+  <figure>
+  <svg viewBox="0 0 740 180" xmlns="http://www.w3.org/2000/svg" font-family="Helvetica,Arial" font-size="10">
+    <defs><marker id="f1" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#5b6472"/></marker></defs>
+    <rect x="20" y="70" width="120" height="44" rx="8" fill="#5a1a4d"/><text x="80" y="90" text-anchor="middle" fill="#fff">Login</text><text x="80" y="105" text-anchor="middle" fill="#e7d4e3" font-size="8">(RBAC, 2FA)</text>
+    <rect x="180" y="70" width="120" height="44" rx="8" fill="#f4f1f6" stroke="#5a1a4d"/><text x="240" y="95" text-anchor="middle">Dashboard</text>
+    <rect x="340" y="14" width="120" height="40" rx="8" fill="#eef6f4" stroke="#0e7c6b"/><text x="400" y="38" text-anchor="middle">Master Data</text>
+    <rect x="340" y="70" width="120" height="40" rx="8" fill="#eef6f4" stroke="#0e7c6b"/><text x="400" y="94" text-anchor="middle">Transactions</text>
+    <rect x="340" y="126" width="120" height="40" rx="8" fill="#eef6f4" stroke="#0e7c6b"/><text x="400" y="150" text-anchor="middle">Reports</text>
+    <rect x="510" y="70" width="130" height="44" rx="8" fill="#f4f1f6" stroke="#7d2b6e"/><text x="575" y="90" text-anchor="middle">Settings</text><text x="575" y="105" text-anchor="middle" font-size="8" fill="#5b6472">fields · templates · users</text>
+    <line x1="140" y1="92" x2="178" y2="92" stroke="#5b6472" marker-end="url(#f1)"/>
+    <line x1="300" y1="86" x2="338" y2="34" stroke="#5b6472" marker-end="url(#f1)"/>
+    <line x1="300" y1="92" x2="338" y2="90" stroke="#5b6472" marker-end="url(#f1)"/>
+    <line x1="300" y1="98" x2="338" y2="146" stroke="#5b6472" marker-end="url(#f1)"/>
+    <line x1="460" y1="90" x2="508" y2="90" stroke="#5b6472" marker-end="url(#f1)"/>
+  </svg>
+  <figcaption>Figure 11.1 — Top-level navigation after login.</figcaption>
+  </figure>
+
+  <h3>11.2 End-to-end operational flow</h3>
+  <figure>
+  <svg viewBox="0 0 740 250" xmlns="http://www.w3.org/2000/svg" font-family="Helvetica,Arial" font-size="10">
+    <defs><marker id="f2" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#5b6472"/></marker></defs>
+    <rect x="40" y="20" width="130" height="44" rx="8" fill="#5a1a4d"/><text x="105" y="40" text-anchor="middle" fill="#fff">Customer enquiry</text><text x="105" y="55" text-anchor="middle" fill="#e7d4e3" font-size="8">select package/visa</text>
+    <rect x="300" y="20" width="130" height="44" rx="8" fill="#f4f1f6" stroke="#5a1a4d"/><text x="365" y="40" text-anchor="middle">Create Invoice</text><text x="365" y="55" text-anchor="middle" font-size="8" fill="#5b6472">passengers, amount</text>
+    <rect x="560" y="20" width="140" height="44" rx="8" fill="#fbf1ec" stroke="#b5532a"/><text x="630" y="40" text-anchor="middle">Approval</text><text x="630" y="55" text-anchor="middle" font-size="8" fill="#5b6472">(if required)</text>
+    <rect x="560" y="108" width="140" height="44" rx="8" fill="#eef6f4" stroke="#0e7c6b"/><text x="630" y="128" text-anchor="middle">Receipt / Collection</text><text x="630" y="143" text-anchor="middle" font-size="8" fill="#5b6472">cash / bank</text>
+    <rect x="300" y="108" width="130" height="44" rx="8" fill="#eef6f4" stroke="#0e7c6b"/><text x="365" y="128" text-anchor="middle">Print voucher</text><text x="365" y="143" text-anchor="middle" font-size="8" fill="#5b6472">bilingual PDF</text>
+    <rect x="40" y="108" width="130" height="44" rx="8" fill="#eef6f4" stroke="#0e7c6b"/><text x="105" y="128" text-anchor="middle">Departure</text><text x="105" y="143" text-anchor="middle" font-size="8" fill="#5b6472">passenger list</text>
+    <rect x="40" y="194" width="190" height="44" rx="8" fill="#f4f1f6" stroke="#7d2b6e"/><text x="135" y="214" text-anchor="middle">Expenses &amp; refunds</text><text x="135" y="229" text-anchor="middle" font-size="8" fill="#5b6472">payment vouchers</text>
+    <rect x="300" y="194" width="400" height="44" rx="8" fill="#f4f1f6" stroke="#7d2b6e"/><text x="500" y="214" text-anchor="middle">Reports &amp; Dashboard — income, pending, expense, departures</text>
+    <line x1="170" y1="42" x2="298" y2="42" stroke="#5b6472" marker-end="url(#f2)"/>
+    <line x1="430" y1="42" x2="558" y2="42" stroke="#5b6472" marker-end="url(#f2)"/>
+    <line x1="630" y1="64" x2="630" y2="106" stroke="#5b6472" marker-end="url(#f2)"/>
+    <line x1="560" y1="130" x2="432" y2="130" stroke="#5b6472" marker-end="url(#f2)"/>
+    <line x1="300" y1="130" x2="172" y2="130" stroke="#5b6472" marker-end="url(#f2)"/>
+    <line x1="500" y1="152" x2="500" y2="192" stroke="#5b6472" marker-end="url(#f2)"/>
+    <line x1="135" y1="152" x2="135" y2="192" stroke="#5b6472" marker-end="url(#f2)"/>
+  </svg>
+  <figcaption>Figure 11.2 — Day-to-day operational flow.</figcaption>
+  </figure>
+
+  <h3>11.3 Invoice creation flow</h3>
+  <figure>
+  <svg viewBox="0 0 740 130" xmlns="http://www.w3.org/2000/svg" font-family="Helvetica,Arial" font-size="9.5">
+    <defs><marker id="f3" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#5b6472"/></marker></defs>
+    <rect x="10" y="50" width="96" height="40" rx="7" fill="#5a1a4d"/><text x="58" y="74" text-anchor="middle" fill="#fff">New invoice</text>
+    <rect x="120" y="50" width="104" height="40" rx="7" fill="#f4f1f6" stroke="#5a1a4d"/><text x="172" y="68" text-anchor="middle">Select customer,</text><text x="172" y="80" text-anchor="middle" font-size="8">package, dates</text>
+    <rect x="238" y="50" width="104" height="40" rx="7" fill="#f4f1f6" stroke="#5a1a4d"/><text x="290" y="68" text-anchor="middle">Add passengers</text><text x="290" y="80" text-anchor="middle" font-size="8">+ visa types</text>
+    <rect x="356" y="50" width="110" height="40" rx="7" fill="#eef6f4" stroke="#0e7c6b"/><text x="411" y="68" text-anchor="middle">System computes</text><text x="411" y="80" text-anchor="middle" font-size="8">amount · disc · net</text>
+    <rect x="480" y="50" width="96" height="40" rx="7" fill="#5a1a4d"/><text x="528" y="74" text-anchor="middle" fill="#fff">Save</text>
+    <rect x="590" y="50" width="140" height="40" rx="7" fill="#eef6f4" stroke="#0e7c6b"/><text x="660" y="68" text-anchor="middle">Status: Confirmed</text><text x="660" y="80" text-anchor="middle" font-size="8">→ print / approval</text>
+    <line x1="106" y1="70" x2="118" y2="70" stroke="#5b6472" marker-end="url(#f3)"/>
+    <line x1="224" y1="70" x2="236" y2="70" stroke="#5b6472" marker-end="url(#f3)"/>
+    <line x1="342" y1="70" x2="354" y2="70" stroke="#5b6472" marker-end="url(#f3)"/>
+    <line x1="466" y1="70" x2="478" y2="70" stroke="#5b6472" marker-end="url(#f3)"/>
+    <line x1="576" y1="70" x2="588" y2="70" stroke="#5b6472" marker-end="url(#f3)"/>
+  </svg>
+  <figcaption>Figure 11.3 — Invoice creation.</figcaption>
+  </figure>
+
+  <h3>11.4 Receipt / collection flow</h3>
+  <figure>
+  <svg viewBox="0 0 740 130" xmlns="http://www.w3.org/2000/svg" font-family="Helvetica,Arial" font-size="9.5">
+    <defs><marker id="f4" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#5b6472"/></marker></defs>
+    <rect x="10" y="50" width="96" height="40" rx="7" fill="#5a1a4d"/><text x="58" y="74" text-anchor="middle" fill="#fff">New receipt</text>
+    <rect x="120" y="50" width="108" height="40" rx="7" fill="#f4f1f6" stroke="#5a1a4d"/><text x="174" y="68" text-anchor="middle">Select invoice</text><text x="174" y="80" text-anchor="middle" font-size="8">auto-fill details</text>
+    <rect x="244" y="50" width="120" height="40" rx="7" fill="#eef6f4" stroke="#0e7c6b"/><text x="304" y="68" text-anchor="middle">Show balance</text><text x="304" y="80" text-anchor="middle" font-size="8">invoice − received</text>
+    <rect x="380" y="50" width="120" height="40" rx="7" fill="#f4f1f6" stroke="#5a1a4d"/><text x="440" y="68" text-anchor="middle">Enter amount</text><text x="440" y="80" text-anchor="middle" font-size="8">cash / bank</text>
+    <rect x="516" y="50" width="96" height="40" rx="7" fill="#5a1a4d"/><text x="564" y="74" text-anchor="middle" fill="#fff">Save</text>
+    <rect x="626" y="50" width="104" height="40" rx="7" fill="#eef6f4" stroke="#0e7c6b"/><text x="678" y="68" text-anchor="middle">Print voucher</text><text x="678" y="80" text-anchor="middle" font-size="8">update balance</text>
+    <line x1="106" y1="70" x2="118" y2="70" stroke="#5b6472" marker-end="url(#f4)"/>
+    <line x1="228" y1="70" x2="242" y2="70" stroke="#5b6472" marker-end="url(#f4)"/>
+    <line x1="364" y1="70" x2="378" y2="70" stroke="#5b6472" marker-end="url(#f4)"/>
+    <line x1="500" y1="70" x2="514" y2="70" stroke="#5b6472" marker-end="url(#f4)"/>
+    <line x1="612" y1="70" x2="624" y2="70" stroke="#5b6472" marker-end="url(#f4)"/>
+  </svg>
+  <figcaption>Figure 11.4 — Receipt / collection against an invoice.</figcaption>
+  </figure>
+
+  <h3>11.5 Payment (expense &amp; refund) flow</h3>
+  <figure>
+  <svg viewBox="0 0 740 150" xmlns="http://www.w3.org/2000/svg" font-family="Helvetica,Arial" font-size="9.5">
+    <defs><marker id="f5" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#5b6472"/></marker></defs>
+    <rect x="20" y="60" width="96" height="40" rx="7" fill="#5a1a4d"/><text x="68" y="84" text-anchor="middle" fill="#fff">New payment</text>
+    <polygon points="170,80 220,55 270,80 220,105" fill="#fbf1ec" stroke="#b5532a"/><text x="220" y="77" text-anchor="middle" font-size="8.5">Type?</text><text x="220" y="89" text-anchor="middle" font-size="8">expense / refund</text>
+    <rect x="320" y="20" width="150" height="40" rx="7" fill="#f4f1f6" stroke="#5a1a4d"/><text x="395" y="38" text-anchor="middle">Expense → paid-to,</text><text x="395" y="50" text-anchor="middle" font-size="8">narration, amount</text>
+    <rect x="320" y="100" width="150" height="40" rx="7" fill="#f4f1f6" stroke="#5a1a4d"/><text x="395" y="118" text-anchor="middle">Refund → select</text><text x="395" y="130" text-anchor="middle" font-size="8">invoice, amount</text>
+    <rect x="520" y="60" width="96" height="40" rx="7" fill="#5a1a4d"/><text x="568" y="84" text-anchor="middle" fill="#fff">Save</text>
+    <rect x="628" y="60" width="100" height="40" rx="7" fill="#eef6f4" stroke="#0e7c6b"/><text x="678" y="78" text-anchor="middle">Voucher;</text><text x="678" y="90" text-anchor="middle" font-size="8">refund adj. balance</text>
+    <line x1="116" y1="80" x2="168" y2="80" stroke="#5b6472" marker-end="url(#f5)"/>
+    <line x1="270" y1="72" x2="318" y2="44" stroke="#5b6472" marker-end="url(#f5)"/>
+    <line x1="270" y1="88" x2="318" y2="116" stroke="#5b6472" marker-end="url(#f5)"/>
+    <line x1="470" y1="40" x2="520" y2="72" stroke="#5b6472" marker-end="url(#f5)"/>
+    <line x1="470" y1="120" x2="520" y2="88" stroke="#5b6472" marker-end="url(#f5)"/>
+    <line x1="616" y1="80" x2="626" y2="80" stroke="#5b6472" marker-end="url(#f5)"/>
+  </svg>
+  <figcaption>Figure 11.5 — Payment branching into expense or refund.</figcaption>
+  </figure>
+
+  <h3>11.6 Approval flow</h3>
+  <figure>
+  <svg viewBox="0 0 740 150" xmlns="http://www.w3.org/2000/svg" font-family="Helvetica,Arial" font-size="9.5">
+    <defs><marker id="f6" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#5b6472"/></marker></defs>
+    <rect x="20" y="60" width="120" height="40" rx="7" fill="#f4f1f6" stroke="#5a1a4d"/><text x="80" y="78" text-anchor="middle">Invoice =</text><text x="80" y="90" text-anchor="middle" font-size="8">Pending</text>
+    <rect x="180" y="60" width="120" height="40" rx="7" fill="#eef6f4" stroke="#0e7c6b"/><text x="240" y="78" text-anchor="middle">Approver queue</text><text x="240" y="90" text-anchor="middle" font-size="8">notification</text>
+    <polygon points="350,80 410,52 470,80 410,108" fill="#fbf1ec" stroke="#b5532a"/><text x="410" y="84" text-anchor="middle" font-size="8.5">Decision</text>
+    <rect x="520" y="20" width="120" height="40" rx="7" fill="#eef6f4" stroke="#0e7c6b"/><text x="580" y="38" text-anchor="middle">Approved</text><text x="580" y="50" text-anchor="middle" font-size="8">→ collect / print</text>
+    <rect x="520" y="100" width="120" height="40" rx="7" fill="#fbf1ec" stroke="#b5532a"/><text x="580" y="118" text-anchor="middle">Rejected</text><text x="580" y="130" text-anchor="middle" font-size="8">comment → revise</text>
+    <line x1="140" y1="80" x2="178" y2="80" stroke="#5b6472" marker-end="url(#f6)"/>
+    <line x1="300" y1="80" x2="348" y2="80" stroke="#5b6472" marker-end="url(#f6)"/>
+    <line x1="470" y1="68" x2="518" y2="44" stroke="#5b6472" marker-end="url(#f6)"/>
+    <line x1="470" y1="92" x2="518" y2="116" stroke="#5b6472" marker-end="url(#f6)"/>
+    <line x1="580" y1="140" x2="80" y2="140" stroke="#b5532a" stroke-dasharray="3,3" marker-end="url(#f6)"/><text x="300" y="135" font-size="8" fill="#b5532a">revise &amp; resubmit</text>
+    <line x1="80" y1="100" x2="80" y2="138" stroke="#b5532a" stroke-dasharray="3,3"/>
+  </svg>
+  <figcaption>Figure 11.6 — Approval, with reject-and-revise loop.</figcaption>
+  </figure>
+
+  <h3>11.7 Dynamic field &amp; dynamic print flow</h3>
+  <figure>
+  <svg viewBox="0 0 740 130" xmlns="http://www.w3.org/2000/svg" font-family="Helvetica,Arial" font-size="9.5">
+    <defs><marker id="f7" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#5b6472"/></marker></defs>
+    <rect x="10" y="50" width="120" height="44" rx="7" fill="#5a1a4d"/><text x="70" y="70" text-anchor="middle" fill="#fff">Admin defines</text><text x="70" y="84" text-anchor="middle" fill="#e7d4e3" font-size="8">field / template</text>
+    <rect x="160" y="50" width="120" height="44" rx="7" fill="#eef6f4" stroke="#0e7c6b"/><text x="220" y="70" text-anchor="middle">Stored as</text><text x="220" y="84" text-anchor="middle" font-size="8">metadata</text>
+    <rect x="310" y="50" width="120" height="44" rx="7" fill="#f4f1f6" stroke="#5a1a4d"/><text x="370" y="70" text-anchor="middle">Renders on form</text><text x="370" y="84" text-anchor="middle" font-size="8">React dynamic form</text>
+    <rect x="460" y="50" width="120" height="44" rx="7" fill="#f4f1f6" stroke="#5a1a4d"/><text x="520" y="70" text-anchor="middle">Captured with</text><text x="520" y="84" text-anchor="middle" font-size="8">record (JSON)</text>
+    <rect x="610" y="50" width="120" height="44" rx="7" fill="#eef6f4" stroke="#0e7c6b"/><text x="670" y="70" text-anchor="middle">Mapped to print</text><text x="670" y="84" text-anchor="middle" font-size="8">&amp; reports</text>
+    <line x1="130" y1="72" x2="158" y2="72" stroke="#5b6472" marker-end="url(#f7)"/>
+    <line x1="280" y1="72" x2="308" y2="72" stroke="#5b6472" marker-end="url(#f7)"/>
+    <line x1="430" y1="72" x2="458" y2="72" stroke="#5b6472" marker-end="url(#f7)"/>
+    <line x1="580" y1="72" x2="608" y2="72" stroke="#5b6472" marker-end="url(#f7)"/>
+  </svg>
+  <figcaption>Figure 11.7 — Define-once, use-everywhere flow for dynamic fields and printing.</figcaption>
+  </figure>
+
+  <h3>11.8 Data flow diagram</h3>
+  <figure>
+  <svg viewBox="0 0 740 170" xmlns="http://www.w3.org/2000/svg" font-family="Helvetica,Arial" font-size="9.5">
+    <defs><marker id="f8" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#5b6472"/></marker></defs>
+    <rect x="20" y="65" width="110" height="44" rx="7" fill="#5a1a4d"/><text x="75" y="85" text-anchor="middle" fill="#fff">User (browser)</text><text x="75" y="99" text-anchor="middle" fill="#e7d4e3" font-size="8">React UI</text>
+    <rect x="180" y="65" width="120" height="44" rx="7" fill="#f4f1f6" stroke="#5a1a4d"/><text x="240" y="85" text-anchor="middle">REST API</text><text x="240" y="99" text-anchor="middle" font-size="8">validate · RBAC</text>
+    <rect x="350" y="20" width="120" height="40" rx="7" fill="#eef6f4" stroke="#0e7c6b"/><text x="410" y="44" text-anchor="middle">MySQL</text>
+    <rect x="350" y="110" width="120" height="40" rx="7" fill="#eef6f4" stroke="#0e7c6b"/><text x="410" y="130" text-anchor="middle">Audit log</text>
+    <rect x="520" y="20" width="100" height="40" rx="7" fill="#fff" stroke="#7d2b6e"/><text x="570" y="44" text-anchor="middle">PDF render</text>
+    <rect x="520" y="110" width="100" height="40" rx="7" fill="#fff" stroke="#0e7c6b"/><text x="570" y="134" text-anchor="middle">AI / OCR</text>
+    <rect x="650" y="65" width="80" height="44" rx="7" fill="#eef6f4" stroke="#0e7c6b"/><text x="690" y="89" text-anchor="middle">Storage</text>
+    <line x1="130" y1="87" x2="178" y2="87" stroke="#5b6472" marker-end="url(#f8)"/>
+    <line x1="300" y1="80" x2="348" y2="44" stroke="#5b6472" marker-end="url(#f8)"/>
+    <line x1="300" y1="94" x2="348" y2="128" stroke="#5b6472" marker-end="url(#f8)"/>
+    <line x1="470" y1="40" x2="518" y2="40" stroke="#5b6472" marker-end="url(#f8)"/>
+    <line x1="470" y1="130" x2="518" y2="130" stroke="#5b6472" marker-end="url(#f8)"/>
+    <line x1="620" y1="40" x2="660" y2="68" stroke="#5b6472" marker-end="url(#f8)"/>
+    <text x="240" y="55" font-size="8" fill="#5b6472" text-anchor="middle">JSON over HTTPS</text>
+  </svg>
+  <figcaption>Figure 11.8 — How data moves between UI, API, database, and services.</figcaption>
+  </figure>
+</section>
+
+<!-- 12. MIGRATION -->
+<section class="section">
+  <h2>12. Data Migration</h2>
+  <p>Historical data from the current desktop application is migrated into the new MySQL database so the business keeps a single, continuous record.</p>
+  <ol>
+    <li><b>Assess source.</b> Identify the current database engine and export options (direct DB, backup file, or CSV export). <span class="pill">TBC</span></li>
+    <li><b>Map data.</b> Map source tables/fields to the new schema (customers, packages, visa types, nationalities, invoices, passengers, receipts, payments).</li>
+    <li><b>Build ETL.</b> Extract, clean (de-duplicate, fix Arabic encoding), transform and load, preserving original document numbers.</li>
+    <li><b>Trial migration.</b> Load into staging; reconcile counts and financial totals against the old system&rsquo;s reports.</li>
+    <li><b>Validation.</b> Verify key records and report totals match.</li>
+    <li><b>Cutover.</b> Final delta migration, freeze old system, go live; keep the old system read-only as a fallback for an agreed period.</li>
+  </ol>
+  <div class="callout"><b>Dependency.</b> Migration effort depends on access to the current data. An early database export or sample confirms the mapping.</div>
+</section>
+
+<!-- 13. CONFIG PARAMS -->
+<section class="section">
+  <h2>13. Configuration Parameters (to confirm)</h2>
+  <p>These items are configurable and need a decision before or during build. They do not change the specification, only its settings.</p>
+  <table>
+    <tr><th style="width:6%">#</th><th>Item</th><th style="width:18%">Default / note</th></tr>
+    <tr><td>1</td><td>Cloud provider &amp; hosting region (data-residency)</td><td>Region near Qatar</td></tr>
+    <tr><td>2</td><td>AI provider and which AI features in phase 1</td><td>Provider-agnostic gateway</td></tr>
+    <tr><td>3</td><td>Access to current data for migration</td><td>DB export / sample</td></tr>
+    <tr><td>4</td><td>Number of branches and concurrent users</td><td>Single branch assumed</td></tr>
+    <tr><td>5</td><td>Hijri date display</td><td>Gregorian default</td></tr>
+    <tr><td>6</td><td>Notifications channel (email / SMS / WhatsApp)</td><td>Email default</td></tr>
+    <tr><td>7</td><td>Approval rule thresholds (e.g. discount limit)</td><td>Off by default</td></tr>
+    <tr><td>8</td><td>Currency &amp; number/date formats</td><td>QAR, dd/mm/yyyy</td></tr>
+  </table>
+  <p class="center small" style="margin-top:26px">SPEC-RAWDA-ERP-001 &nbsp;•&nbsp; Version 1.0 &nbsp;•&nbsp; Functional &amp; Technical Specification with Process Flows</p>
+</section>
+
+</body>
+</html>

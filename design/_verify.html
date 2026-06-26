@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AL RAWDA ERP — UI Prototype</title>
+<style>
+:root{
+  --maroon:#5a1a4d; --maroon2:#7d2b6e; --maroon3:#6d2360;
+  --teal:#0e7c6b; --teal-soft:#eef6f4;
+  --bg:#eef0f4; --panel:#ffffff; --ink:#23272f; --muted:#6b7280;
+  --line:#e2e6ee; --soft:#f6f3f8; --gold:#b8860b;
+  --warn:#b5532a; --green:#2d7d46; --rowsel:#efe7f1;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{font-family:'Segoe UI',Tahoma,Arial,sans-serif;background:var(--bg);color:var(--ink);font-size:13px}
+button{font-family:inherit;cursor:pointer}
+.hidden{display:none!important}
+
+/* ---------- LOGIN ---------- */
+#login{display:none;position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(150deg,#3d0f34,#5a1a4d 55%,#7d2b6e)}
+.login-card{background:#fff;border-radius:14px;width:360px;padding:32px;box-shadow:0 24px 60px rgba(0,0,0,.35);text-align:center}
+.brandmark{width:60px;height:60px;border-radius:50%;background:var(--maroon);color:#f0c674;display:flex;align-items:center;justify-content:center;
+  font-weight:800;font-size:22px;margin:0 auto 12px;letter-spacing:1px}
+.login-card h1{font-size:17px;margin:0 0 2px;color:var(--maroon)}
+.login-card .ar{font-size:14px;color:var(--maroon2);margin:0 0 4px;direction:rtl}
+.login-card p{color:var(--muted);font-size:11.5px;margin:0 0 20px}
+.fld{text-align:left;margin-bottom:12px}
+.fld label{display:block;font-size:11px;color:var(--muted);margin-bottom:4px}
+.fld input{width:100%;height:38px;border:1px solid var(--line);border-radius:8px;padding:0 12px;font-size:13px}
+.fld input:focus{outline:none;border-color:var(--maroon2);box-shadow:0 0 0 3px rgba(125,43,110,.12)}
+.btn-primary{width:100%;height:40px;background:var(--maroon);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;margin-top:6px}
+.btn-primary:hover{background:var(--maroon2)}
+
+/* ---------- SHELL ---------- */
+#app{display:flex;height:100vh;flex-direction:column}
+.topbar{height:46px;background:var(--maroon);color:#fff;display:flex;align-items:center;padding:0 14px;gap:12px;flex:0 0 auto}
+.topbar .logo{width:28px;height:28px;border-radius:6px;background:#fff;color:var(--maroon);font-weight:800;display:flex;align-items:center;justify-content:center;font-size:13px}
+.topbar .title{font-weight:600;font-size:13.5px}
+.topbar .title small{display:block;font-size:9px;opacity:.8;font-weight:400}
+.topbar .spacer{flex:1}
+.topbar .meta{font-size:11px;opacity:.92;display:flex;align-items:center;gap:14px}
+.topbar .meta b{color:#9fe1cb}
+.topbar .user{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.12);padding:4px 10px;border-radius:14px}
+.topbar .dot{width:8px;height:8px;border-radius:50%;background:#7CFFB0}
+
+.tabs{height:34px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:stretch;padding:0 8px;gap:2px;overflow-x:auto;flex:0 0 auto}
+.tab{display:flex;align-items:center;gap:6px;padding:0 12px;font-size:12px;color:var(--muted);border-bottom:2px solid transparent;white-space:nowrap}
+.tab .x{opacity:.5;font-size:13px}
+.tab.active{color:var(--maroon);border-bottom-color:var(--maroon);font-weight:600}
+
+.body{display:flex;flex:1;min-height:0}
+.sidebar{width:194px;background:#fff;border-right:1px solid var(--line);padding:8px 0;overflow:auto;flex:0 0 auto}
+.nav-group{padding:10px 16px 4px;font-size:10px;letter-spacing:.6px;text-transform:uppercase;color:#9aa1ad}
+.nav-item{display:flex;align-items:center;gap:9px;padding:8px 16px;font-size:12.5px;color:#3b4150;cursor:pointer;border-left:3px solid transparent}
+.nav-item i{font-style:normal;width:16px;text-align:center;color:#9aa1ad}
+.nav-item:hover{background:var(--soft)}
+.nav-item.active{background:var(--soft);color:var(--maroon);border-left-color:var(--maroon);font-weight:600}
+.nav-item.active i{color:var(--maroon)}
+.nav-item .badge-new{margin-left:auto;font-size:8.5px;background:var(--warn);color:#fff;padding:1px 5px;border-radius:8px}
+
+.main{flex:1;overflow:auto;padding:14px}
+.screen{display:none}
+.screen.active{display:block}
+
+.panelhead{background:var(--maroon);color:#fff;padding:8px 14px;border-radius:8px 8px 0 0;font-weight:600;font-size:12.5px;display:flex;align-items:center;justify-content:space-between}
+.toolbar{background:#fff;border:1px solid var(--line);border-top:none;padding:7px 12px;display:flex;gap:8px;align-items:center}
+.tbtn{display:flex;align-items:center;gap:5px;border:1px solid var(--line);background:#fff;border-radius:6px;padding:5px 11px;font-size:12px;color:#3b4150}
+.tbtn:hover{background:var(--soft);border-color:#cdd2dc}
+.tbtn.pri{background:var(--maroon);color:#fff;border-color:var(--maroon)}
+.tbtn.pri:hover{background:var(--maroon2)}
+.tbtn.ok{background:var(--green);color:#fff;border-color:var(--green)}
+.tbtn.warn{background:var(--warn);color:#fff;border-color:var(--warn)}
+
+/* list+detail split */
+.split{display:flex;gap:12px;align-items:flex-start}
+.col-list{width:330px;flex:0 0 auto;background:#fff;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.col-detail{flex:1;background:#fff;border:1px solid var(--line);border-radius:8px}
+.lh{background:var(--maroon);color:#fff;padding:8px 12px;font-weight:600;font-size:12px;display:flex;justify-content:space-between;align-items:center}
+.dh{background:var(--maroon2);color:#fff;padding:8px 12px;font-weight:600;font-size:12px}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{background:#faf8fb;color:#5b6472;text-align:left;padding:7px 10px;font-weight:600;font-size:11px;border-bottom:1px solid var(--line);position:sticky;top:0}
+td{padding:7px 10px;border-bottom:1px solid #eef1f6}
+tbody tr:hover{background:var(--soft);cursor:pointer}
+tbody tr.sel{background:var(--rowsel)}
+.listwrap{max-height:560px;overflow:auto}
+.filterrow input{width:100%;border:1px solid var(--line);border-radius:5px;padding:4px 7px;font-size:11px}
+
+.form{padding:14px 16px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px 18px}
+.field{display:flex;flex-direction:column;gap:3px;margin-bottom:8px}
+.field label{font-size:11px;color:var(--muted)}
+.field label .req{color:var(--warn)}
+.field input,.field select,.field textarea{height:32px;border:1px solid var(--line);border-radius:6px;padding:0 9px;font-size:12px;background:#fff}
+.field textarea{height:54px;padding:6px 9px;resize:none}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--maroon2);box-shadow:0 0 0 3px rgba(125,43,110,.1)}
+.field input[readonly]{background:#f6f7f9;color:#6b7280}
+.radio{display:flex;gap:14px;align-items:center;font-size:12px;height:32px}
+.radio label{display:flex;gap:5px;align-items:center;color:#3b4150}
+.section-title{font-size:11px;font-weight:700;color:var(--maroon);text-transform:uppercase;letter-spacing:.5px;margin:14px 0 6px;border-bottom:1px solid var(--line);padding-bottom:4px}
+.totbar{display:flex;gap:18px;justify-content:flex-end;padding:10px 0 0;align-items:center}
+.totbar .amt{font-size:11px;color:var(--muted)}
+.totbar .amt b{display:block;font-size:15px;color:var(--ink)}
+.totbar .net b{color:var(--teal)}
+
+.badge{display:inline-block;border-radius:10px;padding:1px 9px;font-size:10px;font-weight:700;color:#fff}
+.bg-draft{background:#6b7280}.bg-sub{background:var(--warn)}.bg-appr{background:var(--green)}.bg-pend{background:#b5532a}
+.pill{display:inline-block;border-radius:5px;padding:1px 7px;font-size:10px;font-weight:600;background:var(--teal-soft);color:var(--teal);border:1px solid #bfe0d9}
+
+/* dashboard */
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px}
+.card{background:#fff;border:1px solid var(--line);border-radius:10px;padding:13px 15px}
+.card .k{font-size:11px;color:var(--muted)}
+.card .v{font-size:22px;font-weight:700;margin-top:3px}
+.card.k1 .v{color:var(--maroon)}.card.k2 .v{color:var(--teal)}.card.k3 .v{color:var(--warn)}.card.k4 .v{color:var(--green)}
+.panelcard{background:#fff;border:1px solid var(--line);border-radius:10px;margin-bottom:12px}
+.panelcard h3{margin:0;padding:9px 14px;border-bottom:1px solid var(--line);font-size:12.5px;color:var(--maroon)}
+
+/* permission matrix */
+.matrix td,.matrix th{text-align:center;font-size:11px;padding:6px 8px}
+.matrix td:first-child,.matrix th:first-child{text-align:left;font-weight:600}
+.yes{color:var(--green);font-weight:700}.no{color:#c2c7d0}.lim{color:var(--warn);font-weight:600}
+.chk{width:15px;height:15px;border-radius:3px;border:1px solid #cdd2dc;display:inline-block;vertical-align:-2px}
+.chk.on{background:var(--teal);border-color:var(--teal);position:relative}
+.chk.on:after{content:'✓';color:#fff;font-size:10px;position:absolute;left:2px;top:-2px}
+
+.note{font-size:11px;color:var(--muted);padding:8px 0}
+.footer-note{font-size:10.5px;color:#9aa1ad;text-align:center;padding:10px}
+.ar{direction:rtl}
+@media(max-width:920px){.cards{grid-template-columns:repeat(2,1fr)}.col-list{width:260px}}
+</style>
+</head>
+<body>
+
+<!-- ================= LOGIN ================= -->
+<div id="login">
+  <div class="login-card">
+    <div class="brandmark">AR</div>
+    <div class="ar">الروضة للحج والعمرة</div>
+    <h1>AL RAWDA GROUP</h1>
+    <p>Hajj &amp; Umrah Services — Cloud ERP</p>
+    <div class="fld"><label>Username</label><input id="u" value="hasnain" /></div>
+    <div class="fld"><label>Password</label><input id="p" type="password" value="••••••••" /></div>
+    <button class="btn-primary" onclick="enter()">Sign in</button>
+    <p style="margin-top:14px">Prototype — sample data only</p>
+  </div>
+</div>
+
+<!-- ================= APP ================= -->
+<div id="app">
+  <div class="topbar">
+    <div class="logo">AR</div>
+    <div class="title">AL RAWDA ERP <small>الروضة للحج والعمرة — Doha, Qatar</small></div>
+    <div class="spacer"></div>
+    <div class="meta"><span>Branch: <b>AL RAWDA</b></span><span>Date: <b>09-06-2026</b></span></div>
+    <div class="user"><span class="dot"></span>HASNAIN · Admin</div>
+  </div>
+
+  <div class="tabs" id="tabs"></div>
+
+  <div class="body">
+    <div class="sidebar">
+      <div class="nav-group">Transaction · Activity</div>
+      <div class="nav-item active" data-s="dashboard"><i>▦</i> Dashboard</div>
+      <div class="nav-item" data-s="invoice"><i>🧾</i> Invoice</div>
+      <div class="nav-item" data-s="receipt"><i>💵</i> Receipt</div>
+      <div class="nav-item" data-s="approval"><i>✔</i> Receipt Approval <span class="badge-new">NEW</span></div>
+      <div class="nav-item" data-s="payment"><i>↘</i> Payment</div>
+      <div class="nav-group">Reports</div>
+      <div class="nav-item" data-s="reports"><i>📊</i> All Report</div>
+      <div class="nav-group">Transaction · Basic</div>
+      <div class="nav-item" data-s="package"><i>📦</i> Package</div>
+      <div class="nav-item" data-s="visa"><i>🛂</i> Visa Type</div>
+      <div class="nav-item" data-s="nationality"><i>🌐</i> Nationality</div>
+      <div class="nav-group">Settings</div>
+      <div class="nav-item" data-s="users"><i>👥</i> User Management <span class="badge-new">NEW</span></div>
+      <div class="nav-item" data-s="settings"><i>⚙</i> Settings</div>
+    </div>
+
+    <div class="main">
+
+      <!-- DASHBOARD -->
+      <div class="screen active" id="s-dashboard">
+        <div class="cards">
+          <div class="card k1"><div class="k">Today's collection</div><div class="v">QAR 5,400</div></div>
+          <div class="card k3"><div class="k">Pending balance</div><div class="v">QAR 7,600</div></div>
+          <div class="card k4"><div class="k">Departures this week</div><div class="v">18</div></div>
+          <div class="card k2"><div class="k">Receipts to approve</div><div class="v">6</div></div>
+        </div>
+        <div class="panelcard">
+          <h3>Recent invoices</h3>
+          <table><thead><tr><th>Inv No</th><th>Date</th><th>Customer</th><th>Package</th><th>Net</th><th>Balance</th><th>Status</th></tr></thead><tbody>
+            <tr><td>8457</td><td>01-06-2026</td><td>Mohammad Jahirul Islam</td><td>5 Days Umrah With Visa</td><td>6,450</td><td>1,450</td><td><span class="badge bg-pend">Pending</span></td></tr>
+            <tr><td>8462</td><td>02-06-2026</td><td>Habib Ali</td><td>Only Transport</td><td>350</td><td>0</td><td><span class="badge bg-appr">Paid</span></td></tr>
+            <tr><td>8464</td><td>03-06-2026</td><td>Daud Janang</td><td>Hotel &amp; Visa</td><td>2,800</td><td>0</td><td><span class="badge bg-appr">Paid</span></td></tr>
+            <tr><td>8460</td><td>02-06-2026</td><td>Suman Meah</td><td>10 Days Umrah With Visa</td><td>2,600</td><td>1,200</td><td><span class="badge bg-pend">Pending</span></td></tr>
+          </tbody></table>
+        </div>
+        <div class="note">Dashboard is an optional Phase-1 add; the core screens below match the current application.</div>
+      </div>
+
+      <!-- INVOICE -->
+      <div class="screen" id="s-invoice">
+        <div class="split">
+          <div class="col-list">
+            <div class="lh">Invoice List <span>↻</span></div>
+            <div style="padding:6px 8px" class="filterrow"><input placeholder="Search customer / invoice no…"></div>
+            <div class="listwrap"><table><thead><tr><th>Inv No</th><th>Date</th><th>Customer</th></tr></thead><tbody id="invlist"></tbody></table></div>
+          </div>
+          <div class="col-detail">
+            <div class="dh">Invoice — Detail</div>
+            <div class="toolbar">
+              <button class="tbtn pri">＋ New</button><button class="tbtn">💾 Save</button>
+              <button class="tbtn">🖨 Print</button><button class="tbtn">✖ Cancel</button>
+            </div>
+            <div class="form">
+              <div class="grid2">
+                <div class="field"><label>Invoice No</label><input value="8457" readonly></div>
+                <div class="field"><label>Invoice Date <span class="req">*</span></label><input value="01/06/2026"></div>
+                <div class="field"><label>Customer Name <span class="req">*</span></label><input value="Mohammad Jahirul Islam"></div>
+                <div class="field"><label>Nationality <span class="req">*</span></label><select><option>Bangladeshi</option><option>Pakistani</option><option>Syrian</option></select></div>
+                <div class="field"><label>Mobile No 1</label><input value="3122 1565"></div>
+                <div class="field"><label>Mobile No 2</label><input></div>
+                <div class="field"><label>Package <span class="req">*</span></label><select><option>5 Days Umrah With Visa — 1290</option><option>10 Days Umrah With Visa — 1300</option></select></div>
+                <div class="field"><label>Departure Date <span class="req">*</span></label><input value="10/06/2026"></div>
+                <div class="field"><label>No. of Passengers</label><input value="5"></div>
+                <div class="field"><label>No. of Visa Required</label><input value="5"></div>
+              </div>
+              <div class="field"><label>Room Type</label>
+                <div class="radio"><label><input type="radio" name="rt" checked> Normal</label><label><input type="radio" name="rt"> Separate</label><label><input type="radio" name="rt"> Nil</label></div>
+              </div>
+              <div class="section-title">Passenger Details</div>
+              <table><thead><tr><th>SL</th><th>Passenger Name</th><th>Visa Type</th><th>Visa Req.</th></tr></thead><tbody>
+                <tr><td>1</td><td>Mohammad Jahirul Islam</td><td>Umrah Visa</td><td>Yes</td></tr>
+                <tr><td>2</td><td>Md Sohel Miah</td><td>Umrah Visa</td><td>Yes</td></tr>
+                <tr><td>3</td><td>Nusaiba Jahan</td><td>Umrah Visa</td><td>Yes</td></tr>
+                <tr><td>4</td><td>Nafiza Jahan</td><td>Umrah Visa</td><td>Yes</td></tr>
+                <tr><td>5</td><td>Tanjina Akter</td><td>Umrah Visa</td><td>Yes</td></tr>
+              </tbody></table>
+              <div class="totbar">
+                <div class="amt">Amount<b>QAR 6,450</b></div>
+                <div class="amt">Discount<b>QAR 0</b></div>
+                <div class="amt net">Net Amount<b>QAR 6,450</b></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RECEIPT -->
+      <div class="screen" id="s-receipt">
+        <div class="split">
+          <div class="col-list">
+            <div class="lh">Receipt List <span>↻</span></div>
+            <div style="padding:6px 8px" class="filterrow"><input placeholder="Search customer / receipt no…"></div>
+            <div class="listwrap"><table><thead><tr><th>Rec No</th><th>Date</th><th>Customer</th><th>Amount</th></tr></thead><tbody id="reclist"></tbody></table></div>
+          </div>
+          <div class="col-detail">
+            <div class="dh">Receipt — سند قبض</div>
+            <div class="toolbar"><button class="tbtn pri">＋ New</button><button class="tbtn">💾 Save</button><button class="tbtn">🖨 Print</button><span style="margin-left:auto"><span class="badge bg-draft">Draft</span></span></div>
+            <div class="form">
+              <div class="grid2">
+                <div class="field"><label>Receipt No</label><input value="12746" readonly></div>
+                <div class="field"><label>Receipt Date <span class="req">*</span></label><input value="01/06/2026"></div>
+                <div class="field" style="grid-column:1/3"><label>Select Invoice <span class="req">*</span></label><select><option>8457 — Mohammad Jahirul Islam — 5 Days Umrah With Visa</option></select></div>
+                <div class="field"><label>Customer Name</label><input value="Mohammad Jahirul Islam" readonly></div>
+                <div class="field"><label>Nationality</label><input value="Bangladeshi" readonly></div>
+                <div class="field"><label>Package</label><input value="5 Days Umrah With Visa ×5" readonly></div>
+                <div class="field"><label>Departure Date</label><input value="10/06/2026" readonly></div>
+              </div>
+              <div class="field"><label>Mode of Payment <span class="req">*</span></label>
+                <div class="radio"><label><input type="radio" name="mp" checked> Cash</label><label><input type="radio" name="mp"> Bank</label></div>
+              </div>
+              <div class="grid2">
+                <div class="field"><label>Invoice Amount</label><input value="6,450" readonly></div>
+                <div class="field"><label>Previous Balance</label><input value="6,450" readonly></div>
+                <div class="field"><label>Received Amount <span class="req">*</span></label><input value="5,000"></div>
+                <div class="field"><label>Remaining Balance</label><input value="1,450" readonly></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RECEIPT APPROVAL -->
+      <div class="screen" id="s-approval">
+        <div class="panelhead">Receipt Approval — Manager <span style="font-size:11px;font-weight:400">Select the day's receipts and submit / approve</span></div>
+        <div class="toolbar" style="border-radius:0">
+          <span style="font-size:12px;color:var(--muted)">Date: <b style="color:var(--ink)">09-06-2026</b></span>
+          <span id="selinfo" style="font-size:12px;color:var(--muted);margin-left:8px">Selected: <b style="color:var(--maroon)" id="selcount">0</b> · Total <b style="color:var(--teal)" id="seltotal">QAR 0</b></span>
+          <span style="flex:1"></span>
+          <button class="tbtn warn" onclick="submitReceipts()">↦ Submit to manager</button>
+          <button class="tbtn ok" onclick="approveReceipts()">✔ Approve selected</button>
+        </div>
+        <div style="background:#fff;border:1px solid var(--line);border-top:none;border-radius:0 0 8px 8px">
+          <table><thead><tr>
+            <th style="width:34px"><span class="chk" id="allchk" onclick="toggleAll()"></span></th>
+            <th>Rec No</th><th>Customer</th><th>Packages</th><th>Mode</th><th>Amount</th><th>Status</th>
+          </tr></thead><tbody id="apprlist"></tbody></table>
+        </div>
+        <div class="note">Separation of duties: counter staff <b>submit</b>; only the manager can <b>approve / reject</b>. Approved receipts lock and count as income.</div>
+      </div>
+
+      <!-- PAYMENT -->
+      <div class="screen" id="s-payment">
+        <div class="split">
+          <div class="col-list">
+            <div class="lh">Payment List <span>↻</span></div>
+            <div class="listwrap"><table><thead><tr><th>No</th><th>Date</th><th>Payee</th><th>Amount</th></tr></thead><tbody>
+              <tr><td>3677</td><td>08-06</td><td>OFFICE</td><td>83</td></tr>
+              <tr><td>3675</td><td>07-06</td><td>OFFICE</td><td>1,500</td></tr>
+              <tr><td>3666</td><td>02-06</td><td>OFFICE</td><td>1,590</td></tr>
+              <tr><td>3663</td><td>01-06</td><td>OFFICE</td><td>800</td></tr>
+            </tbody></table></div>
+          </div>
+          <div class="col-detail">
+            <div class="dh">Payment — Expense / Refund</div>
+            <div class="toolbar"><button class="tbtn pri">＋ New</button><button class="tbtn">💾 Save</button><button class="tbtn">🖨 Print</button><button class="tbtn">🗑 Delete</button></div>
+            <div class="form">
+              <div class="grid2">
+                <div class="field"><label>Payment No</label><input value="3678" readonly></div>
+                <div class="field"><label>Payment Date <span class="req">*</span></label><input value="09/06/2026"></div>
+              </div>
+              <div class="field"><label>Type of Payment <span class="req">*</span></label>
+                <div class="radio"><label><input type="radio" name="pt" checked> Expense</label><label><input type="radio" name="pt"> Refund</label></div>
+              </div>
+              <div class="grid2">
+                <div class="field"><label>Paid To <span class="req">*</span></label><input value="OFFICE"></div>
+                <div class="field"><label>Mobile No.</label><input></div>
+              </div>
+              <div class="field"><label>Narration</label><textarea>A4 Paper, Sticky notes, Ball point</textarea></div>
+              <div class="grid2">
+                <div class="field"><label>Paid Amount <span class="req">*</span></label><input value="83"></div>
+                <div class="field"><label>&nbsp;</label><input value="" placeholder="QAR"></div>
+              </div>
+              <div class="field"><label>Remarks</label><textarea></textarea></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- REPORTS -->
+      <div class="screen" id="s-reports">
+        <div class="panelhead">All Report <span style="font-size:11px;font-weight:400">Select type + date range</span></div>
+        <div style="background:#fff;border:1px solid var(--line);border-top:none;border-radius:0 0 8px 8px;padding:14px">
+          <div style="font-size:12px;color:var(--muted);margin-bottom:8px">Type of Report</div>
+          <div style="display:flex;flex-wrap:wrap;gap:14px;font-size:12.5px;margin-bottom:14px">
+            <label><input type="radio" name="rep" checked> Income Summary</label>
+            <label><input type="radio" name="rep"> Pending</label>
+            <label><input type="radio" name="rep"> Income Detail</label>
+            <label><input type="radio" name="rep"> Passengers List</label>
+            <label><input type="radio" name="rep"> Departure Date wise</label>
+            <label><input type="radio" name="rep"> Expense</label>
+          </div>
+          <div style="display:flex;gap:18px;align-items:end;margin-bottom:14px">
+            <div class="field" style="width:160px"><label>Start Date</label><input value="01/06/2026"></div>
+            <div class="field" style="width:160px"><label>End Date</label><input value="09/06/2026"></div>
+            <button class="tbtn pri" style="height:32px">🖨 Print / Preview</button>
+            <button class="tbtn" style="height:32px">⬇ Export Excel</button>
+          </div>
+          <div style="border:1px solid var(--line);border-radius:8px;overflow:hidden">
+            <div style="background:#faf8fb;padding:7px 12px;font-size:11px;color:var(--maroon);font-weight:700">Income Summary (preview)</div>
+            <table><thead><tr><th>Inv</th><th>Customer</th><th>Departure</th><th>Invoice</th><th>Received</th><th>Balance</th></tr></thead><tbody>
+              <tr><td>8457</td><td>Mohammad Jahirul Islam</td><td>10/06/2026</td><td>6,450</td><td>5,000</td><td>1,450</td></tr>
+              <tr><td>8462</td><td>Habib Ali</td><td>10/06/2026</td><td>350</td><td>350</td><td>0</td></tr>
+              <tr><td>8460</td><td>Suman Meah</td><td>01/07/2026</td><td>2,600</td><td>1,400</td><td>1,200</td></tr>
+              <tr style="font-weight:700;background:#faf8fb"><td colspan="3">Total</td><td>35,000</td><td>27,400</td><td>7,600</td></tr>
+            </tbody></table>
+          </div>
+        </div>
+      </div>
+
+      <!-- PACKAGE -->
+      <div class="screen" id="s-package">
+        <div class="split">
+          <div class="col-list">
+            <div class="lh">Package List <span>↻</span></div>
+            <div class="listwrap"><table><thead><tr><th>Package Name</th><th>Rate</th></tr></thead><tbody>
+              <tr class="sel"><td>5 Days Umrah With Visa</td><td>1,290</td></tr>
+              <tr><td>10 Days Umrah With Visa</td><td>1,300</td></tr>
+              <tr><td>Only Transport</td><td>400</td></tr>
+              <tr><td>Transport &amp; Visa</td><td>850</td></tr>
+              <tr><td>Hotel &amp; Visa</td><td>550</td></tr>
+            </tbody></table></div>
+          </div>
+          <div class="col-detail">
+            <div class="dh">Package — Detail</div>
+            <div class="toolbar"><button class="tbtn pri">＋ New</button><button class="tbtn">💾 Save</button><button class="tbtn">🗑 Delete</button></div>
+            <div class="form">
+              <div class="field"><label>Package Name (English) <span class="req">*</span></label><input value="5 Days Umrah With Visa"></div>
+              <div class="field"><label>Package Name (Arabic)</label><input class="ar" value="٥ أيام عمرة مع تأشيرة"></div>
+              <div class="field" style="width:200px"><label>Rate (QAR) <span class="req">*</span></label><input value="1290"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- VISA -->
+      <div class="screen" id="s-visa">
+        <div class="split">
+          <div class="col-list">
+            <div class="lh">Visa Type List <span>↻</span></div>
+            <div class="listwrap"><table><thead><tr><th>Visa Type Name</th></tr></thead><tbody>
+              <tr class="sel"><td>Umrah Visa</td></tr><tr><td>Tourist Visa</td></tr>
+            </tbody></table></div>
+          </div>
+          <div class="col-detail">
+            <div class="dh">Visa Type — Detail</div>
+            <div class="toolbar"><button class="tbtn pri">＋ New</button><button class="tbtn">💾 Save</button><button class="tbtn">🗑 Delete</button></div>
+            <div class="form"><div class="field" style="max-width:360px"><label>Visa Type <span class="req">*</span></label><input value="Umrah Visa"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- NATIONALITY -->
+      <div class="screen" id="s-nationality">
+        <div class="split">
+          <div class="col-list">
+            <div class="lh">Country List <span>↻</span></div>
+            <div class="listwrap"><table><thead><tr><th>Country</th><th>Short</th></tr></thead><tbody>
+              <tr class="sel"><td>Bangladeshi</td><td>118</td></tr><tr><td>Pakistani</td><td>112</td></tr>
+              <tr><td>Syrian</td><td>119</td></tr><tr><td>Algerian</td><td>ALG</td></tr>
+            </tbody></table></div>
+          </div>
+          <div class="col-detail">
+            <div class="dh">Country — Detail</div>
+            <div class="toolbar"><button class="tbtn pri">＋ New</button><button class="tbtn">💾 Save</button><button class="tbtn">🗑 Delete</button></div>
+            <div class="form"><div class="grid2">
+              <div class="field"><label>Country Name <span class="req">*</span></label><input value="Bangladeshi"></div>
+              <div class="field"><label>Short Name <span class="req">*</span></label><input value="118"></div>
+              <div class="field"><label>Name in Arabic</label><input class="ar" value="بنغلاديشي"></div>
+            </div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- USER MANAGEMENT -->
+      <div class="screen" id="s-users">
+        <div class="split">
+          <div class="col-list">
+            <div class="lh">Users <span>＋</span></div>
+            <div class="listwrap"><table><thead><tr><th>Name</th><th>Role</th><th></th></tr></thead><tbody>
+              <tr class="sel"><td>Hasnain</td><td>Admin</td><td><span class="pill">Active</span></td></tr>
+              <tr><td>Burhan</td><td>Counter</td><td><span class="pill">Active</span></td></tr>
+              <tr><td>Manager</td><td>Manager</td><td><span class="pill">Active</span></td></tr>
+              <tr><td>Nawaz</td><td>Accountant</td><td><span class="pill">Active</span></td></tr>
+            </tbody></table></div>
+          </div>
+          <div class="col-detail">
+            <div class="dh">Role &amp; Menu-wise Permissions</div>
+            <div class="toolbar"><select style="height:30px;border:1px solid var(--line);border-radius:6px;padding:0 8px"><option>Counter staff</option><option>Manager</option><option>Accountant</option><option>Admin</option><option>Viewer</option></select><button class="tbtn pri" style="margin-left:auto">💾 Save role</button></div>
+            <div class="form">
+              <table class="matrix"><thead><tr><th>Menu</th><th>View</th><th>Create</th><th>Edit</th><th>Delete</th><th>Print</th><th>Submit</th><th>Approve</th></tr></thead><tbody>
+                <tr><td>Master Data</td><td><span class="chk on"></span></td><td><span class="chk"></span></td><td><span class="chk"></span></td><td><span class="chk"></span></td><td>—</td><td>—</td><td>—</td></tr>
+                <tr><td>Invoice</td><td><span class="chk on"></span></td><td><span class="chk on"></span></td><td><span class="chk on"></span></td><td><span class="chk"></span></td><td><span class="chk on"></span></td><td>—</td><td>—</td></tr>
+                <tr><td>Receipt</td><td><span class="chk on"></span></td><td><span class="chk on"></span></td><td><span class="chk"></span></td><td><span class="chk"></span></td><td><span class="chk on"></span></td><td><span class="chk on"></span></td><td>—</td></tr>
+                <tr><td>Receipt Approval</td><td><span class="chk on"></span></td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td><span class="chk"></span></td></tr>
+                <tr><td>Payment</td><td><span class="chk"></span></td><td><span class="chk"></span></td><td><span class="chk"></span></td><td><span class="chk"></span></td><td><span class="chk"></span></td><td>—</td><td>—</td></tr>
+                <tr><td>Reports</td><td><span class="chk on"></span></td><td>—</td><td>—</td><td>—</td><td><span class="chk on"></span></td><td>—</td><td>—</td></tr>
+                <tr><td>User Management</td><td><span class="chk"></span></td><td><span class="chk"></span></td><td><span class="chk"></span></td><td><span class="chk"></span></td><td>—</td><td>—</td><td>—</td></tr>
+              </tbody></table>
+              <div class="note">Showing <b>Counter staff</b> defaults: can create/print/submit receipts, but <b>cannot approve</b> (manager-only) — separation of duties. Tick any cell to change. The user only sees menus they are allowed.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SETTINGS -->
+      <div class="screen" id="s-settings">
+        <div class="panelcard"><h3>Company information &amp; branding</h3>
+          <div class="form"><div class="grid2">
+            <div class="field"><label>Company Name (English)</label><input value="AL RAWDA GROUP HAJJ &amp; UMRAH SERVICES"></div>
+            <div class="field"><label>Company Name (Arabic)</label><input class="ar" value="الروضة للحج والعمرة"></div>
+            <div class="field"><label>Address</label><input value="Bank Street, Street No. 910, Doha — Qatar"></div>
+            <div class="field"><label>Phone / Mobile</label><input value="44424434 / +974 50604031"></div>
+            <div class="field"><label>Currency</label><input value="QAR" readonly></div>
+            <div class="field"><label>Logo</label><input type="file"></div>
+          </div></div>
+        </div>
+        <div class="panelcard"><h3>Print &amp; field options</h3>
+          <div class="form note">Voucher header/footer, bilingual layout and printable fields — configured here. (Advanced dynamic templates are a later phase.)</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <div class="footer-note">AL RAWDA ERP — UI prototype · Phase 1 (current model) · sample data only</div>
+</div>
+
+<script>
+function enter(){document.getElementById('login').style.display='none';document.getElementById('app').style.display='flex';}
+var titles={dashboard:'Dashboard',invoice:'Invoice',receipt:'Receipt',approval:'Receipt Approval',payment:'Payment',reports:'All Report',package:'Package',visa:'Visa Type',nationality:'Nationality',users:'User Management',settings:'Settings'};
+var openTabs=['dashboard'];
+function renderTabs(active){var t=document.getElementById('tabs');t.innerHTML='';openTabs.forEach(function(s){var d=document.createElement('div');d.className='tab'+(s===active?' active':'');d.innerHTML=titles[s]+' <span class="x">✕</span>';d.onclick=function(){show(s);};t.appendChild(d);});}
+function show(s){
+  document.querySelectorAll('.nav-item').forEach(function(n){n.classList.toggle('active',n.dataset.s===s);});
+  document.querySelectorAll('.screen').forEach(function(sc){sc.classList.remove('active');});
+  document.getElementById('s-'+s).classList.add('active');
+  if(openTabs.indexOf(s)<0)openTabs.push(s);
+  renderTabs(s);
+}
+document.querySelectorAll('.nav-item').forEach(function(n){n.onclick=function(){show(n.dataset.s);};});
+
+var invoices=[['8457','01-06','Mohammad Jahirul Islam'],['8462','02-06','Habib Ali'],['8464','03-06','Daud Janang'],['8460','02-06','Suman Meah'],['8458','01-06','Ibrahim Sultan'],['8455','01-06','Uzzal Mia'],['8450','25-05','Akhter Hossain']];
+document.getElementById('invlist').innerHTML=invoices.map(function(r,i){return '<tr class="'+(i===0?'sel':'')+'"><td>'+r[0]+'</td><td>'+r[1]+'</td><td>'+r[2]+'</td></tr>';}).join('');
+var receipts=[['12746','03-06','Habib Ali','350'],['12747','03-06','Nihman Hassan','5,000'],['12748','03-06','Daud Janang','2,800'],['12749','03-06','Hani Mohammed','2,800']];
+document.getElementById('reclist').innerHTML=receipts.map(function(r,i){return '<tr class="'+(i===0?'sel':'')+'"><td>'+r[0]+'</td><td>'+r[1]+'</td><td>'+r[2]+'</td><td>'+r[3]+'</td></tr>';}).join('');
+
+var appr=[['12750','Mohammad Jahirul Islam','Umrah ×5','Cash',5000],['12751','Suman Meah','Umrah +Transport','Bank',1400],['12752','Md Amdadullah','Umrah','Cash',600],['12753','Habib Ali','Only Transport','Cash',350],['12754','Uzzal Mia','Umrah','Cash',1300],['12755','Haris Khan','Hotel & Visa','Bank',1300]];
+function renderAppr(){document.getElementById('apprlist').innerHTML=appr.map(function(r,i){
+  return '<tr><td><span class="chk" data-i="'+i+'" onclick="toggleOne('+i+')"></span></td><td>'+r[0]+'</td><td>'+r[1]+'</td><td>'+r[2]+'</td><td>'+r[3]+'</td><td>QAR '+r[4].toLocaleString()+'</td><td><span class="badge bg-draft" id="st'+i+'">Draft</span></td></tr>';}).join('');}
+var sel={};
+function recalc(){var c=0,t=0;Object.keys(sel).forEach(function(i){if(sel[i]){c++;t+=appr[i][4];}});document.getElementById('selcount').textContent=c;document.getElementById('seltotal').textContent='QAR '+t.toLocaleString();}
+function toggleOne(i){sel[i]=!sel[i];document.querySelector('.chk[data-i="'+i+'"]').classList.toggle('on',sel[i]);recalc();}
+function toggleAll(){var on=!document.getElementById('allchk').classList.contains('on');document.getElementById('allchk').classList.toggle('on',on);appr.forEach(function(_,i){sel[i]=on;var c=document.querySelector('.chk[data-i="'+i+'"]');if(c)c.classList.toggle('on',on);});recalc();}
+function submitReceipts(){var any=false;Object.keys(sel).forEach(function(i){if(sel[i]){var b=document.getElementById('st'+i);b.className='badge bg-sub';b.textContent='Submitted';any=true;}});if(!any)alert('Select receipts first');}
+function approveReceipts(){var any=false;Object.keys(sel).forEach(function(i){if(sel[i]){var b=document.getElementById('st'+i);b.className='badge bg-appr';b.textContent='Approved';any=true;}});if(!any)alert('Select receipts first');}
+renderAppr();renderTabs('dashboard');
+</script>
+</body>
+</html>

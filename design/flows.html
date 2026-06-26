@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Application Menu & Flow Guide — Umrah & Hajj ERP</title>
+<style>
+  :root{ --primary:#5a1a4d; --primary-light:#7d2b6e; --accent:#0e7c6b; --ink:#1f2430; --muted:#5b6472; --line:#d7dbe3; --soft:#f4f1f6; --soft2:#eef6f4; --warn:#b5532a; }
+  @page{ size:A4; margin:18mm 15mm 16mm 15mm;
+    @bottom-center{ content:"AL RAWDA Cloud ERP — Application Menu & Flow Guide"; font-family:Arial,sans-serif; font-size:7.5pt; color:#9aa1ad; }
+    @bottom-right{ content:"Page " counter(page) " of " counter(pages); font-family:Arial,sans-serif; font-size:7.5pt; color:#9aa1ad; }
+    @top-right{ content:"Flow Guide — v1.0"; font-family:Arial,sans-serif; font-size:7.5pt; color:#c2c7d0; }
+  }
+  @page cover{ margin:0; @bottom-center{content:""} @bottom-right{content:""} @top-right{content:""} }
+  *{box-sizing:border-box}
+  body{font-family:'Helvetica Neue',Arial,'Segoe UI',sans-serif; color:var(--ink); font-size:10.3pt; line-height:1.5; margin:0;}
+  h2{font-family:Arial,sans-serif; font-size:15.5pt; color:var(--primary); border-bottom:2px solid var(--primary); padding-bottom:5px; margin:0 0 4px}
+  h3{font-family:Arial,sans-serif; font-size:12pt; color:var(--primary-light); margin:16px 0 4px}
+  .crumb{font-size:8.6pt; color:var(--muted); letter-spacing:.5px; text-transform:uppercase; margin-bottom:8px}
+  p{margin:.4em 0}
+  .section{page-break-before:always}
+  figure{margin:12px 0; text-align:center}
+  figcaption{font-size:8.6pt; color:var(--muted); margin-top:5px}
+  ol.steps{margin:8px 0 4px; padding-left:20px; font-size:9.6pt}
+  ol.steps li{margin:.25em 0}
+  .legend span{display:inline-block; margin-right:16px; font-size:8.6pt; color:var(--muted)}
+  .swatch{display:inline-block; width:12px; height:12px; border-radius:2px; vertical-align:middle; margin-right:5px}
+  .note{border-left:4px solid var(--accent); background:var(--soft2); padding:8px 12px; margin:10px 0; border-radius:0 6px 6px 0; font-size:9.3pt}
+  table{width:100%; border-collapse:collapse; margin:8px 0; font-size:9pt}
+  th,td{border:1px solid var(--line); padding:5px 8px; text-align:left; vertical-align:top}
+  th{background:var(--primary); color:#fff; font-weight:600; font-size:8.8pt}
+  tr:nth-child(even) td{background:var(--soft)}
+  .cover{page:cover; height:297mm; position:relative; color:#fff; overflow:hidden; background:linear-gradient(150deg,#3d0f34 0%,#5a1a4d 45%,#7d2b6e 100%);}
+  .cover .crest{position:absolute; right:-60mm; top:-60mm; width:160mm; height:160mm; border-radius:50%; background:radial-gradient(circle at 30% 30%, rgba(255,255,255,.16), rgba(255,255,255,0) 60%);}
+  .cover-inner{position:absolute; left:18mm; right:18mm; top:50mm}
+  .cover .kicker{letter-spacing:3px; font-size:10pt; text-transform:uppercase; color:#f0c674; font-weight:600}
+  .cover h1{color:#fff; font-size:34pt; line-height:1.1; margin:14px 0 6px; max-width:150mm}
+  .cover .sub{font-size:13pt; color:#e7d4e3; max-width:140mm}
+  .cover .client{margin-top:34mm; font-size:11pt}
+  .cover .client .big{font-size:17pt; font-weight:700; color:#fff}
+  .cover-foot{position:absolute; left:18mm; right:18mm; bottom:20mm; display:flex; justify-content:space-between; border-top:1px solid rgba(255,255,255,.3); padding-top:10px; font-size:9pt; color:#e7d4e3}
+  .cover-foot b{color:#fff}
+</style>
+</head>
+<body>
+
+<!-- COVER -->
+<section class="cover">
+  <div class="crest"></div>
+  <div class="cover-inner">
+    <div class="kicker">Application Menu &amp; Flow Guide</div>
+    <h1>Umrah &amp; Hajj Travel ERP</h1>
+    <div class="sub">The application menu structure and the step-by-step flow of every menu — login, master data, transactions, reports and settings.</div>
+    <div class="client">
+      System for<br>
+      <span class="big">AL RAWDA GROUP HAJJ &amp; UMRAH SERVICES</span><br>
+      Bank Street, Street No. 910, Doha — Qatar
+    </div>
+  </div>
+  <div class="cover-foot">
+    <div>Document type: <b>Menu &amp; Flow only</b></div>
+    <div style="text-align:right">Ref: <b>FLOW-RAWDA-ERP-001</b> &nbsp;•&nbsp; Version 1.0 &nbsp;•&nbsp; 09 June 2026</div>
+  </div>
+</section>
+
+<!-- CONTENTS + LEGEND -->
+<section class="section">
+  <h2>Contents</h2>
+  <table>
+    <tr><th style="width:8%">#</th><th>Menu / flow</th></tr>
+    <tr><td>1</td><td>Application menu map (full tree)</td></tr>
+    <tr><td>2</td><td>Login &amp; main navigation flow</td></tr>
+    <tr><td>3</td><td>Transaction → Basic → Package</td></tr>
+    <tr><td>4</td><td>Transaction → Basic → Visa Type</td></tr>
+    <tr><td>5</td><td>Transaction → Basic → Nationality</td></tr>
+    <tr><td>6</td><td>Transaction → Activity → Invoice</td></tr>
+    <tr><td>7</td><td>Transaction → Activity → Receipt</td></tr>
+    <tr><td>8</td><td>Transaction → Activity → Payment</td></tr>
+    <tr><td>9</td><td>Transaction → Reports → All Report</td></tr>
+    <tr><td>10</td><td>Settings menu</td></tr>
+  </table>
+
+  <h3>How to read the flow diagrams</h3>
+  <p class="legend">
+    <span><span class="swatch" style="background:#5a1a4d"></span>Menu / user action</span>
+    <span><span class="swatch" style="background:#0e7c6b"></span>System response / output</span>
+    <span><span class="swatch" style="background:#fbf1ec;border:1px solid #b5532a"></span>Decision / branch</span>
+    <span><span class="swatch" style="background:#f4f1f6;border:1px solid #7d2b6e"></span>Screen / form</span>
+  </p>
+  <div class="note">Every transaction and master-data screen follows the same layout as today: a <b>List</b> on the left and a <b>Detail</b> form on the right with <b>New</b>, <b>Save</b> and <b>Delete</b> actions. The flows below reflect that pattern.</div>
+</section>
+
+<!-- 1. MENU MAP -->
+<section class="section">
+  <h2>1. Application Menu Map</h2>
+  <div class="crumb">Full menu tree</div>
+  <figure>
+  <svg viewBox="0 0 740 470" xmlns="http://www.w3.org/2000/svg" font-family="Helvetica,Arial" font-size="10">
+    <defs><marker id="m" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7d2b6e"/></marker></defs>
+    <!-- root -->
+    <rect x="290" y="14" width="160" height="40" rx="8" fill="#5a1a4d"/><text x="370" y="32" text-anchor="middle" fill="#fff" font-weight="bold">Stimes ERP (Cloud)</text><text x="370" y="46" text-anchor="middle" fill="#e7d4e3" font-size="8">main application</text>
+    <!-- level 1 -->
+    <rect x="120" y="90" width="200" height="36" rx="7" fill="#7d2b6e"/><text x="220" y="113" text-anchor="middle" fill="#fff" font-weight="bold">Transaction</text>
+    <rect x="430" y="90" width="200" height="36" rx="7" fill="#7d2b6e"/><text x="530" y="113" text-anchor="middle" fill="#fff" font-weight="bold">Settings</text>
+    <line x1="350" y1="54" x2="240" y2="88" stroke="#7d2b6e" marker-end="url(#m)"/>
+    <line x1="400" y1="54" x2="520" y2="88" stroke="#7d2b6e" marker-end="url(#m)"/>
+    <!-- level 2 under Transaction -->
+    <rect x="30"  y="160" width="150" height="34" rx="7" fill="#eef6f4" stroke="#0e7c6b"/><text x="105" y="182" text-anchor="middle">Basic</text>
+    <rect x="200" y="160" width="150" height="34" rx="7" fill="#eef6f4" stroke="#0e7c6b"/><text x="275" y="182" text-anchor="middle">Activity</text>
+    <rect x="370" y="160" width="150" height="34" rx="7" fill="#eef6f4" stroke="#0e7c6b"/><text x="445" y="182" text-anchor="middle">Reports</text>
+    <line x1="200" y1="126" x2="120" y2="158" stroke="#0e7c6b" marker-end="url(#m)"/>
+    <line x1="220" y1="126" x2="265" y2="158" stroke="#0e7c6b" marker-end="url(#m)"/>
+    <line x1="250" y1="126" x2="420" y2="158" stroke="#0e7c6b" marker-end="url(#m)"/>
+    <!-- Basic leaves -->
+    <rect x="20"  y="230" width="150" height="30" rx="6" fill="#fff" stroke="#5a1a4d"/><text x="95" y="250" text-anchor="middle" font-size="9.5">Package</text>
+    <rect x="20"  y="268" width="150" height="30" rx="6" fill="#fff" stroke="#5a1a4d"/><text x="95" y="288" text-anchor="middle" font-size="9.5">Visa Type</text>
+    <rect x="20"  y="306" width="150" height="30" rx="6" fill="#fff" stroke="#5a1a4d"/><text x="95" y="326" text-anchor="middle" font-size="9.5">Nationality</text>
+    <line x1="105" y1="194" x2="95" y2="228" stroke="#5a1a4d" marker-end="url(#m)"/>
+    <line x1="95" y1="260" x2="95" y2="266" stroke="#5a1a4d"/><line x1="95" y1="298" x2="95" y2="304" stroke="#5a1a4d"/>
+    <!-- Activity leaves -->
+    <rect x="200" y="230" width="150" height="30" rx="6" fill="#fff" stroke="#5a1a4d"/><text x="275" y="250" text-anchor="middle" font-size="9.5">Invoice</text>
+    <rect x="200" y="268" width="150" height="30" rx="6" fill="#fff" stroke="#5a1a4d"/><text x="275" y="288" text-anchor="middle" font-size="9.5">Receipt</text>
+    <rect x="200" y="306" width="150" height="30" rx="6" fill="#fff" stroke="#5a1a4d"/><text x="275" y="326" text-anchor="middle" font-size="9.5">Payment</text>
+    <line x1="275" y1="194" x2="275" y2="228" stroke="#5a1a4d" marker-end="url(#m)"/>
+    <line x1="275" y1="260" x2="275" y2="266" stroke="#5a1a4d"/><line x1="275" y1="298" x2="275" y2="304" stroke="#5a1a4d"/>
+    <!-- Reports leaves -->
+    <rect x="380" y="230" width="200" height="30" rx="6" fill="#fff" stroke="#5a1a4d"/><text x="480" y="250" text-anchor="middle" font-size="9">All Report (6 types):</text>
+    <rect x="380" y="268" width="200" height="68" rx="6" fill="#fbfbfd" stroke="#d7dbe3"/>
+    <text x="392" y="284" font-size="8.6">• Income Summary &nbsp; • Pending</text>
+    <text x="392" y="299" font-size="8.6">• Income Detail &nbsp; • Passengers List</text>
+    <text x="392" y="314" font-size="8.6">• Departure Date wise</text>
+    <text x="392" y="329" font-size="8.6">• Expense</text>
+    <line x1="445" y1="194" x2="470" y2="228" stroke="#5a1a4d" marker-end="url(#m)"/>
+    <!-- Settings leaves -->
+    <rect x="600" y="230" width="130" height="30" rx="6" fill="#fff" stroke="#7d2b6e"/><text x="665" y="250" text-anchor="middle" font-size="9">Company info</text>
+    <rect x="600" y="268" width="130" height="30" rx="6" fill="#fff" stroke="#7d2b6e"/><text x="665" y="288" text-anchor="middle" font-size="9">Users &amp; roles</text>
+    <rect x="600" y="306" width="130" height="30" rx="6" fill="#fff" stroke="#7d2b6e"/><text x="665" y="326" text-anchor="middle" font-size="9">Fields &amp; templates</text>
+    <line x1="530" y1="126" x2="620" y2="228" stroke="#7d2b6e" marker-end="url(#m)"/>
+    <line x1="665" y1="260" x2="665" y2="266" stroke="#7d2b6e"/><line x1="665" y1="298" x2="665" y2="304" stroke="#7d2b6e"/>
+    <!-- footnote -->
+    <text x="20" y="380" font-size="8.6" fill="#5b6472">All items also open as tabs across the top bar (Invoice · Receipt · Payment · All Report · Package · Visa Type · Nationality),</text>
+    <text x="20" y="394" font-size="8.6" fill="#5b6472">so several records can stay open at once — matching the current application.</text>
+  </svg>
+  <figcaption>Figure 1 — Complete application menu tree.</figcaption>
+  </figure>
+
+  <table>
+    <tr><th style="width:24%">Top menu</th><th>Contains</th></tr>
+    <tr><td>Transaction → Basic</td><td>Package, Visa Type, Nationality (master data)</td></tr>
+    <tr><td>Transaction → Activity</td><td>Invoice, Receipt, Payment (daily transactions)</td></tr>
+    <tr><td>Transaction → Reports</td><td>All Report — 6 report types selected by radio button + date range</td></tr>
+    <tr><td>Settings</td><td>Company info, users &amp; roles, dynamic fields &amp; print templates</td></tr>
+  </table>
+</section>
+
+<!-- 2. LOGIN -->
+<section class="section">
+  <h2>2. Login &amp; Main Navigation</h2>
+  <div class="crumb">Entry point</div>
+  <figure>
+  <svg viewBox="0 0 740 150" xmlns="http://www.w3.org/2000/svg" font-family="Helvetica,Arial" font-size="9.5">
+    <defs><marker id="l1" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#5b6472"/></marker></defs>
+    <rect x="20" y="55" width="110" height="42" rx="7" fill="#5a1a4d"/><text x="75" y="74" text-anchor="middle" fill="#fff">Open app</text><text x="75" y="88" text-anchor="middle" fill="#e7d4e3" font-size="8">in browser</text>
+    <rect x="160" y="55" width="120" height="42" rx="7" fill="#5a1a4d"/><text x="220" y="74" text-anchor="middle" fill="#fff">Login</text><text x="220" y="88" text-anchor="middle" fill="#e7d4e3" font-size="8">user · password (2FA)</text>
+    <polygon points="320,76 372,50 424,76 372,102" fill="#fbf1ec" stroke="#b5532a"/><text x="372" y="80" text-anchor="middle" font-size="8.5">Valid?</text>
+    <rect x="470" y="20" width="130" height="40" rx="7" fill="#eef6f4" stroke="#0e7c6b"/><text x="535" y="40" text-anchor="middle">Dashboard</text><text x="535" y="52" text-anchor="middle" font-size="8">role-based menus</text>
+    <rect x="470" y="95" width="130" height="40" rx="7" fill="#fbf1ec" stroke="#b5532a"/><text x="535" y="115" text-anchor="middle">Error</text><text x="535" y="127" text-anchor="middle" font-size="8">retry / lockout</text>
+    <rect x="630" y="20" width="100" height="40" rx="7" fill="#5a1a4d"/><text x="680" y="44" text-anchor="middle" fill="#fff">Menus</text>
+    <line x1="130" y1="76" x2="158" y2="76" stroke="#5b6472" marker-end="url(#l1)"/>
+    <line x1="280" y1="76" x2="318" y2="76" stroke="#5b6472" marker-end="url(#l1)"/>
+    <line x1="424" y1="66" x2="468" y2="42" stroke="#5b6472" marker-end="url(#l1)"/>
+    <line x1="424" y1="86" x2="468" y2="112" stroke="#5b6472" marker-end="url(#l1)"/>
+    <line x1="600" y1="40" x2="628" y2="40" stroke="#5b6472" marker-end="url(#l1)"/>
+  </svg>
+  <figcaption>Figure 2 — Login and entry to the menus.</figcaption>
+  </figure>
+  <ol class="steps">
+    <li>User opens the application in a browser and logs in (username, password, optional 2FA).</li>
+    <li>The system checks credentials and the user&rsquo;s role.</li>
+    <li>On success, the Dashboard opens with only the menus the role is allowed to use.</li>
+    <li>From the top bar the user opens any menu — Transaction (Basic / Activity / Reports) or Settings — each opening as a tab.</li>
+  </ol>
+</section>
+
+<!-- 3. PACKAGE -->
+<section class="section">
+  <h2>3. Package</h2>
+  <div class="crumb">Transaction → Basic → Package</div>
+  <p>Maintains travel packages and their rates (e.g. &ldquo;5 Days Umrah With Visa — 1050&rdquo;).</p>
+  <figure>
+  <svg viewBox="0 0 740 130" xmlns="http://www.w3.org/2000/svg" font-family="Helvetica,Arial" font-size="9.5">
+    <defs><marker id="p" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#5b6472"/></marker></defs>
+    <rect x="10" y="48" width="110" height="42" rx="7" fill="#5a1a4d"/><text x="65" y="67" text-anchor="middle" fill="#fff">Open Package</text><text x="65" y="81" text-anchor="middle" fill="#e7d4e3" font-size="8">menu</text>
+    <rect x="140" y="48" width="110" height="42" rx="7" fill="#eef6f4" stroke="#0e7c6b"/><text x="195" y="67" text-anchor="middle">Package list</text><text x="195" y="81" text-anchor="middle" font-size="8">loads + filter</text>
+    <polygon points="278,69 326,45 374,69 326,93" fill="#fbf1ec" stroke="#b5532a"/><text x="326" y="66" text-anchor="middle" font-size="8">New or</text><text x="326" y="78" text-anchor="middle" font-size="8">edit?</text>
+    <rect x="400" y="48" width="130" height="42" rx="7" fill="#f4f1f6" stroke="#7d2b6e"/><text x="465" y="67" text-anchor="middle">Enter name (EN/AR)</text><text x="465" y="81" text-anchor="middle" font-size="8">+ rate</text>
+    <rect x="552" y="48" width="80" height="42" rx="7" fill="#5a1a4d"/><text x="592" y="73" text-anchor="middle" fill="#fff">Save</text>
+    <rect x="650" y="48" width="84" height="42" rx="7" fill="#eef6f4" stroke="#0e7c6b"/><text x="692" y="67" text-anchor="middle" font-size="9">List updates</text><text x="692" y="81" text-anchor="middle" font-size="8">/ Delete</text>
+    <line x1="120" y1="69" x2="138" y2="69" stroke="#5b6472" marker-end="url(#p)"/>
+    <line x1="250" y1="69" x2="276" y2="69" stroke="#5b6472" marker-end="url(#p)"/>
+    <line x1="374" y1="69" x2="398" y2="69" stroke="#5b6472" marker-end="url(#p)"/>
+    <line x1="530" y1="69" x2="550" y2="69" stroke="#5b6472" marker-end="url(#p)"/>
+    <line x1="632" y1="69" x2="648" y2="69" stroke="#5b6472" marker-end="url(#p)"/>
+  </svg>
+  <figcaption>Figure 3 — Package flow.</figcaption>
+  </figure>
+  <ol class="steps">
+    <li>Open <b>Package</b>; the list of existing packages loads with search/filter.</li>
+    <li>Click <b>New</b> for a new package, or select a row to edit.</li>
+    <li>Enter <b>Package Name</b> (English and Arabic) and <b>Rate</b>.</li>
+    <li>Click <b>Save</b>; the list refreshes. Use <b>Delete</b> to deactivate an unused package.</li>
+  </ol>
+</section>
+
+<!-- 4. VISA TYPE -->
+<section class="section">
+  <h2>4. Visa Type</h2>
+  <div class="crumb">Transaction → Basic → Visa Type</div>
+  <p>Maintains the visa types used on invoices and receipts (e.g. Umrah Visa, Tourist Visa).</p>
+  <figure>
+  <svg viewBox="0 0 740 130" xmlns="http://www.w3.org/2000/svg" font-family="Helvetica,Arial" font-size="9.5">
+    <defs><marker id="v" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#5b6472"/></marker></defs>
+    <rect x="10" y="48" width="115" height="42" rx="7" fill="#5a1a4d"/><text x="67" y="67" text-anchor="middle" fill="#fff">Open Visa Type</text><text x="67" y="81" text-anchor="middle" fill="#e7d4e3" font-size="8">menu</text>
+    <rect x="150" y="48" width="115" height="42" rx="7" fill="#eef6f4" stroke="#0e7c6b"/><text x="207" y="67" text-anchor="middle">Visa type list</text><text x="207" y="81" text-anchor="middle" font-size="8">loads</text>
+    <polygon points="292,69 340,45 388,69 340,93" fill="#fbf1ec" stroke="#b5532a"/><text x="340" y="66" text-anchor="middle" font-size="8">New or</text><text x="340" y="78" text-anchor="middle" font-size="8">edit?</text>
+    <rect x="414" y="48" width="130" height="42" rx="7" fill="#f4f1f6" stroke="#7d2b6e"/><text x="479" y="73" text-anchor="middle">Enter Visa Type</text>
+    <rect x="566" y="48" width="74" height="42" rx="7" fill="#5a1a4d"/><text x="603" y="73" text-anchor="middle" fill="#fff">Save</text>
+    <rect x="656" y="48" width="78" height="42" rx="7" fill="#eef6f4" stroke="#0e7c6b"/><text x="695" y="67" text-anchor="middle" font-size="9">List updates</text><text x="695" y="81" text-anchor="middle" font-size="8">/ Delete</text>
+    <line x1="125" y1="69" x2="148" y2="69" stroke="#5b6472" marker-end="url(#v)"/>
+    <line x1="265" y1="69" x2="290" y2="69" stroke="#5b6472" marker-end="url(#v)"/>
+    <line x1="388" y1="69" x2="412" y2="69" stroke="#5b6472" marker-end="url(#v)"/>
+    <line x1="544" y1="69" x2="564" y2="69" stroke="#5b6472" marker-end="url(#v)"/>
+    <line x1="640" y1="69" x2="654" y2="69" stroke="#5b6472" marker-end="url(#v)"/>
+  </svg>
+  <figcaption>Figure 4 — Visa Type flow.</figcaption>
+  </figure>
+  <ol class="steps">
+    <li>Open <b>Visa Type</b>; existing types load in the list.</li>
+    <li>Click <b>New</b> or select a row.</li>
+    <li>Enter the <b>Visa Type</b> name and <b>Save</b>; the list refreshes.</li>
+  </ol>
+</section>
+
+<!-- 5. NATIONALITY -->
+<section class="section">
+  <h2>5. Nationality</h2>
+  <div class="crumb">Transaction → Basic → Nationality</div>
+  <p>Maintains the countries / nationalities list (country name, short name, Arabic name).</p>
+  <figure>
+  <svg viewBox="0 0 740 130" xmlns="http://www.w3.org/2000/svg" font-family="Helvetica,Arial" font-size="9.5">
+    <defs><marker id="n" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#5b6472"/></marker></defs>
+    <rect x="10" y="48" width="118" height="42" rx="7" fill="#5a1a4d"/><text x="69" y="67" text-anchor="middle" fill="#fff">Open Nationality</text><text x="69" y="81" text-anchor="middle" fill="#e7d4e3" font-size="8">menu</text>
+    <rect x="152" y="48" width="115" height="42" rx="7" fill="#eef6f4" stroke="#0e7c6b"/><text x="209" y="67" text-anchor="middle">Country list</text><text x="209" y="81" text-anchor="middle" font-size="8">loads + filter</text>
+    <polygon points="294,69 342,45 390,69 342,93" fill="#fbf1ec" stroke="#b5532a"/><text x="342" y="66" text-anchor="middle" font-size="8">New or</text><text x="342" y="78" text-anchor="middle" font-size="8">edit?</text>
+    <rect x="416" y="44" width="142" height="50" rx="7" fill="#f4f1f6" stroke="#7d2b6e"/><text x="487" y="62" text-anchor="middle" font-size="9">Country name,</text><text x="487" y="75" text-anchor="middle" font-size="9">short name,</text><text x="487" y="88" text-anchor="middle" font-size="9">name in Arabic</text>
+    <rect x="578" y="48" width="64" height="42" rx="7" fill="#5a1a4d"/><text x="610" y="73" text-anchor="middle" fill="#fff">Save</text>
+    <rect x="658" y="48" width="76" height="42" rx="7" fill="#eef6f4" stroke="#0e7c6b"/><text x="696" y="67" text-anchor="middle" font-size="9">List updates</text><text x="696" y="81" text-anchor="middle" font-size="8">/ Delete</text>
+    <line x1="128" y1="69" x2="150" y2="69" stroke="#5b6472" marker-end="url(#n)"/>
+    <line x1="267" y1="69" x2="292" y2="69" stroke="#5b6472" marker-end="url(#n)"/>
+    <line x1="390" y1="69" x2="414" y2="69" stroke="#5b6472" marker-end="url(#n)"/>
+    <line x1="558" y1="69" x2="576" y2="69" stroke="#5b6472" marker-end="url(#n)"/>
+    <line x1="642" y1="69" x2="656" y2="69" stroke="#5b6472" marker-end="url(#n)"/>
+  </svg>
+  <figcaption>Figure 5 — Nationality flow.</figcaption>
+  </figure>
+  <ol class="steps">
+    <li>Open <b>Nationality</b>; the country list loads with search/filter.</li>
+    <li>Click <b>New</b> or select a row.</li>
+    <li>Enter <b>Country Name</b>, <b>Short Name</b> and <b>Name in Arabic</b>.</li>
+    <li>Click <b>Save</b>; the list refreshes.</li>
+  </ol>
+</section>
+
+<!-- 6. INVOICE -->
+<section class="section">
+  <h2>6. Invoice</h2>
+  <div class="crumb">Transaction → Activity → Invoice</div>
+  <p>Creates the sale: customer, package, passengers and amounts.</p>
+  <figure>
+  <svg viewBox="0 0 740 210" xmlns="http://www.w3.org/2000/svg" font-family="Helvetica,Arial" font-size="9.3">
+    <defs><marker id="i" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#5b6472"/></marker></defs>
+    <!-- row 1 -->
+    <rect x="10" y="20" width="110" height="40" rx="7" fill="#5a1a4d"/><text x="65" y="38" text-anchor="middle" fill="#fff">Open Invoice</text><text x="65" y="51" text-anchor="middle" fill="#e7d4e3" font-size="8">menu</text>
+    <rect x="150" y="20" width="110" height="40" rx="7" fill="#eef6f4" stroke="#0e7c6b"/><text x="205" y="38" text-anchor="middle">Invoice list</text><text x="205" y="51" text-anchor="middle" font-size="8">loads</text>
+    <rect x="290" y="20" width="90" height="40" rx="7" fill="#5a1a4d"/><text x="335" y="44" text-anchor="middle" fill="#fff">New</text>
+    <rect x="410" y="14" width="150" height="52" rx="7" fill="#f4f1f6" stroke="#7d2b6e"/><text x="485" y="32" text-anchor="middle" font-size="9">Header: customer,</text><text x="485" y="45" text-anchor="middle" font-size="9">nationality, package,</text><text x="485" y="58" text-anchor="middle" font-size="9">departure, room type</text>
+    <rect x="590" y="14" width="140" height="52" rx="7" fill="#f4f1f6" stroke="#7d2b6e"/><text x="660" y="32" text-anchor="middle" font-size="9">Add passenger rows</text><text x="660" y="45" text-anchor="middle" font-size="9">(name, visa type,</text><text x="660" y="58" text-anchor="middle" font-size="9">visa required)</text>
+    <line x1="120" y1="40" x2="148" y2="40" stroke="#5b6472" marker-end="url(#i)"/>
+    <line x1="260" y1="40" x2="288" y2="40" stroke="#5b6472" marker-end="url(#i)"/>
+    <line x1="380" y1="40" x2="408" y2="40" stroke="#5b6472" marker-end="url(#i)"/>
+    <line x1="560" y1="40" x2="588" y2="40" stroke="#5b6472" marker-end="url(#i)"/>
+    <!-- down -->
+    <line x1="660" y1="66" x2="660" y2="96" stroke="#5b6472" marker-end="url(#i)"/>
+    <!-- row 2 (right to left) -->
+    <rect x="585" y="98" width="150" height="46" rx="7" fill="#eef6f4" stroke="#0e7c6b"/><text x="660" y="118" text-anchor="middle" font-size="9">System computes</text><text x="660" y="131" text-anchor="middle" font-size="9">amount · discount · net</text>
+    <rect x="430" y="98" width="120" height="46" rx="7" fill="#5a1a4d"/><text x="490" y="125" text-anchor="middle" fill="#fff">Save invoice</text>
+    <polygon points="300,121 352,97 404,121 352,145" fill="#fbf1ec" stroke="#b5532a"/><text x="352" y="118" text-anchor="middle" font-size="8">Approval</text><text x="352" y="130" text-anchor="middle" font-size="8">needed?</text>
+    <line x1="585" y1="121" x2="552" y2="121" stroke="#5b6472" marker-end="url(#i)"/>
+    <line x1="430" y1="121" x2="406" y2="121" stroke="#5b6472" marker-end="url(#i)"/>
+    <!-- branches -->
+    <rect x="150" y="98" width="120" height="40" rx="7" fill="#fbf1ec" stroke="#b5532a"/><text x="210" y="116" text-anchor="middle" font-size="9">Send to approver</text><text x="210" y="129" text-anchor="middle" font-size="8">(Pending)</text>
+    <rect x="150" y="160" width="120" height="40" rx="7" fill="#eef6f4" stroke="#0e7c6b"/><text x="210" y="178" text-anchor="middle" font-size="9">Print invoice</text><text x="210" y="191" text-anchor="middle" font-size="8">bilingual PDF</text>
+    <line x1="300" y1="113" x2="272" y2="113" stroke="#5b6472" marker-end="url(#i)"/><text x="285" y="108" font-size="7.5" fill="#b5532a">yes</text>
+    <line x1="352" y1="145" x2="210" y2="158" stroke="#5b6472" marker-end="url(#i)"/><text x="280" y="156" font-size="7.5" fill="#0e7c6b">no</text>
+  </svg>
+  <figcaption>Figure 6 — Invoice flow (with optional approval branch).</figcaption>
+  </figure>
+  <ol class="steps">
+    <li>Open <b>Invoice</b>; the invoice list loads. Click <b>New</b>.</li>
+    <li>Fill the header: customer name, nationality, mobile 1/2, package, departure date, no. of passengers/seats/visas, room type.</li>
+    <li>Add <b>passenger rows</b> (name, visa type, visa-required).</li>
+    <li>The system computes <b>Amount</b>, <b>Discount</b> and <b>Net Amount</b> from the package rate.</li>
+    <li>Click <b>Save</b>. If approval is required, the invoice goes to the approver as <i>Pending</i>; otherwise it can be printed straight away.</li>
+    <li><b>Print</b> the bilingual invoice via the dynamic print engine.</li>
+  </ol>
+</section>
+
+<!-- 7. RECEIPT -->
+<section class="section">
+  <h2>7. Receipt</h2>
+  <div class="crumb">Transaction → Activity → Receipt</div>
+  <p>Collects money against an invoice and prints the bilingual Receipt Voucher (سند قبض).</p>
+  <figure>
+  <svg viewBox="0 0 740 150" xmlns="http://www.w3.org/2000/svg" font-family="Helvetica,Arial" font-size="9.3">
+    <defs><marker id="r" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#5b6472"/></marker></defs>
+    <rect x="10" y="40" width="100" height="42" rx="7" fill="#5a1a4d"/><text x="60" y="59" text-anchor="middle" fill="#fff">Open Receipt</text><text x="60" y="73" text-anchor="middle" fill="#e7d4e3" font-size="8">→ New</text>
+    <rect x="128" y="40" width="116" height="42" rx="7" fill="#f4f1f6" stroke="#7d2b6e"/><text x="186" y="59" text-anchor="middle">Select invoice</text><text x="186" y="73" text-anchor="middle" font-size="8">auto-fill details</text>
+    <rect x="262" y="40" width="124" height="42" rx="7" fill="#eef6f4" stroke="#0e7c6b"/><text x="324" y="55" text-anchor="middle" font-size="9">Show invoice amt,</text><text x="324" y="68" text-anchor="middle" font-size="9">prev. &amp; remaining</text><text x="324" y="80" text-anchor="middle" font-size="8">balance</text>
+    <rect x="404" y="40" width="124" height="42" rx="7" fill="#f4f1f6" stroke="#7d2b6e"/><text x="466" y="59" text-anchor="middle">Enter received amt</text><text x="466" y="73" text-anchor="middle" font-size="8">mode: cash / bank</text>
+    <rect x="546" y="40" width="74" height="42" rx="7" fill="#5a1a4d"/><text x="583" y="65" text-anchor="middle" fill="#fff">Save</text>
+    <rect x="636" y="40" width="98" height="42" rx="7" fill="#eef6f4" stroke="#0e7c6b"/><text x="685" y="55" text-anchor="middle" font-size="9">Print voucher</text><text x="685" y="68" text-anchor="middle" font-size="8">update balance</text>
+    <line x1="110" y1="61" x2="126" y2="61" stroke="#5b6472" marker-end="url(#r)"/>
+    <line x1="244" y1="61" x2="260" y2="61" stroke="#5b6472" marker-end="url(#r)"/>
+    <line x1="386" y1="61" x2="402" y2="61" stroke="#5b6472" marker-end="url(#r)"/>
+    <line x1="528" y1="61" x2="544" y2="61" stroke="#5b6472" marker-end="url(#r)"/>
+    <line x1="620" y1="61" x2="634" y2="61" stroke="#5b6472" marker-end="url(#r)"/>
+  </svg>
+  <figcaption>Figure 7 — Receipt / collection flow.</figcaption>
+  </figure>
+  <ol class="steps">
+    <li>Open <b>Receipt</b> and click <b>New</b>.</li>
+    <li><b>Select the invoice</b>; customer, package and passenger details auto-fill.</li>
+    <li>The system shows invoice amount, previous balance and remaining balance.</li>
+    <li>Enter the <b>received amount</b> and <b>mode of payment</b> (cash / bank).</li>
+    <li>Click <b>Save</b>, then <b>Print</b> the bilingual Receipt Voucher; the balance updates.</li>
+  </ol>
+</section>
+
+<!-- 8. PAYMENT -->
+<section class="section">
+  <h2>8. Payment</h2>
+  <div class="crumb">Transaction → Activity → Payment</div>
+  <p>Records office expenses and customer refunds.</p>
+  <figure>
+  <svg viewBox="0 0 740 160" xmlns="http://www.w3.org/2000/svg" font-family="Helvetica,Arial" font-size="9.3">
+    <defs><marker id="pm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#5b6472"/></marker></defs>
+    <rect x="20" y="60" width="104" height="42" rx="7" fill="#5a1a4d"/><text x="72" y="79" text-anchor="middle" fill="#fff">Open Payment</text><text x="72" y="93" text-anchor="middle" fill="#e7d4e3" font-size="8">→ New</text>
+    <polygon points="160,81 214,54 268,81 214,108" fill="#fbf1ec" stroke="#b5532a"/><text x="214" y="78" text-anchor="middle" font-size="8.5">Type?</text><text x="214" y="90" text-anchor="middle" font-size="8">expense / refund</text>
+    <rect x="310" y="20" width="160" height="42" rx="7" fill="#f4f1f6" stroke="#7d2b6e"/><text x="390" y="38" text-anchor="middle" font-size="9">Expense: paid-to,</text><text x="390" y="51" text-anchor="middle" font-size="9">narration, amount</text>
+    <rect x="310" y="100" width="160" height="42" rx="7" fill="#f4f1f6" stroke="#7d2b6e"/><text x="390" y="118" text-anchor="middle" font-size="9">Refund: select invoice,</text><text x="390" y="131" text-anchor="middle" font-size="9">amount</text>
+    <rect x="510" y="60" width="74" height="42" rx="7" fill="#5a1a4d"/><text x="547" y="85" text-anchor="middle" fill="#fff">Save</text>
+    <rect x="606" y="56" width="120" height="50" rx="7" fill="#eef6f4" stroke="#0e7c6b"/><text x="666" y="74" text-anchor="middle" font-size="9">Print voucher;</text><text x="666" y="87" text-anchor="middle" font-size="9">refund adjusts</text><text x="666" y="99" text-anchor="middle" font-size="8">invoice balance</text>
+    <line x1="124" y1="81" x2="158" y2="81" stroke="#5b6472" marker-end="url(#pm)"/>
+    <line x1="268" y1="73" x2="308" y2="44" stroke="#5b6472" marker-end="url(#pm)"/>
+    <line x1="268" y1="89" x2="308" y2="118" stroke="#5b6472" marker-end="url(#pm)"/>
+    <line x1="470" y1="41" x2="510" y2="70" stroke="#5b6472" marker-end="url(#pm)"/>
+    <line x1="470" y1="121" x2="510" y2="92" stroke="#5b6472" marker-end="url(#pm)"/>
+    <line x1="584" y1="81" x2="604" y2="81" stroke="#5b6472" marker-end="url(#pm)"/>
+  </svg>
+  <figcaption>Figure 8 — Payment flow (expense or refund).</figcaption>
+  </figure>
+  <ol class="steps">
+    <li>Open <b>Payment</b> and click <b>New</b>; choose <b>Type</b>: Expense or Refund.</li>
+    <li><b>Expense</b> — enter paid-to, mobile, narration, amount (e.g. office, salary, taxi, printing).</li>
+    <li><b>Refund</b> — select the invoice and the amount to refund.</li>
+    <li>Click <b>Save</b> and <b>Print</b> the voucher. A refund reduces the linked invoice&rsquo;s balance.</li>
+  </ol>
+</section>
+
+<!-- 9. REPORTS -->
+<section class="section">
+  <h2>9. All Report</h2>
+  <div class="crumb">Transaction → Reports → All Report</div>
+  <p>One report screen produces all six report types by selection and date range.</p>
+  <figure>
+  <svg viewBox="0 0 740 200" xmlns="http://www.w3.org/2000/svg" font-family="Helvetica,Arial" font-size="9.3">
+    <defs><marker id="rp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#5b6472"/></marker></defs>
+    <rect x="20" y="80" width="120" height="44" rx="7" fill="#5a1a4d"/><text x="80" y="99" text-anchor="middle" fill="#fff">Open All Report</text><text x="80" y="113" text-anchor="middle" fill="#e7d4e3" font-size="8">menu</text>
+    <rect x="168" y="80" width="130" height="44" rx="7" fill="#f4f1f6" stroke="#7d2b6e"/><text x="233" y="99" text-anchor="middle">Choose report type</text><text x="233" y="113" text-anchor="middle" font-size="8">(radio button)</text>
+    <rect x="326" y="80" width="120" height="44" rx="7" fill="#f4f1f6" stroke="#7d2b6e"/><text x="386" y="99" text-anchor="middle">Set start &amp; end</text><text x="386" y="113" text-anchor="middle" font-size="8">date range</text>
+    <rect x="474" y="80" width="90" height="44" rx="7" fill="#5a1a4d"/><text x="519" y="106" text-anchor="middle" fill="#fff">Print</text>
+    <rect x="592" y="76" width="130" height="52" rx="7" fill="#eef6f4" stroke="#0e7c6b"/><text x="657" y="96" text-anchor="middle" font-size="9">Report renders</text><text x="657" y="109" text-anchor="middle" font-size="9">preview → PDF</text><text x="657" y="121" text-anchor="middle" font-size="8">/ Excel export</text>
+    <line x1="140" y1="102" x2="166" y2="102" stroke="#5b6472" marker-end="url(#rp)"/>
+    <line x1="298" y1="102" x2="324" y2="102" stroke="#5b6472" marker-end="url(#rp)"/>
+    <line x1="446" y1="102" x2="472" y2="102" stroke="#5b6472" marker-end="url(#rp)"/>
+    <line x1="564" y1="102" x2="590" y2="102" stroke="#5b6472" marker-end="url(#rp)"/>
+    <!-- report types fan -->
+    <rect x="120" y="150" width="500" height="40" rx="7" fill="#fbfbfd" stroke="#d7dbe3"/>
+    <text x="135" y="166" font-size="8.5" fill="#5b6472">Report types: &nbsp; Income Summary &nbsp;·&nbsp; Pending &nbsp;·&nbsp; Income Detail &nbsp;·&nbsp; Passengers List</text>
+    <text x="135" y="181" font-size="8.5" fill="#5b6472">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;·&nbsp; Departure Date wise &nbsp;·&nbsp; Expense</text>
+    <line x1="233" y1="124" x2="200" y2="148" stroke="#7d2b6e" stroke-dasharray="3,3"/>
+  </svg>
+  <figcaption>Figure 9 — Report flow; one screen, six report types.</figcaption>
+  </figure>
+  <ol class="steps">
+    <li>Open <b>All Report</b>.</li>
+    <li>Choose the <b>report type</b> with the radio button: Income Summary, Pending, Income Detail, Passengers List, Departure Date wise, or Expense.</li>
+    <li>Set the <b>Start Date</b> and <b>End Date</b>.</li>
+    <li>Click <b>Print</b>; the report renders to preview, then export to PDF or Excel.</li>
+  </ol>
+  <table>
+    <tr><th style="width:34%">Report type</th><th>Shows</th></tr>
+    <tr><td>Income Summary</td><td>Invoice / received / refund / income / balance per invoice, with totals</td></tr>
+    <tr><td>Pending</td><td>Invoices with outstanding balance</td></tr>
+    <tr><td>Income Detail</td><td>Detailed income breakdown</td></tr>
+    <tr><td>Passengers List</td><td>Passengers grouped by departure date with invoice &amp; customer</td></tr>
+    <tr><td>Departure Date wise</td><td>Invoices grouped/filtered by departure with approval status</td></tr>
+    <tr><td>Expense</td><td>Payment vouchers with narration and grand total</td></tr>
+  </table>
+</section>
+
+<!-- 10. SETTINGS -->
+<section class="section">
+  <h2>10. Settings</h2>
+  <div class="crumb">Top bar → Settings</div>
+  <p>Administrator area for company details, users, and the dynamic field / print configuration.</p>
+  <figure>
+  <svg viewBox="0 0 740 160" xmlns="http://www.w3.org/2000/svg" font-family="Helvetica,Arial" font-size="9.3">
+    <defs><marker id="s" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#5b6472"/></marker></defs>
+    <rect x="30" y="62" width="110" height="44" rx="7" fill="#5a1a4d"/><text x="85" y="81" text-anchor="middle" fill="#fff">Open Settings</text><text x="85" y="95" text-anchor="middle" fill="#e7d4e3" font-size="8">(admin only)</text>
+    <rect x="200" y="14" width="170" height="38" rx="7" fill="#f4f1f6" stroke="#7d2b6e"/><text x="285" y="38" text-anchor="middle">Company info &amp; branding</text>
+    <rect x="200" y="64" width="170" height="38" rx="7" fill="#f4f1f6" stroke="#7d2b6e"/><text x="285" y="88" text-anchor="middle">Users &amp; roles (RBAC)</text>
+    <rect x="200" y="114" width="170" height="38" rx="7" fill="#f4f1f6" stroke="#7d2b6e"/><text x="285" y="138" text-anchor="middle">Dynamic fields</text>
+    <rect x="410" y="64" width="170" height="38" rx="7" fill="#f4f1f6" stroke="#7d2b6e"/><text x="495" y="88" text-anchor="middle">Print templates</text>
+    <rect x="620" y="64" width="100" height="44" rx="7" fill="#5a1a4d"/><text x="670" y="89" text-anchor="middle" fill="#fff">Save</text>
+    <line x1="140" y1="78" x2="198" y2="34" stroke="#5b6472" marker-end="url(#s)"/>
+    <line x1="140" y1="84" x2="198" y2="84" stroke="#5b6472" marker-end="url(#s)"/>
+    <line x1="140" y1="90" x2="198" y2="132" stroke="#5b6472" marker-end="url(#s)"/>
+    <line x1="370" y1="133" x2="495" y2="102" stroke="#5b6472" marker-end="url(#s)"/>
+    <line x1="580" y1="84" x2="618" y2="84" stroke="#5b6472" marker-end="url(#s)"/>
+  </svg>
+  <figcaption>Figure 10 — Settings menu flow.</figcaption>
+  </figure>
+  <ol class="steps">
+    <li>Open <b>Settings</b> (admin only).</li>
+    <li><b>Company info &amp; branding</b> — name, address, contacts, logo used on all vouchers.</li>
+    <li><b>Users &amp; roles</b> — create users and assign role-based permissions.</li>
+    <li><b>Dynamic fields</b> — add/edit form fields on any screen without code; map printable fields into templates.</li>
+    <li><b>Print templates</b> — edit invoice, receipt, payment and report layouts (bilingual); <b>Save</b> to publish.</li>
+  </ol>
+  <p class="legend" style="margin-top:18px; text-align:center; display:block; color:#5b6472; font-size:8.6pt">FLOW-RAWDA-ERP-001 &nbsp;•&nbsp; Version 1.0 &nbsp;•&nbsp; Application Menu &amp; Flow Guide</p>
+</section>
+
+</body>
+</html>

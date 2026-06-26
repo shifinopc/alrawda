@@ -1,0 +1,182 @@
+html {
+  font-family: "Bricolage Grotesque", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.card {
+  border-radius: 16px;
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0; /* slate-200 */
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+}
+
+.btn,
+.btn-primary,
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 9999px;
+  padding: 0.55rem 1.25rem;
+  min-height: 2.5rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  line-height: 1.1;
+  white-space: nowrap;
+  transition:
+    background-color 0.18s ease,
+    color 0.18s ease,
+    transform 0.1s ease,
+    box-shadow 0.18s ease;
+}
+
+.btn-primary {
+  background-color: #4f46e5; /* brand-600 */
+  color: #ffffff;
+}
+
+.btn-primary:hover {
+  background-color: #4338ca; /* brand-700 */
+}
+
+.btn-primary:active {
+  transform: scale(0.99);
+}
+
+.btn-ghost {
+  background-color: #f8fafc; /* slate-50 */
+  color: #1e293b; /* slate-800 */
+}
+
+.btn-ghost:hover {
+  background-color: #e2e8f0; /* slate-200 */
+}
+
+.input {
+  width: 100%;
+  border-radius: 0.5rem;
+  border: 1px solid #e2e8f0; /* slate-200 */
+  background-color: #ffffff;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.input:focus {
+  border-color: #818cf8; /* brand-400 */
+  box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.35); /* brand-100 style ring */
+}
+
+.label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #475569; /* slate-600 */
+}
+
+.table-th {
+  position: sticky;
+  top: 0;
+  background-color: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(6px);
+  text-align: left;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #0f172a; /* slate-900 / black */
+  border-bottom: 1px solid #e2e8f0; /* slate-200 */
+  padding: 1rem 1.25rem;
+  min-height: 48px;
+}
+
+.table-td {
+  font-size: 0.875rem;
+  color: #334155; /* slate-700 */
+  border-bottom: 1px solid #f1f5f9; /* slate-100 */
+  padding: 0.75rem 1rem;
+}
+
+.shadow-soft {
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+}
+
+.shadow-lift {
+  box-shadow: 0 16px 45px rgba(15, 23, 42, 0.12);
+}
+
+/* Row hover */
+.table-row-hover:hover {
+  background-color: #f8fafc;
+}
+
+/* Button scale on hover/active */
+.btn-primary:hover {
+  transform: scale(1.02);
+}
+.btn-primary:active {
+  transform: scale(0.98);
+}
+.btn-ghost:hover {
+  transform: scale(1.01);
+}
+
+/* Skeleton loader */
+.skeleton {
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+  background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+  background-size: 200% 100%;
+  border-radius: 4px;
+}
+@keyframes skeleton-pulse {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Print - hide chrome */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  .card {
+    box-shadow: none;
+  }
+}
+
+/* Scrollbar styling to prevent layout shift */
+aside {
+  scrollbar-gutter: stable;
+}
+
+/* Custom thin scrollbar for sidebar */
+aside::-webkit-scrollbar {
+  width: 6px;
+}
+
+aside::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+aside::-webkit-scrollbar-thumb {
+  background-color: #cbd5e1;
+  border-radius: 3px;
+}
+
+aside::-webkit-scrollbar-thumb:hover {
+  background-color: #94a3b8;
+}
+
+/* Firefox scrollbar */
+aside {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}
+
+/* Dark mode */
+.dark .card {
+  background-color: #1e293b;
+  border-color: #334155;
+}
+.dark body {
+  background-color: #0f172a;
+  color: #f1f5f9;
+}
+

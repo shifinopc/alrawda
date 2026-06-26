@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AL RAWDA ERP — UI Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+.dashbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;background:#fff;border:1px solid #e8e3f3;border-radius:14px;padding:10px 14px;margin-bottom:14px}
+.seg{display:inline-flex;background:#f4f2fb;border:1px solid #e8e3f3;border-radius:10px;overflow:hidden}
+.seg button{border:none;background:transparent;padding:6px 14px;font-size:12px;color:#6f6886;font-weight:600;cursor:pointer}
+.seg button.on{background:#7c00ff;color:#fff}
+.dashbar select,.dashbar input{height:32px;border:1px solid #e8e3f3;border-radius:9px;padding:0 10px;font-family:inherit;font-size:12px;background:#fff;color:#221a35}
+.dashbar .lbl{font-size:11px;color:#6f6886;font-weight:600}
+.kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin-bottom:14px}
+.kpi .card{background:#fff;border:1px solid #e8e3f3;border-radius:14px;padding:14px 16px}
+.kpi .k{font-size:11.5px;color:#6f6886;font-weight:600;display:flex;justify-content:space-between;align-items:center}
+.kpi .v{font-size:23px;font-weight:700;margin-top:6px}
+.chip{font-size:10px;font-weight:700;padding:1px 7px;border-radius:8px}
+.chip.up{background:#e6f4ea;color:#2d9d57}.chip.down{background:#fdecea;color:#c0392b}
+.chartgrid{display:grid;grid-template-columns:2fr 1fr;gap:13px;margin-bottom:14px}
+.chartgrid.eq{grid-template-columns:1fr 1fr}
+.chartcard{background:#fff;border:1px solid #e8e3f3;border-radius:14px;padding:12px 15px}
+.chartcard h4{margin:0 0 8px;font-size:12.5px;color:#221a35;font-weight:700;display:flex;justify-content:space-between;align-items:center}
+.chartcard .cwrap{position:relative;height:212px}
+.chartcard .cwrap.sm{height:196px}
+@media(max-width:980px){.kpi{grid-template-columns:repeat(2,1fr)}.chartgrid,.chartgrid.eq{grid-template-columns:1fr}}
+</style>
+<style>
+:root{
+  --bg:#f4f2fb; --bg2:#fbfaff; --panel:#ffffff; --panel2:#f2effb;
+  --accent:#7c00ff; --accent2:#6500cf; --accent-soft:#f1e7ff;
+  --ink:#221a35; --muted:#6f6886; --faint:#9b95ad;
+  --line:#e8e3f3; --soft:#f7f4ff; --rowsel:#f1e7ff;
+  --green:#2d9d57; --green-soft:#e6f4ea; --warn:#c2761f; --warn-soft:#f7eddc; --teal:#0e9e84; --blue:#3a4ea8;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{font-family:'Quicksand',sans-serif;background:var(--bg);color:var(--ink);font-size:13.5px;font-weight:500}
+button{font-family:inherit;cursor:pointer;font-weight:600}
+
+#login{display:none;position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(900px 600px at 70% 8%,rgba(124,0,255,.16),rgba(124,0,255,0) 60%),var(--bg)}
+.login-card{background:#fff;border:1px solid var(--line);border-radius:18px;width:368px;padding:34px;box-shadow:0 18px 50px rgba(43,30,70,.14);text-align:center}
+.brandmark{width:64px;height:64px;border-radius:18px;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:23px;margin:0 auto 14px;box-shadow:0 8px 24px rgba(124,0,255,.4)}
+.login-card h1{font-size:18px;margin:0 0 2px;color:var(--ink);font-weight:700}
+.login-card .ar{font-size:15px;color:var(--accent2);margin:0 0 4px;direction:rtl;font-weight:600}
+.login-card p{color:var(--muted);font-size:12px;margin:0 0 22px}
+.fld{text-align:left;margin-bottom:13px}
+.fld label{display:block;font-size:11.5px;color:var(--muted);margin-bottom:5px;font-weight:600}
+.fld input{width:100%;height:40px;border:1px solid var(--line);border-radius:11px;padding:0 13px;font-size:13.5px;background:#fff;color:var(--ink);font-family:inherit}
+.fld input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(124,0,255,.18)}
+.btn-primary{width:100%;height:42px;background:var(--accent);color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:600;margin-top:6px}
+.btn-primary:hover{background:var(--accent2)}
+
+#app{display:flex;height:100vh;flex-direction:column;background:var(--bg)}
+.topbar{height:50px;background:#fff;border-bottom:1px solid var(--line);color:var(--ink);display:flex;align-items:center;padding:0 16px;gap:12px;flex:0 0 auto}
+.topbar .logo{width:32px;height:32px;border-radius:10px;background:var(--accent);color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center;font-size:14px}
+.topbar .title{font-weight:700;font-size:14px}
+.topbar .title small{display:block;font-size:9.5px;color:var(--muted);font-weight:500}
+.topbar .spacer{flex:1}
+.topbar .meta{font-size:11.5px;color:var(--muted);display:flex;align-items:center;gap:14px}
+.topbar .meta b{color:var(--ink);font-weight:600}
+.topbar .user{display:flex;align-items:center;gap:7px;background:var(--accent-soft);padding:5px 12px;border-radius:16px;color:var(--accent2);font-weight:600;border:1px solid #e0cdfa}
+.topbar .dot{width:8px;height:8px;border-radius:50%;background:var(--green)}
+
+.tabs{height:38px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:stretch;padding:0 10px;gap:4px;overflow-x:auto;flex:0 0 auto}
+.tab{display:flex;align-items:center;gap:7px;padding:0 13px;font-size:12.5px;color:var(--muted);border-bottom:2px solid transparent;white-space:nowrap}
+.tab .x{opacity:.5;font-size:13px}
+.tab.active{color:var(--accent2);border-bottom-color:var(--accent);font-weight:700}
+
+.body{display:flex;flex:1;min-height:0}
+.sidebar{width:206px;background:#fff;border-right:1px solid var(--line);padding:10px 0;overflow:auto;flex:0 0 auto}
+.nav-group{padding:13px 18px 5px;font-size:10px;letter-spacing:.7px;text-transform:uppercase;color:var(--faint);font-weight:600}
+.nav-item{display:flex;align-items:center;padding:9px 18px;font-size:13px;color:#463f57;cursor:pointer;border-left:3px solid transparent;font-weight:500}
+.nav-item:hover{background:var(--soft)}
+.nav-item.active{background:var(--accent-soft);color:var(--accent2);border-left-color:var(--accent);font-weight:700}
+.nav-item .badge-new{margin-left:auto;font-size:8.5px;background:var(--accent);color:#fff;padding:1px 7px;border-radius:9px;font-weight:700}
+
+.main{flex:1;overflow:auto;padding:16px;background:var(--bg)}
+.screen{display:none}.screen.active{display:block}
+
+.panelhead{background:var(--accent-soft);color:var(--accent2);padding:11px 16px;border-radius:12px 12px 0 0;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:space-between;border:1px solid var(--line);border-bottom:none}
+.toolbar{background:#fff;border:1px solid var(--line);border-top:none;padding:9px 13px;display:flex;gap:9px;align-items:center}
+.tbtn{display:flex;align-items:center;gap:6px;border:1px solid var(--line);background:#fff;border-radius:9px;padding:6px 13px;font-size:12.5px;color:#463f57}
+.tbtn:hover{background:var(--soft);border-color:var(--accent)}
+.tbtn.pri{background:var(--accent);color:#fff;border-color:var(--accent)}
+.tbtn.pri:hover{background:var(--accent2)}
+.tbtn.ok{background:var(--green);color:#fff;border-color:var(--green)}
+.tbtn.sm{padding:4px 9px;font-size:11px}
+
+.split{display:flex;gap:14px;align-items:flex-start}
+.col-list{width:320px;flex:0 0 auto;background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.col-detail{flex:1;background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.lh{background:var(--panel2);color:var(--ink);padding:10px 14px;font-weight:700;font-size:12.5px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line)}
+.dh{background:var(--panel2);color:var(--ink);padding:10px 14px;font-weight:700;font-size:12.5px;border-bottom:1px solid var(--line)}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{background:var(--bg2);color:var(--muted);text-align:left;padding:8px 11px;font-weight:600;font-size:11px;border-bottom:1px solid var(--line)}
+td{padding:8px 11px;border-bottom:1px solid #efebf7;color:#3a3450}
+tbody tr:hover{background:var(--soft);cursor:pointer}
+tbody tr.sel{background:var(--rowsel)}
+.listwrap{max-height:560px;overflow:auto}
+.filterrow input{width:100%;border:1px solid var(--line);border-radius:9px;padding:6px 10px;font-size:11.5px;background:#fff;color:var(--ink);font-family:inherit}
+
+.card-wrap{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden;margin-bottom:14px}
+.form{padding:15px 17px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:11px 20px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:11px 18px}
+.field{display:flex;flex-direction:column;gap:4px;margin-bottom:9px}
+.field label{font-size:11.5px;color:var(--muted);font-weight:600}
+.field label .req{color:var(--accent2)}
+.field input,.field select{height:34px;border:1px solid var(--line);border-radius:9px;padding:0 11px;font-size:12.5px;background:#fff;color:var(--ink);font-family:inherit;font-weight:500}
+.field input:focus,.field select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(124,0,255,.16)}
+.field input[readonly]{background:var(--bg2);color:var(--faint)}
+.radio{display:flex;gap:16px;align-items:center;font-size:12.5px;height:34px}
+.radio label{display:flex;gap:6px;align-items:center;color:#463f57}
+.section-title{font-size:11px;font-weight:700;color:var(--accent2);text-transform:uppercase;letter-spacing:.5px;margin:15px 0 7px;border-bottom:1px solid var(--line);padding-bottom:5px;display:flex;justify-content:space-between;align-items:center}
+.totbar{display:flex;gap:20px;justify-content:flex-end;padding:11px 0 0;align-items:center}
+.totbar .amt{font-size:11px;color:var(--muted)}
+.totbar .amt b{display:block;font-size:16px;color:var(--ink);font-weight:700}
+.totbar .net b{color:var(--accent2)}
+.itemtable td,.itemtable th{padding:6px 9px}.itemtable .num{text-align:right}
+.qty{width:46px;height:26px;border:1px solid var(--line);border-radius:6px;text-align:center;font-family:inherit;font-weight:600}
+.catpill{display:inline-block;font-size:9.5px;font-weight:700;padding:1px 8px;border-radius:8px;background:var(--accent-soft);color:var(--accent2);border:1px solid #e0cdfa}
+.cat-visa{background:#eef2ff;color:#3a4ea8;border-color:#cdd7f5}
+.cat-hotel{background:#eafaf2;color:#1f7a4d;border-color:#bfe6cf}
+.cat-trans{background:#fff2e6;color:#b06a2c;border-color:#f0d6b6}
+.cat-svc{background:#eef7f6;color:#0e7d6e;border-color:#c5e6e1}
+
+.badge{display:inline-block;border-radius:11px;padding:2px 10px;font-size:10px;font-weight:700}
+.bg-open{background:#eef2ff;color:#3a4ea8;border:1px solid #cdd7f5}
+.bg-book{background:var(--warn-soft);color:var(--warn);border:1px solid #e6c79d}
+.bg-lock{background:var(--green-soft);color:var(--green);border:1px solid #b6d6c0}
+.pill{display:inline-block;border-radius:8px;padding:2px 9px;font-size:10px;font-weight:600;background:var(--accent-soft);color:var(--accent2);border:1px solid #e0cdfa}
+
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin-bottom:15px}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:15px 17px}
+.card .k{font-size:11.5px;color:var(--muted);font-weight:600}
+.card .v{font-size:24px;font-weight:700;margin-top:5px}
+.card.k1 .v{color:var(--accent2)}.card.k2 .v{color:var(--teal)}.card.k3 .v{color:var(--warn)}.card.k4 .v{color:var(--green)}
+.panelcard{background:#fff;border:1px solid var(--line);border-radius:14px;margin-bottom:13px;overflow:hidden}
+.panelcard h3{margin:0;padding:11px 16px;border-bottom:1px solid var(--line);font-size:13px;color:var(--ink);font-weight:700}
+
+.req-card{background:#fff;border:1px solid var(--line);border-radius:14px;margin-bottom:14px;overflow:hidden}
+.req-head{display:flex;align-items:center;gap:14px;padding:12px 16px;background:var(--panel2);border-bottom:1px solid var(--line)}
+.req-head .id{font-weight:700;color:var(--accent2);font-size:13.5px}
+.req-head .meta{font-size:11.5px;color:var(--muted)}
+.req-head .total{margin-left:auto;text-align:right}
+.req-head .total .lbl{font-size:10.5px;color:var(--muted)}
+.req-head .total .v{font-size:17px;font-weight:700;color:var(--ink)}
+.req-actions{padding:11px 16px;display:flex;gap:9px;justify-content:flex-end;border-top:1px solid var(--line)}
+
+.matrix td,.matrix th{text-align:center;font-size:11px;padding:7px 8px}
+.matrix td:first-child,.matrix th:first-child{text-align:left;font-weight:600}
+.chk{width:16px;height:16px;border-radius:5px;border:1.5px solid #cabfe0;display:inline-block;vertical-align:-3px;background:#fff;cursor:pointer}
+.chk.on{background:var(--accent);border-color:var(--accent);position:relative}
+.chk.on:after{content:'✓';color:#fff;font-size:11px;position:absolute;left:2px;top:-2px}
+.chk.dis{opacity:.3;cursor:not-allowed}
+
+.note{font-size:11.5px;color:var(--muted);padding:9px 0;line-height:1.6}
+.tip{background:var(--accent-soft);border:1px solid #e0cdfa;color:#4a2a7a;border-radius:10px;padding:9px 13px;font-size:11.5px;margin-bottom:12px}
+.footer-note{font-size:11px;color:var(--faint);text-align:center;padding:11px;background:#fff;border-top:1px solid var(--line)}
+.ar{direction:rtl}
+@media(max-width:960px){.cards{grid-template-columns:repeat(2,1fr)}.col-list{width:250px}}
+</style>
+</head>
+<body>
+
+<div id="login">
+  <div class="login-card">
+    <div class="brandmark">AR</div>
+    <div class="ar">الروضة للحج والعمرة</div>
+    <h1>AL RAWDA GROUP</h1>
+    <p>Hajj &amp; Umrah Services — Cloud ERP</p>
+    <div class="fld"><label>Username</label><input value="hasnain" /></div>
+    <div class="fld"><label>Password</label><input type="password" value="••••••••" /></div>
+    <button class="btn-primary" onclick="enter()">Sign in</button>
+    <p style="margin-top:16px">Prototype — sample data only</p>
+  </div>
+</div>
+
+<div id="app">
+  <div class="topbar">
+    <div class="logo">AR</div>
+    <div class="title">AL RAWDA ERP <small>الروضة للحج والعمرة — Doha, Qatar</small></div>
+    <div class="spacer"></div>
+    <div class="meta"><span>Branch: <b>AL RAWDA</b></span><span>Date: <b>09-06-2026</b></span></div>
+    <div class="user"><span class="dot"></span>HASNAIN · Admin</div>
+  </div>
+
+  <div class="tabs" id="tabs"></div>
+
+  <div class="body">
+    <div class="sidebar">
+      <div class="nav-group">Transaction · Activity</div>
+      <div class="nav-item active" data-s="dashboard">Dashboard</div>
+      <div class="nav-item" data-s="invoice">Invoice</div>
+      <div class="nav-item" data-s="receipt">Receipt</div>
+      <div class="nav-item" data-s="payment">Payment <span class="badge-new">BOOK</span></div>
+      <div class="nav-item" data-s="approval">Payment Approval <span class="badge-new">NEW</span></div>
+      <div class="nav-group">Reports</div>
+      <div class="nav-item" data-s="reports">All Report</div>
+      <div class="nav-group">Catalog · Basic</div>
+      <div class="nav-item" data-s="items">Items <span class="badge-new">NEW</span></div>
+      <div class="nav-item" data-s="package">Package Builder</div>
+      <div class="nav-item" data-s="visa">Visa Type</div>
+      <div class="nav-item" data-s="nationality">Nationality</div>
+      <div class="nav-group">Settings</div>
+      <div class="nav-item" data-s="users">User Management <span class="badge-new">NEW</span></div>
+      <div class="nav-item" data-s="settings">Settings</div>
+    </div>
+
+    <div class="main">
+
+      <!-- DASHBOARD -->
+      <div class="screen active" id="s-dashboard">
+        <div class="dashbar">
+          <div class="seg">
+            <button class="on" onclick="setPeriod('week',this)">Week</button>
+            <button onclick="setPeriod('month',this)">Month</button>
+            <button onclick="setPeriod('year',this)">Year</button>
+          </div>
+          <span class="lbl">Branch</span>
+          <select><option>AL RAWDA (All)</option><option>Doha Main</option></select>
+          <span class="lbl">From</span><input type="date" value="2026-06-01">
+          <span class="lbl">To</span><input type="date" value="2026-06-09">
+          <span style="flex:1"></span>
+          <button class="tbtn pri">↻ Refresh</button>
+          <button class="tbtn">⬇ Export</button>
+        </div>
+        <div class="kpi">
+          <div class="card"><div class="k">Collection <span class="chip up">▲ 12%</span></div><div class="v" style="color:var(--accent2)">QAR 35,000</div></div>
+          <div class="card"><div class="k">Pending balance <span class="chip down">▼ 4%</span></div><div class="v" style="color:var(--warn)">QAR 7,600</div></div>
+          <div class="card"><div class="k">Unbooked receipts</div><div class="v" id="dashOpen" style="color:var(--teal)">4</div></div>
+          <div class="card"><div class="k">Payments to approve</div><div class="v" id="dashReq" style="color:var(--green)">1</div></div>
+        </div>
+        <div class="chartgrid">
+          <div class="chartcard"><h4>Collection trend <span style="font-size:10px;color:var(--muted);font-weight:600">QAR</span></h4><div class="cwrap"><canvas id="cTrend"></canvas></div></div>
+          <div class="chartcard"><h4>Revenue by category</h4><div class="cwrap"><canvas id="cDonut"></canvas></div></div>
+        </div>
+        <div class="chartgrid eq">
+          <div class="chartcard"><h4>Income vs Expense <span style="font-size:10px;color:var(--muted);font-weight:600">QAR (000s)</span></h4><div class="cwrap sm"><canvas id="cBar"></canvas></div></div>
+          <div class="chartcard"><h4>Departures by date <span style="font-size:10px;color:var(--muted);font-weight:600">passengers</span></h4><div class="cwrap sm"><canvas id="cDep"></canvas></div></div>
+        </div>
+        <div class="panelcard">
+          <h3>Recent invoices</h3>
+          <table><thead><tr><th>Inv No</th><th>Date</th><th>Customer</th><th>Built from</th><th>Net</th><th>Balance</th><th>Status</th></tr></thead><tbody>
+            <tr><td>8457</td><td>01-06-2026</td><td>Mohammad Jahirul Islam</td><td>Pkg: 5 Days Umrah ×5</td><td>6,450</td><td>1,450</td><td><span class="badge bg-book">Pending</span></td></tr>
+            <tr><td>8462</td><td>02-06-2026</td><td>Habib Ali</td><td>Item: Transport</td><td>350</td><td>0</td><td><span class="badge bg-lock">Paid</span></td></tr>
+            <tr><td>8464</td><td>03-06-2026</td><td>Daud Janang</td><td>Items: Hotel + Visa</td><td>2,800</td><td>0</td><td><span class="badge bg-lock">Paid</span></td></tr>
+          </tbody></table>
+        </div>
+      </div>
+
+      <!-- INVOICE -->
+      <div class="screen" id="s-invoice">
+        <div class="tip"><b>An invoice is composed from the catalog.</b> Add a ready-made package and/or individual items — each becomes a line; the net is calculated from the lines.</div>
+        <div class="split">
+          <div class="col-list">
+            <div class="lh">Invoice List <span>↻</span></div>
+            <div style="padding:8px" class="filterrow"><input placeholder="Search customer / invoice no…"></div>
+            <div class="listwrap"><table><thead><tr><th>Inv No</th><th>Date</th><th>Customer</th></tr></thead><tbody id="invlist"></tbody></table></div>
+          </div>
+          <div class="col-detail">
+            <div class="dh">Invoice — Detail</div>
+            <div class="toolbar"><button class="tbtn pri">＋ New</button><button class="tbtn">💾 Save</button><button class="tbtn">🖨 Print</button></div>
+            <div class="form">
+              <div class="grid3">
+                <div class="field"><label>Invoice No</label><input value="8457" readonly></div>
+                <div class="field"><label>Invoice Date <span class="req">*</span></label><input value="01/06/2026"></div>
+                <div class="field"><label>Departure Date <span class="req">*</span></label><input value="10/06/2026"></div>
+                <div class="field"><label>Customer Name <span class="req">*</span></label><input value="Mohammad Jahirul Islam"></div>
+                <div class="field"><label>Nationality <span class="req">*</span></label><select><option>Bangladeshi</option><option>Pakistani</option></select></div>
+                <div class="field"><label>No. of Passengers</label><input value="5"></div>
+              </div>
+              <div class="section-title">Line items <span><button class="tbtn sm">＋ Add item</button> <button class="tbtn sm pri">＋ Add package</button></span></div>
+              <table class="itemtable"><thead><tr><th>Line</th><th>Type</th><th class="num">Qty</th><th class="num">Rate</th><th class="num">Total</th></tr></thead><tbody>
+                <tr><td>5 Days Umrah With Visa</td><td><span class="catpill">Package</span></td><td class="num">5</td><td class="num">1,290</td><td class="num">6,450</td></tr>
+                <tr><td>Ziyarat Tour</td><td><span class="catpill cat-svc">Item · Service</span></td><td class="num">0</td><td class="num">100</td><td class="num">0</td></tr>
+              </tbody></table>
+              <div class="totbar"><div class="amt">Amount<b>QAR 6,450</b></div><div class="amt">Discount<b>QAR 0</b></div><div class="amt net">Net Amount<b>QAR 6,450</b></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RECEIPT (create only) -->
+      <div class="screen" id="s-receipt">
+        <div class="tip"><b>Receipts are created here.</b> A new receipt records money received against an invoice. It stays <b>Open</b> until it is booked into a payment (in the Payment section).</div>
+        <div class="split">
+          <div class="col-detail" style="max-width:520px">
+            <div class="dh">Create / Edit Receipt</div>
+            <div class="toolbar"><button class="tbtn pri">＋ New</button><button class="tbtn">💾 Save</button><button class="tbtn">🖨 Print</button></div>
+            <div class="form">
+              <div class="grid2">
+                <div class="field"><label>Receipt No</label><input value="12756" readonly></div>
+                <div class="field"><label>Receipt Date <span class="req">*</span></label><input value="09/06/2026"></div>
+                <div class="field" style="grid-column:1/3"><label>Select Invoice <span class="req">*</span></label><select><option>8457 — Mohammad Jahirul Islam — 5 Days Umrah With Visa</option></select></div>
+                <div class="field"><label>Mode of Payment <span class="req">*</span></label><select><option>Cash</option><option>Bank</option></select></div>
+                <div class="field"><label>Received Amount <span class="req">*</span></label><input value="5,000"></div>
+                <div class="field"><label>Invoice Amount</label><input value="6,450" readonly></div>
+                <div class="field"><label>Remaining Balance</label><input value="1,450" readonly></div>
+              </div>
+            </div>
+          </div>
+          <div class="col-detail">
+            <div class="dh">Receipts</div>
+            <div class="listwrap"><table><thead><tr><th>Rec No</th><th>Date</th><th>Customer</th><th>Built from</th><th>Amount</th><th>Status</th></tr></thead><tbody id="recmain"></tbody></table></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAYMENT (book receipts + send for approval) -->
+      <div class="screen" id="s-payment">
+        <div class="tip"><b>Booking happens here.</b> Create a payment, <b>select multiple open receipts</b> to book together, then <b>Save &amp; send for approval</b>. The saved payment (with its receipts) goes to the Payment Approval menu.</div>
+        <div class="card-wrap">
+          <div class="dh">New Payment — book receipts</div>
+          <div class="form" style="padding-bottom:6px">
+            <div class="grid3">
+              <div class="field"><label>Payment No</label><input value="PAY-502" readonly></div>
+              <div class="field"><label>Payment Date <span class="req">*</span></label><input value="09/06/2026"></div>
+              <div class="field"><label>Note</label><input value="Today's counter collection"></div>
+            </div>
+          </div>
+          <div class="section-title" style="margin:0 17px">Select receipts to book</div>
+          <div class="toolbar" style="border:none;padding:6px 17px 9px">
+            <span style="font-size:12.5px;color:var(--muted)">Selected: <b style="color:var(--accent2)" id="pcount">0</b> · Total <b style="color:var(--ink)" id="ptotal">QAR 0</b></span>
+            <span style="flex:1"></span>
+            <button class="tbtn pri" onclick="savePayment()">💾 Save &amp; send for approval</button>
+          </div>
+          <table><thead><tr><th style="width:36px"><span class="chk" id="pallchk" onclick="togglePayAll()"></span></th><th>Rec No</th><th>Date</th><th>Customer</th><th>Built from</th><th>Mode</th><th>Amount</th><th>Status</th></tr></thead><tbody id="recselect"></tbody></table>
+        </div>
+
+        <div class="panelhead" style="border-radius:12px 12px 0 0">Payments</div>
+        <div style="background:#fff;border:1px solid var(--line);border-top:none;border-radius:0 0 12px 12px">
+          <table><thead><tr><th>Pay No</th><th>Date</th><th>Note</th><th>Receipts</th><th>Total</th><th>Status</th></tr></thead><tbody id="paylist"></tbody></table>
+        </div>
+      </div>
+
+      <!-- PAYMENT APPROVAL -->
+      <div class="screen" id="s-approval">
+        <div class="panelhead" style="border-radius:12px">Payment Approval — Manager
+          <span style="font-size:11.5px;font-weight:500">Check the payment and the receipts inside it, then approve</span>
+        </div>
+        <div id="reqlist" style="margin-top:14px"></div>
+        <div class="note">A payment bundles the booked receipts. The manager verifies the payment total against the receipts and <b>approves</b> — which <b>locks</b> the payment and its receipts (they can no longer be edited). Reject sends the receipts back to Open. Separation of duties: staff book, manager approves.</div>
+      </div>
+
+      <!-- REPORTS -->
+      <div class="screen" id="s-reports">
+        <div class="panelhead" style="border-radius:12px 12px 0 0">All Report <span style="font-size:11.5px;font-weight:500">Select type + date range</span></div>
+        <div style="background:#fff;border:1px solid var(--line);border-top:none;border-radius:0 0 12px 12px;padding:16px">
+          <div style="display:flex;flex-wrap:wrap;gap:16px;font-size:12.5px;margin-bottom:16px;color:#463f57">
+            <label><input type="radio" name="rep" checked> Income Summary</label>
+            <label><input type="radio" name="rep"> Pending</label>
+            <label><input type="radio" name="rep"> Income Detail</label>
+            <label><input type="radio" name="rep"> Passengers List</label>
+            <label><input type="radio" name="rep"> Departure Date wise</label>
+            <label><input type="radio" name="rep"> Expense</label>
+          </div>
+          <div style="display:flex;gap:18px;align-items:end;margin-bottom:16px">
+            <div class="field" style="width:160px"><label>Start Date</label><input value="01/06/2026"></div>
+            <div class="field" style="width:160px"><label>End Date</label><input value="09/06/2026"></div>
+            <button class="tbtn pri" style="height:34px">🖨 Print / Preview</button>
+            <button class="tbtn" style="height:34px">⬇ Export Excel</button>
+          </div>
+          <div style="border:1px solid var(--line);border-radius:11px;overflow:hidden">
+            <div style="background:var(--panel2);padding:9px 13px;font-size:11px;color:var(--accent2);font-weight:700">Income Summary (preview)</div>
+            <table><thead><tr><th>Inv</th><th>Customer</th><th>Departure</th><th>Invoice</th><th>Received</th><th>Balance</th></tr></thead><tbody>
+              <tr><td>8457</td><td>Mohammad Jahirul Islam</td><td>10/06/2026</td><td>6,450</td><td>5,000</td><td>1,450</td></tr>
+              <tr><td>8462</td><td>Habib Ali</td><td>10/06/2026</td><td>350</td><td>350</td><td>0</td></tr>
+              <tr style="font-weight:700;background:var(--panel2)"><td colspan="3">Total</td><td>35,000</td><td>27,400</td><td>7,600</td></tr>
+            </tbody></table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ITEMS -->
+      <div class="screen" id="s-items">
+        <div class="tip"><b>Items are the building blocks.</b> Each service (visa, hotel night, transport, flight, meals, fee…) is a reusable item with its own rate. Packages and invoices are built by combining items.</div>
+        <div class="split">
+          <div class="col-list">
+            <div class="lh">Item List <span>↻</span></div>
+            <div class="listwrap"><table><thead><tr><th>Item</th><th>Category</th><th class="num">Rate</th></tr></thead><tbody>
+              <tr class="sel"><td>Umrah Visa</td><td><span class="catpill cat-visa">Visa</span></td><td class="num">450</td></tr>
+              <tr><td>Makkah Hotel (night)</td><td><span class="catpill cat-hotel">Hotel</span></td><td class="num">200</td></tr>
+              <tr><td>Madinah Hotel (night)</td><td><span class="catpill cat-hotel">Hotel</span></td><td class="num">180</td></tr>
+              <tr><td>Intercity Transport</td><td><span class="catpill cat-trans">Transport</span></td><td class="num">150</td></tr>
+              <tr><td>Flight Ticket</td><td><span class="catpill cat-visa">Flight</span></td><td class="num">900</td></tr>
+              <tr><td>Ziyarat Tour</td><td><span class="catpill cat-svc">Service</span></td><td class="num">100</td></tr>
+            </tbody></table></div>
+          </div>
+          <div class="col-detail">
+            <div class="dh">Item — Detail</div>
+            <div class="toolbar"><button class="tbtn pri">＋ New</button><button class="tbtn">💾 Save</button><button class="tbtn">🗑 Delete</button></div>
+            <div class="form"><div class="grid2">
+              <div class="field"><label>Item Name (English) <span class="req">*</span></label><input value="Umrah Visa"></div>
+              <div class="field"><label>Item Name (Arabic)</label><input class="ar" value="تأشيرة عمرة"></div>
+              <div class="field"><label>Category <span class="req">*</span></label><select><option>Visa</option><option>Hotel</option><option>Transport</option><option>Flight</option><option>Service</option></select></div>
+              <div class="field"><label>Unit</label><select><option>Per person</option><option>Per night</option><option>Per trip</option><option>Per day</option></select></div>
+              <div class="field"><label>Rate (QAR) <span class="req">*</span></label><input value="450"></div>
+              <div class="field"><label>Status</label><select><option>Active</option><option>Inactive</option></select></div>
+            </div><div class="note">Reusable across packages &amp; invoices. Update its rate once — everything that uses it follows.</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PACKAGE BUILDER -->
+      <div class="screen" id="s-package">
+        <div class="tip"><b>A package is a reusable bundle of items.</b> Pick items, set quantities — the package rate is the sum. Reuse it on any invoice.</div>
+        <div class="split">
+          <div class="col-list">
+            <div class="lh">Package List <span>↻</span></div>
+            <div class="listwrap"><table><thead><tr><th>Package</th><th class="num">Rate</th></tr></thead><tbody>
+              <tr class="sel"><td>5 Days Umrah With Visa</td><td class="num">1,290</td></tr>
+              <tr><td>10 Days Umrah With Visa</td><td class="num">1,300</td></tr>
+              <tr><td>Hotel &amp; Visa</td><td class="num">1,210</td></tr>
+            </tbody></table></div>
+          </div>
+          <div class="col-detail">
+            <div class="dh">Package Builder — Detail</div>
+            <div class="toolbar"><button class="tbtn pri">＋ New</button><button class="tbtn">💾 Save</button></div>
+            <div class="form">
+              <div class="field"><label>Package Name <span class="req">*</span></label><input value="5 Days Umrah With Visa"></div>
+              <div class="section-title">Items in this package <button class="tbtn sm pri">＋ Add item</button></div>
+              <table class="itemtable"><thead><tr><th>Item</th><th>Category</th><th class="num">Qty</th><th class="num">Rate</th><th class="num">Line total</th></tr></thead><tbody>
+                <tr><td>Umrah Visa</td><td><span class="catpill cat-visa">Visa</span></td><td class="num"><input class="qty" value="1"></td><td class="num">450</td><td class="num">450</td></tr>
+                <tr><td>Makkah Hotel (night)</td><td><span class="catpill cat-hotel">Hotel</span></td><td class="num"><input class="qty" value="3"></td><td class="num">200</td><td class="num">600</td></tr>
+                <tr><td>Intercity Transport</td><td><span class="catpill cat-trans">Transport</span></td><td class="num"><input class="qty" value="1"></td><td class="num">150</td><td class="num">150</td></tr>
+              </tbody></table>
+              <div class="totbar"><div class="amt net">Package rate<b>QAR 1,200</b></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- VISA -->
+      <div class="screen" id="s-visa">
+        <div class="split">
+          <div class="col-list"><div class="lh">Visa Type List</div><div class="listwrap"><table><thead><tr><th>Visa Type</th></tr></thead><tbody><tr class="sel"><td>Umrah Visa</td></tr><tr><td>Tourist Visa</td></tr></tbody></table></div></div>
+          <div class="col-detail"><div class="dh">Visa Type — Detail</div><div class="toolbar"><button class="tbtn pri">＋ New</button><button class="tbtn">💾 Save</button></div><div class="form"><div class="field" style="max-width:360px"><label>Visa Type <span class="req">*</span></label><input value="Umrah Visa"></div></div></div>
+        </div>
+      </div>
+
+      <!-- NATIONALITY -->
+      <div class="screen" id="s-nationality">
+        <div class="split">
+          <div class="col-list"><div class="lh">Country List</div><div class="listwrap"><table><thead><tr><th>Country</th><th>Short</th></tr></thead><tbody><tr class="sel"><td>Bangladeshi</td><td>118</td></tr><tr><td>Pakistani</td><td>112</td></tr></tbody></table></div></div>
+          <div class="col-detail"><div class="dh">Country — Detail</div><div class="toolbar"><button class="tbtn pri">＋ New</button><button class="tbtn">💾 Save</button></div><div class="form"><div class="grid2"><div class="field"><label>Country Name <span class="req">*</span></label><input value="Bangladeshi"></div><div class="field"><label>Short Name <span class="req">*</span></label><input value="118"></div><div class="field"><label>Name in Arabic</label><input class="ar" value="بنغلاديشي"></div></div></div></div>
+        </div>
+      </div>
+
+      <!-- USERS -->
+      <div class="screen" id="s-users">
+        <div class="split">
+          <div class="col-list"><div class="lh">Users <span>＋</span></div><div class="listwrap"><table><thead><tr><th>Name</th><th>Role</th></tr></thead><tbody><tr class="sel"><td>Hasnain</td><td>Admin</td></tr><tr><td>Burhan</td><td>Counter</td></tr><tr><td>Manager</td><td>Manager</td></tr></tbody></table></div></div>
+          <div class="col-detail">
+            <div class="dh">Role &amp; Menu-wise Permissions</div>
+            <div class="toolbar"><select style="height:32px;border:1px solid var(--line);border-radius:9px;padding:0 9px;background:#fff;color:var(--ink);font-family:inherit"><option>Counter staff</option><option>Manager</option></select><button class="tbtn pri" style="margin-left:auto">💾 Save role</button></div>
+            <div class="form">
+              <table class="matrix"><thead><tr><th>Menu</th><th>View</th><th>Create</th><th>Edit</th><th>Book</th><th>Approve</th></tr></thead><tbody>
+                <tr><td>Items &amp; Packages</td><td><span class="chk on"></span></td><td><span class="chk"></span></td><td><span class="chk"></span></td><td>—</td><td>—</td></tr>
+                <tr><td>Invoice</td><td><span class="chk on"></span></td><td><span class="chk on"></span></td><td><span class="chk on"></span></td><td>—</td><td>—</td></tr>
+                <tr><td>Receipt</td><td><span class="chk on"></span></td><td><span class="chk on"></span></td><td><span class="chk"></span></td><td>—</td><td>—</td></tr>
+                <tr><td>Payment (book receipts)</td><td><span class="chk on"></span></td><td><span class="chk on"></span></td><td><span class="chk"></span></td><td><span class="chk on"></span></td><td>—</td></tr>
+                <tr><td>Payment Approval</td><td><span class="chk on"></span></td><td>—</td><td>—</td><td>—</td><td><span class="chk"></span></td></tr>
+              </tbody></table>
+              <div class="note">Showing <b>Counter staff</b>: can create receipts and <b>book payments</b>, but <b>cannot approve</b> (manager-only) — s

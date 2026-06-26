@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Software Requirements Specification — Cloud Umrah & Hajj ERP</title>
+<style>
+  :root{
+    --primary:#5a1a4d;      /* deep maroon/purple from existing app header */
+    --primary-light:#7d2b6e;
+    --accent:#0e7c6b;       /* teal accent */
+    --ink:#1f2430;
+    --muted:#5b6472;
+    --line:#d7dbe3;
+    --soft:#f4f1f6;
+    --soft2:#eef6f4;
+    --warn:#b5532a;
+  }
+  @page{
+    size:A4;
+    margin:20mm 16mm 18mm 16mm;
+    @bottom-center{
+      content:"AL RAWDA Cloud ERP — Software Requirements Specification";
+      font-family:'Helvetica Neue',Arial,sans-serif; font-size:7.5pt; color:#9aa1ad;
+    }
+    @bottom-right{
+      content:"Page " counter(page) " of " counter(pages);
+      font-family:'Helvetica Neue',Arial,sans-serif; font-size:7.5pt; color:#9aa1ad;
+    }
+    @top-right{
+      content:"Confidential — Prepared by ionob";
+      font-family:'Helvetica Neue',Arial,sans-serif; font-size:7.5pt; color:#c2c7d0;
+    }
+  }
+  @page cover{ margin:0; @bottom-center{content:""} @bottom-right{content:""} @top-right{content:""} }
+
+  *{box-sizing:border-box}
+  body{
+    font-family:'Helvetica Neue',Arial,'Segoe UI',sans-serif;
+    color:var(--ink); font-size:10.2pt; line-height:1.5; margin:0;
+  }
+  h1,h2,h3,h4{font-family:'Helvetica Neue',Arial,sans-serif; color:var(--primary); line-height:1.25; margin:0 0 .4em}
+  h2{font-size:16pt; border-bottom:2px solid var(--primary); padding-bottom:5px; margin-top:6px}
+  h3{font-size:12.5pt; color:var(--primary-light); margin-top:18px}
+  h4{font-size:10.8pt; color:var(--accent); margin-top:14px; margin-bottom:.2em}
+  p{margin:.45em 0}
+  ul,ol{margin:.4em 0 .6em; padding-left:18px}
+  li{margin:.2em 0}
+  .small{font-size:8.8pt; color:var(--muted)}
+  .section{page-break-before:always}
+  table{width:100%; border-collapse:collapse; margin:10px 0; font-size:9pt}
+  th,td{border:1px solid var(--line); padding:6px 8px; text-align:left; vertical-align:top}
+  th{background:var(--primary); color:#fff; font-weight:600; font-size:8.8pt}
+  tr:nth-child(even) td{background:var(--soft)}
+  .tag{display:inline-block; background:var(--soft2); color:var(--accent); border:1px solid #bfe0d9;
+       border-radius:10px; padding:1px 9px; font-size:8pt; font-weight:600; margin:1px}
+  .pill{display:inline-block; background:var(--primary); color:#fff; border-radius:4px; padding:1px 7px; font-size:8pt; font-weight:600}
+  .callout{border-left:4px solid var(--accent); background:var(--soft2); padding:9px 13px; margin:12px 0; border-radius:0 6px 6px 0}
+  .callout.warn{border-left-color:var(--warn); background:#fbf1ec}
+  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+  .card{border:1px solid var(--line); border-radius:8px; padding:10px 13px; background:#fff}
+  .card h4{margin-top:0}
+  code{background:#f1f0f4; padding:1px 5px; border-radius:4px; font-family:'Consolas',monospace; font-size:8.6pt; color:#7d2b6e}
+  .muted{color:var(--muted)}
+  .center{text-align:center}
+  .req td:first-child{font-family:Consolas,monospace; font-weight:700; color:var(--primary); white-space:nowrap; width:64px}
+
+  /* Cover */
+  .cover{page:cover; height:297mm; position:relative; color:#fff; overflow:hidden;
+    background:linear-gradient(150deg,#3d0f34 0%,#5a1a4d 45%,#7d2b6e 100%);}
+  .cover .crest{position:absolute; right:-60mm; top:-60mm; width:160mm; height:160mm; border-radius:50%;
+    background:radial-gradient(circle at 30% 30%, rgba(255,255,255,.16), rgba(255,255,255,0) 60%);}
+  .cover .crescent{position:absolute; right:18mm; top:26mm; width:46mm; height:46mm; border-radius:50%;
+    box-shadow: inset -14mm -4mm 0 0 #f0c674; opacity:.9; transform:rotate(-25deg);}
+  .cover-inner{position:absolute; left:18mm; right:18mm; top:40mm}
+  .cover .kicker{letter-spacing:3px; font-size:10pt; text-transform:uppercase; color:#f0c674; font-weight:600}
+  .cover h1{color:#fff; font-size:33pt; line-height:1.1; margin:14px 0 6px; max-width:150mm}
+  .cover .sub{font-size:13pt; color:#e7d4e3; max-width:140mm}
+  .cover .client{margin-top:30mm; font-size:11pt}
+  .cover .client .big{font-size:17pt; font-weight:700; color:#fff}
+  .cover-foot{position:absolute; left:18mm; right:18mm; bottom:20mm; display:flex; justify-content:space-between;
+    border-top:1px solid rgba(255,255,255,.3); padding-top:10px; font-size:9pt; color:#e7d4e3}
+  .cover-foot b{color:#fff}
+
+  .toc li{list-style:none}
+  .toc ol{counter-reset:item; padding-left:0}
+  .toc>ol>li{font-weight:600; margin:6px 0}
+  .toc ol ol{padding-left:16px; font-weight:400; font-size:9.4pt}
+  .toc .dotline{display:flex; justify-content:space-between; border-bottom:1px dotted #cfd4dd}
+  .docctrl th{background:var(--primary-light)}
+  figure{margin:14px 0; text-align:center}
+  figcaption{font-size:8.6pt; color:var(--muted); margin-top:5px}
+  .legend span{display:inline-block; margin-right:14px; font-size:8.4pt; color:var(--muted)}
+  .swatch{display:inline-block; width:10px; height:10px; border-radius:2px; vertical-align:middle; margin-right:4px}
+  .phase{border:1px solid var(--line); border-radius:8px; overflow:hidden; margin:8px 0}
+  .phase .hd{background:var(--soft); padding:6px 12px; font-weight:700; color:var(--primary); display:flex; justify-content:space-between}
+  .phase .bd{padding:8px 12px}
+  .nowrap{white-space:nowrap}
+</style>
+</head>
+<body>
+
+<!-- ================= COVER ================= -->
+<section class="cover">
+  <div class="crest"></div>
+  <div class="crescent"></div>
+  <div class="cover-inner">
+    <div class="kicker">Software Requirements Specification</div>
+    <h1>Cloud-Based Umrah &amp; Hajj Travel ERP</h1>
+    <div class="sub">A secure, AI-assisted, multi-tenant cloud platform to replace the existing desktop ERP — with a dynamic field engine and dynamic bilingual (English / Arabic) printing.</div>
+    <div class="client">
+      Prepared for<br>
+      <span class="big">AL RAWDA GROUP HAJJ &amp; UMRAH SERVICES</span><br>
+      Bank Street, Street No. 910, Doha — Qatar
+    </div>
+  </div>
+  <div class="cover-foot">
+    <div>Prepared by <b>ionob</b><br>info@ionob.com</div>
+    <div style="text-align:right">Document Ref: <b>ION-SRS-RAWDA-001</b><br>Version 1.0 &nbsp;•&nbsp; 09 June 2026</div>
+  </div>
+</section>
+
+<!-- ================= DOC CONTROL ================= -->
+<section class="section">
+  <h2>Document Control</h2>
+  <table class="docctrl">
+    <tr><th style="width:32%">Field</th><th>Detail</th></tr>
+    <tr><td>Document title</td><td>Software Requirements Specification — Cloud-Based Umrah &amp; Hajj Travel ERP</td></tr>
+    <tr><td>Document reference</td><td>ION-SRS-RAWDA-001</td></tr>
+    <tr><td>Version</td><td>1.0 (Draft for client review)</td></tr>
+    <tr><td>Date</td><td>09 June 2026</td></tr>
+    <tr><td>Prepared by</td><td>ionob — info@ionob.com</td></tr>
+    <tr><td>Prepared for</td><td>AL RAWDA GROUP HAJJ &amp; UMRAH SERVICES, Doha, Qatar</td></tr>
+    <tr><td>Status</td><td>For client review &amp; sign-off</td></tr>
+    <tr><td>Classification</td><td>Confidential</td></tr>
+  </table>
+
+  <h3>Revision History</h3>
+  <table>
+    <tr><th>Version</th><th>Date</th><th>Author</th><th>Summary of changes</th></tr>
+    <tr><td>0.1</td><td>05 Jun 2026</td><td>ionob</td><td>Initial outline from current-system review</td></tr>
+    <tr><td>1.0</td><td>09 Jun 2026</td><td>ionob</td><td>First complete draft issued to client</td></tr>
+  </table>
+
+  <h3>Sign-off</h3>
+  <table>
+    <tr><th>Role</th><th>Name</th><th>Signature</th><th>Date</th></tr>
+    <tr><td>Client — Authorised representative</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+    <tr><td>ionob — Project lead</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+  </table>
+
+  <div class="callout"><b>How to read this document.</b> Sections 1–3 set context and scope. Sections 4–10 are the technical specification (architecture, modules, dynamic engines, AI, security, data model). Sections 11–14 cover quality, migration, delivery plan and the end-to-end process flow. Anything marked <span class="pill">TBC</span> needs a client decision before build.</div>
+</section>
+
+<!-- ================= TOC ================= -->
+<section class="section">
+  <h2>Table of Contents</h2>
+  <div class="toc">
+    <ol>
+      <li><div class="dotline"><span>Introduction &amp; Purpose</span></div></li>
+      <li><div class="dotline"><span>Current System Analysis</span></div></li>
+      <li><div class="dotline"><span>Project Scope &amp; Objectives</span></div></li>
+      <li><div class="dotline"><span>Proposed Solution &amp; Architecture</span></div></li>
+      <li><div class="dotline"><span>Technology Stack</span></div></li>
+      <li><div class="dotline"><span>Functional Requirements (Modules)</span></div>
+        <ol>
+          <li>Master Data (Packages, Visa Types, Nationalities)</li>
+          <li>Invoice Management</li>
+          <li>Receipt / Collection Management</li>
+          <li>Payment, Expense &amp; Refund</li>
+          <li>Reporting &amp; Analytics</li>
+          <li>Approval Workflow</li>
+        </ol>
+      </li>
+      <li><div class="dotline"><span>Dynamic Field Engine</span></div></li>
+      <li><div class="dotline"><span>Dynamic Print &amp; Document Engine</span></div></li>
+      <li><div class="dotline"><span>AI &amp; Automation Features</span></div></li>
+      <li><div class="dotline"><span>Security &amp; Compliance</span></div></li>
+      <li><div class="dotline"><span>Data Model &amp; Database Design</span></div></li>
+      <li><div class="dotline"><span>Non-Functional Requirements</span></div></li>
+      <li><div class="dotline"><span>Data Migration Strategy</span></div></li>
+      <li><div class="dotline"><span>Delivery Plan, Timeline &amp; Process Flow</span></div></li>
+      <li><div class="dotline"><span>Assumptions, Risks &amp; Acceptance Criteria</span></div></li>
+    </ol>
+  </div>
+</section>
+
+<!-- ================= 1. INTRO ================= -->
+<section class="section">
+  <h2>1. Introduction &amp; Purpose</h2>
+  <p>AL RAWDA GROUP HAJJ &amp; UMRAH SERVICES currently operates a Windows desktop application (&ldquo;Stimes ERP Solution&rdquo;) to manage its Umrah and Hajj travel business — issuing invoices, collecting payments, recording office expenses, maintaining packages and visa types, and printing bilingual receipts and management reports.</p>
+  <p>The business wants to move to a modern, cloud-hosted application built on a MySQL database, accessible from any device, with stronger security, AI-assisted automation, and the flexibility to add or change form fields and printed documents without a code release. This Software Requirements Specification (SRS) defines what the new system must do and the technical approach ionob proposes to build it.</p>
+
+  <h3>1.1 Objectives of this document</h3>
+  <ul>
+    <li>Capture and confirm the functional and non-functional requirements of the new platform.</li>
+    <li>Document the proposed architecture, technology stack and data model.</li>
+    <li>Define the dynamic field and dynamic print engines that are central to the client&rsquo;s request.</li>
+    <li>Establish the security model, AI scope, migration approach and delivery plan.</li>
+    <li>Serve as the agreed baseline for design, build, testing and sign-off.</li>
+  </ul>
+
+  <h3>1.2 Intended audience</h3>
+  <p>The client&rsquo;s management and operations team (for scope confirmation), and ionob&rsquo;s engineering, QA and project teams (for design and build).</p>
+
+  <h3>1.3 Definitions &amp; abbreviations</h3>
+  <table>
+    <tr><th style="width:24%">Term</th><th>Meaning</th></tr>
+    <tr><td>ERP</td><td>Enterprise Resource Planning — the integrated business application</td></tr>
+    <tr><td>SRS</td><td>Software Requirements Specification (this document)</td></tr>
+    <tr><td>Multi-tenant</td><td>One deployment serving multiple branches/companies with isolated data</td></tr>
+    <tr><td>RBAC</td><td>Role-Based Access Control</td></tr>
+    <tr><td>RTL</td><td>Right-to-left text direction (Arabic)</td></tr>
+    <tr><td>Master data</td><td>Reference data: packages, visa types, nationalities, etc.</td></tr>
+    <tr><td>Dynamic field</td><td>A user-configurable form field added without code changes</td></tr>
+    <tr><td>Voucher</td><td>A printed financial document (invoice, receipt, payment voucher)</td></tr>
+  </table>
+</section>
+
+<!-- ================= 2. CURRENT SYSTEM ================= -->
+<section class="section">
+  <h2>2. Current System Analysis</h2>
+  <p>The existing &ldquo;Stimes ERP Solution&rdquo; is a single-machine Windows desktop application. Based on the screens and reports reviewed, it provides the following capabilities.</p>
+
+  <h3>2.1 Modules observed</h3>
+  <table>
+    <tr><th style="width:22%">Area</th><th>Sub-modules / functions</th></tr>
+    <tr><td>Transaction</td><td>Invoice, Receipt, Payment</td></tr>
+    <tr><td>Master data (&ldquo;Basic&rdquo;)</td><td>Package (name + rate), Visa Type (e.g. Umrah Visa, Tourist Visa), Nationality (country name, short code, Arabic name)</td></tr>
+    <tr><td>Reports</td><td>Income Summary, Pending, Income Detail, Passengers List, Departure-Date-wise, Expense</td></tr>
+  </table>
+
+  <h3>2.2 Key data captured per transaction</h3>
+  <div class="grid2">
+    <div class="card"><h4>Invoice</h4>
+      <p class="small">Invoice no &amp; date, customer name, nationality, mobile 1/2, package, departure date, no. of passengers, no. of seats, no. of visas required, room type (Normal / Separate / Nil), per-passenger details (name, visa type, visa required), amount, discount, net amount, remarks.</p>
+    </div>
+    <div class="card"><h4>Receipt (collection)</h4>
+      <p class="small">Receipt no &amp; date, linked invoice, customer, nationality, mobile 1/2, package, departure date, passengers, seats, visas, room details, passenger details, mode of payment (cash / bank), invoice amount, previous balance, received amount.</p>
+    </div>
+    <div class="card"><h4>Payment</h4>
+      <p class="small">Payment no &amp; date, type (Expense / Refund), paid to, mobile, narration, paid amount, remarks. Used for office expenses and customer refunds.</p>
+    </div>
+    <div class="card"><h4>Reports</h4>
+      <p class="small">Date-range driven. Income Summary &amp; Departure-wise show invoice / received / refund / income / balance with approval status. Passengers List groups passengers by departure date. Expense report lists payment vouchers with totals.</p>
+    </div>
+  </div>
+
+  <h3>2.3 Strengths to preserve</h3>
+  <ul>
+    <li>Clean, fast data-entry screens with list + detail layout, inline filters and search.</li>
+    <li>Bilingual English / Arabic printed vouchers with company branding and RTL Arabic text.</li>
+    <li>Tabbed navigation that lets staff keep several records open at once.</li>
+    <li>A practical, proven report set tied to the day-to-day Umrah workflow.</li>
+  </ul>
+
+  <h3>2.4 Limitations the new system must address</h3>
+  <table>
+    <tr><th style="width:34%">Limitation today</th><th>Impact</th></tr>
+    <tr><td>Desktop-only, tied to one PC / local network</td><td>No remote or multi-branch access; manual backups; single point of failure</td></tr>
+    <tr><td>Fixed forms — fields cannot be changed without a new build</td><td>Slow to adapt to new visa rules, package attributes or document fields</td></tr>
+    <tr><td>Hard-coded print layouts</td><td>Any change to a voucher requires a developer and a re-release</td></tr>
+    <tr><td>Limited user management &amp; audit trail</td><td>Weak accountability and access control</td></tr>
+    <tr><td>No automation / intelligence</td><td>Manual follow-up of balances, duplicates, and departure reminders</td></tr>
+    <tr><td>Reporting limited to fixed PDFs</td><td>No dashboards, export, or ad-hoc analysis</td></tr>
+  </table>
+</section>
+
+<!-- ================= 3. SCOPE ================= -->
+<section class="section">
+  <h2>3. Project Scope &amp; Objectives</h2>
+  <h3>3.1 Business objectives</h3>
+  <ul>
+    <li>Operate the entire Umrah/Hajj sales-to-collection cycle from a secure cloud application accessible on desktop, tablet and mobile.</li>
+    <li>Let authorised staff configure form fields and printed documents themselves, without waiting for a software release.</li>
+    <li>Reduce manual effort and errors through AI-assisted automation.</li>
+    <li>Strengthen security, access control and auditability of all financial records.</li>
+    <li>Preserve the familiar bilingual workflow and the existing voucher/report formats.</li>
+  </ul>
+
+  <h3>3.2 In scope</h3>
+  <div class="grid2">
+    <div class="card"><h4>Functional</h4>
+      <p class="small">Master data, Invoicing, Receipts, Payments (expense &amp; refund), Approval workflow, full Report set, Dashboards, Dynamic field engine, Dynamic print engine, User &amp; role management, Audit log, AI assistant features.</p></div>
+    <div class="card"><h4>Platform</h4>
+      <p class="small">Cloud hosting, MySQL database, REST API, responsive React web client, bilingual EN/AR UI with RTL, role-based security, automated backups, data migration from the current system.</p></div>
+  </div>
+
+  <h3>3.3 Out of scope (this phase)</h3>
+  <ul>
+    <li>Native mobile apps on app stores (the responsive web app covers mobile; native apps can be a later phase). <span class="pill">TBC</span></li>
+    <li>Direct integration with airline GDS / visa-issuing government portals unless APIs are provided. <span class="pill">TBC</span></li>
+    <li>Full double-entry general-ledger accounting (the system covers operational income/expense; export to an accounting package can be added). <span class="pill">TBC</span></li>
+    <li>Payroll/HR beyond recording salary payments as expenses.</li>
+  </ul>
+
+  <h3>3.4 Success criteria</h3>
+  <ul>
+    <li>All current daily operations can be performed in the new system, faster and from anywhere.</li>
+    <li>Existing vouchers and reports are reproduced to the client&rsquo;s satisfaction, and can be edited by an admin without code.</li>
+    <li>Historical data is migrated accurately and reconciled with the old system&rsquo;s totals.</li>
+    <li>The system passes security testing and the agreed acceptance tests.</li>
+  </ul>
+</section>
+
+<!-- ================= 4. ARCHITECTURE ================= -->
+<section class="section">
+  <h2>4. Proposed Solution &amp; Architecture</h2>
+  <p>The platform is a cloud-hosted, multi-tenant-ready web application with a clear separation between the React front-end, a Node.js REST/JSON API, and a managed MySQL database. All access is over HTTPS and protected by token-based authentication and role-based authorisation.</p>
+
+  <figure>
+  <svg viewBox="0 0 760 470" xmlns="http://www.w3.org/2000/svg" font-family="Helvetica,Arial" font-size="12">
+    <defs>
+      <marker id="ar" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#5b6472"/></marker>
+    </defs>
+    <!-- clients -->
+    <rect x="20" y="20" width="720" height="90" rx="10" fill="#f4f1f6" stroke="#d7dbe3"/>
+    <text x="34" y="40" fill="#5a1a4d" font-weight="bold">Clients (any device, HTTPS)</text>
+    <rect x="40" y="52" width="150" height="44" rx="7" fill="#fff" stroke="#7d2b6e"/><text x="115" y="79" text-anchor="middle">Desktop browser</text>
+    <rect x="210" y="52" width="150" height="44" rx="7" fill="#fff" stroke="#7d2b6e"/><text x="285" y="79" text-anchor="middle">Tablet</text>
+    <rect x="380" y="52" width="150" height="44" rx="7" fill="#fff" stroke="#7d2b6e"/><text x="455" y="79" text-anchor="middle">Mobile (PWA)</text>
+    <rect x="550" y="52" width="170" height="44" rx="7" fill="#fff" stroke="#7d2b6e"/><text x="635" y="79" text-anchor="middle">Admin / Reports</text>
+
+    <line x1="380" y1="110" x2="380" y2="138" stroke="#5b6472" stroke-width="1.5" marker-end="url(#ar)"/>
+
+    <!-- edge -->
+    <rect x="180" y="140" width="400" height="40" rx="8" fill="#0e7c6b" /><text x="380" y="165" fill="#fff" text-anchor="middle" font-weight="bold">CDN  •  WAF  •  Load Balancer / TLS</text>
+    <line x1="380" y1="180" x2="380" y2="206" stroke="#5b6472" stroke-width="1.5" marker-end="url(#ar)"/>
+
+    <!-- app tier -->
+    <rect x="20" y="208" width="720" height="120" rx="10" fill="#f4f1f6" stroke="#d7dbe3"/>
+    <text x="34" y="228" fill="#5a1a4d" font-weight="bold">Application tier (Node.js)</text>
+    <rect x="40" y="240" width="150" height="70" rx="7" fill="#fff" stroke="#5a1a4d"/><text x="115" y="270" text-anchor="middle">React SPA</text><text x="115" y="288" text-anchor="middle" font-size="10" fill="#5b6472">served as static</text>
+    <rect x="210" y="240" width="170" height="70" rx="7" fill="#fff" stroke="#5a1a4d"/><text x="295" y="266" text-anchor="middle">REST API</text><text x="295" y="284" text-anchor="middle" font-size="10" fill="#5b6472">Node + NestJS</text><text x="295" y="300" text-anchor="middle" font-size="10" fill="#5b6472">auth · RBAC · rules</text>
+    <rect x="400" y="240" width="155" height="70" rx="7" fill="#fff" stroke="#5a1a4d"/><text x="477" y="266" text-anchor="middle">Workers / Jobs</text><text x="477" y="284" text-anchor="middle" font-size="10" fill="#5b6472">PDF render, email,</text><text x="477" y="300" text-anchor="middle" font-size="10" fill="#5b6472">reminders</text>
+    <rect x="575" y="240" width="145" height="70" rx="7" fill="#fff" stroke="#0e7c6b"/><text x="647" y="266" text-anchor="middle">AI Service</text><text x="647" y="284" text-anchor="middle" font-size="10" fill="#5b6472">LLM gateway,</text><text x="647" y="300" text-anchor="middle" font-size="10" fill="#5b6472">OCR, insights</text>
+
+    <line x1="295" y1="328" x2="295" y2="356" stroke="#5b6472" stroke-width="1.5" marker-end="url(#ar)"/>
+    <line x1="477" y1="328" x2="477" y2="356" stroke="#5b6472" stroke-width="1.5" marker-end="url(#ar)"/>
+
+    <!-- data tier -->
+    <rect x="20" y="358" width="720" height="96" rx="10" fill="#eef6f4" stroke="#bfe0d9"/>
+    <text x="34" y="378" fill="#0e7c6b" font-weight="bold">Data &amp; storage tier</text>
+    <rect x="60" y="390" width="180" height="50" rx="7" fill="#fff" stroke="#0e7c6b"/><text x="150" y="420" text-anchor="middle">MySQL (primary + replica)</text>
+    <rect x="270" y="390" width="160" height="50" rx="7" fill="#fff" stroke="#0e7c6b"/><text x="350" y="420" text-anchor="middle">Object storage (PDFs/docs)</text>
+    <rect x="460" y="390" width="120" height="50" rx="7" fill="#fff" stroke="#0e7c6b"/><text x="520" y="420" text-anchor="middle">Redis cache</text>
+    <rect x="600" y="390" width="120" height="50" rx="7" fill="#fff" stroke="#0e7c6b"/><text x="660" y="420" text-anchor="middle">Encrypted backups</text>
+  </svg>
+  <figcaption>Figure 4.1 — High-level deployment architecture (logical view).</figcaption>
+  </figure>
+
+  <h3>4.1 Architectural principles</h3>
+  <ul>
+    <li><b>API-first.</b> Every screen and report is powered by a documented REST API, enabling future mobile apps and integrations.</li>
+    <li><b>Stateless app tier.</b> Application servers hold no session state, so the system scales horizontally behind a load balancer.</li>
+    <li><b>Separation of concerns.</b> Presentation (React), business logic (Node API), and data (MySQL) are independent layers.</li>
+    <li><b>Configuration over code.</b> Fields, documents, packages, visa types and roles are data, not code — supporting the dynamic requirements.</li>
+    <li><b>Security by default.</b> Encryption in transit and at rest, least-privilege access, and full audit logging.</li>
+    <li><b>Multi-tenant ready.</b> Schema supports multiple branches/companies with isolated data, should the group expand.</li>
+  </ul>
+
+  <h3>4.2 Environments</h3>
+  <table>
+    <tr><th>Environment</th><th>Purpose</th></tr>
+    <tr><td>Development</td><td>Engineering builds and unit testing</td></tr>
+    <tr><td>Staging / UAT</td><td>Client testing and sign-off with migrated sample data</td></tr>
+    <tr><td>Production</td><td>Live operations with automated backups and monitoring</td></tr>
+  </table>
+</section>
+
+<!-- ================= 5. STACK ================= -->
+<section class="section">
+  <h2>5. Technology Stack</h2>
+  <p>The stack is a modern JavaScript/TypeScript platform on MySQL, chosen for performance, a large talent pool, strong bilingual/RTL support, and rapid delivery.</p>
+  <table>
+    <tr><th style="width:24%">Layer</th><th style="width:30%">Technology</th><th>Why</th></tr>
+    <tr><td>Front-end</td><td>React 18 + TypeScript, Vite, Tailwind / component library, i18next (EN/AR + RTL)</td><td>Fast, responsive SPA/PWA; first-class bilingual and right-to-left support</td></tr>
+    <tr><td>Back-end</td><td>Node.js (LTS) + NestJS (TypeScript)</td><td>Structured, testable REST API with built-in validation, guards and modules</td></tr>
+    <tr><td>Database</td><td>MySQL 8 (InnoDB), Prisma / TypeORM</td><td>Client requirement; transactional integrity, JSON columns for dynamic fields</td></tr>
+    <tr><td>Cache / queue</td><td>Redis + BullMQ</td><td>Caching, background jobs (PDF, email, reminders)</td></tr>
+    <tr><td>PDF / print</td><td>Headless Chromium (Puppeteer) + HTML/CSS templates</td><td>Pixel-accurate, fully dynamic bilingual documents</td></tr>
+    <tr><td>AI</td><td>LLM gateway (configurable provider), OCR engine, vector store</td><td>Document extraction, assistant, insights — provider-agnostic</td></tr>
+    <tr><td>Auth</td><td>JWT access/refresh tokens, bcrypt/argon2, optional 2FA (TOTP)</td><td>Stateless, secure session management</td></tr>
+    <tr><td>Infrastructure</td><td>Docker containers; cloud host <span class="pill">TBC</span> (AWS / Azure / GCP / regional)</td><td>Portable, reproducible deployments; region chosen for Qatar data preference</td></tr>
+    <tr><td>CI/CD &amp; monitoring</td><td>Git, automated tests, pipeline deploys; logging, metrics, uptime alerts</td><td>Reliable, auditable releases and operations</td></tr>
+  </table>
+  <div class="callout"><b>Hosting region.</b> ionob recommends hosting in a region close to Qatar (e.g. GCC) for latency and any data-residency preference. Final cloud provider and region are a client decision. <span class="pill">TBC</span></div>
+</section>
+
+<!-- ================= 6. FUNCTIONAL ================= -->
+<section class="section">
+  <h2>6. Functional Requirements (Modules)</h2>
+  <p>Requirements use the identifier scheme <code>FR-&lt;module&gt;-&lt;n&gt;</code>. Priority: <span class="tag">M</span> Must, <span class="tag">S</span> Should, <span class="tag">C</span> Could.</p>
+
+  <h3>6.1 Master Data — Packages, Visa Types, Nationalities</h3>
+  <table class="req">
+    <tr><th>ID</th><th>Requirement</th><th style="width:48px">Pri</th></tr>
+    <tr><td>FR-MD-1</td><td>Maintain <b>Packages</b> with name (English + Arabic), rate, currency (QAR), status (active/inactive), and optional attributes (duration, includes visa Y/N, transport, hotel).</td><td>M</td></tr>
+    <tr><td>FR-MD-2</td><td>Maintain <b>Visa Types</b> (e.g. Umrah Visa, Tourist Visa) with name EN/AR and status.</td><td>M</td></tr>
+    <tr><td>FR-MD-3</td><td>Maintain <b>Nationalities / Countries</b> with country name, short code, and Arabic name.</td><td>M</td></tr>
+    <tr><td>FR-MD-4</td><td>All master lists support search, inline filters, sort, pagination and soft-delete (deactivate).</td><td>M</td></tr>
+    <tr><td>FR-MD-5</td><td>Master records cannot be hard-deleted if referenced by transactions; they are deactivated instead.</td><td>M</td></tr>
+    <tr><td>FR-MD-6</td><td>Bulk import/export of master data via spreadsheet.</td><td>S</td></tr>
+  </table>
+
+  <h3>6.2 Invoice Management</h3>
+  <table class="req">
+    <tr><th>ID</th><th>Requirement</th><th style="width:48px">Pri</th></tr>
+    <tr><td>FR-INV-1</td><td>Create/edit invoices with auto-generated invoice number and date, customer name, nationality, mobile 1/2, package, departure date, no. of passengers, seats, visas required, room type (Normal/Separate/Nil), and remarks.</td><td>M</td></tr>
+    <tr><td>FR-INV-2</td><td>Capture a <b>passenger grid</b>: SL no, passenger name, visa type, visa-required flag — rows added dynamically.</td><td>M</td></tr>
+    <tr><td>FR-INV-3</td><td>Compute amount, discount and net amount automatically from package rate × passengers, with manual override allowed and audited.</td><td>M</td></tr>
+    <tr><td>FR-INV-4</td><td>Track invoice status (Draft, Confirmed, Cancelled) and approval status (Pending, Approved, Rejected) with comments.</td><td>M</td></tr>
+    <tr><td>FR-INV-5</td><td>List view with filter/search by no, date, customer, departure, status; open multiple invoices in tabs.</td><td>M</td></tr>
+    <tr><td>FR-INV-6</td><td>Print / export invoice to PDF using the dynamic print engine (bilingual).</td><td>M</td></tr>
+    <tr><td>FR-INV-7</td><td>Maintain running balance = net amount − received + refund per invoice/customer.</td><td>M</td></tr>
+  </table>
+
+  <h3>6.3 Receipt / Collection Management</h3>
+  <table class="req">
+    <tr><th>ID</th><th>Requirement</th><th style="width:48px">Pri</th></tr>
+    <tr><td>FR-RCT-1</td><td>Create receipts (collections) with auto receipt no &amp; date, linked invoice, customer, nationality, mobile 1/2, package, departure date, passengers, seats, visas, room details.</td><td>M</td></tr>
+    <tr><td>FR-RCT-2</td><td>On selecting an invoice, auto-fill customer/package/passenger details and show invoice amount, previous balance and remaining balance.</td><td>M</td></tr>
+    <tr><td>FR-RCT-3</td><td>Record mode of payment (Cash / Bank) and received amount; prevent over-collection beyond balance unless overridden &amp; audited.</td><td>M</td></tr>
+    <tr><td>FR-RCT-4</td><td>Print bilingual <b>Receipt Voucher</b> matching the current format (terms text, signatures, totals, remaining balance).</td><td>M</td></tr>
+    <tr><td>FR-RCT-5</td><td>List, search and reprint receipts; void with reason (audited).</td><td>M</td></tr>
+  </table>
+
+  <h3>6.4 Payment — Expense &amp; Refund</h3>
+  <table class="req">
+    <tr><th>ID</th><th>Requirement</th><th style="width:48px">Pri</th></tr>
+    <tr><td>FR-PAY-1</td><td>Record payments of type <b>Expense</b> (e.g. office, salary, taxi, printing) or <b>Refund</b> (to a customer/invoice) with auto payment no &amp; date, paid-to, mobile, narration, amount, remarks.</td><td>M</td></tr>
+    <tr><td>FR-PAY-2</td><td>Refund payments link to an invoice and reduce its income/balance accordingly.</td><td>M</td></tr>
+    <tr><td>FR-PAY-3</td><td>Optional expense categories for analysis (office supplies, salary, transport, tickets, etc.).</td><td>S</td></tr>
+    <tr><td>FR-PAY-4</td><td>Print payment voucher; list, search, edit and delete (audited).</td><td>M</td></tr>
+  </table>
+
+  <h3>6.5 Reporting &amp; Analytics</h3>
+  <p>All existing reports are reproduced and made date-range driven, with on-screen view, PDF and Excel/CSV export.</p>
+  <table class="req">
+    <tr><th>ID</th><th>Report / requirement</th><th style="width:48px">Pri</th></tr>
+    <tr><td>FR-RPT-1</td><td><b>Income Summary</b> — invoice/received/refund/income/balance per invoice with totals.</td><td>M</td></tr>
+    <tr><td>FR-RPT-2</td><td><b>Pending</b> — invoices with outstanding balance.</td><td>M</td></tr>
+    <tr><td>FR-RPT-3</td><td><b>Income Detail</b> — detailed income breakdown.</td><td>M</td></tr>
+    <tr><td>FR-RPT-4</td><td><b>Passengers List</b> — passengers grouped by departure date with invoice &amp; customer.</td><td>M</td></tr>
+    <tr><td>FR-RPT-5</td><td><b>Departure-Date-wise</b> — invoices grouped/filtered by departure with approval status.</td><td>M</td></tr>
+    <tr><td>FR-RPT-6</td><td><b>Expense</b> — payment vouchers with narration and totals.</td><td>M</td></tr>
+    <tr><td>FR-RPT-7</td><td><b>Dashboard</b> — KPI cards (today&rsquo;s collection, pending balance, departures this week, expenses) and charts.</td><td>S</td></tr>
+    <tr><td>FR-RPT-8</td><td>Every report exportable to PDF and Excel; column show/hide and saved filters.</td><td>S</td></tr>
+  </table>
+
+  <h3>6.6 Approval Workflow</h3>
+  <table class="req">
+    <tr><th>ID</th><th>Requirement</th><th style="width:48px">Pri</th></tr>
+    <tr><td>FR-APR-1</td><td>Invoices carry an approval status (Pending → Approved/Rejected) with approver, comment and timestamp.</td><td>M</td></tr>
+    <tr><td>FR-APR-2</td><td>Configurable rule: e.g. discounts above a threshold require manager approval. <span class="pill">TBC</span></td><td>S</td></tr>
+    <tr><td>FR-APR-3</td><td>Notifications to approvers (in-app / email) and an approvals queue.</td><td>S</td></tr>
+  </table>
+</section>
+
+<!-- ================= 7. DYNAMIC FIELDS ================= -->
+<section class="section">
+  <h2>7. Dynamic Field Engine</h2>
+  <p>A core client requirement is that <b>fields can be added or changed without a code release</b>. The dynamic field engine lets an authorised administrator define custom fields on any entity (invoice, receipt, payment, customer, passenger, package) through a configuration screen.</p>
+
+  <h3>7.1 Capabilities</h3>
+  <ul>
+    <li>Add fields of types: text, number, currency, date, dropdown (from a managed list or master data), checkbox, multi-select, phone, email, file attachment, and computed/formula fields.</li>
+    <li>Set label (English + Arabic), help text, default value, placeholder, required/optional, min/max, regex validation, and display order/section.</li>
+    <li>Control visibility and edit-ability by role, and conditional display (&ldquo;show field B when field A = X&rdquo;).</li>
+    <li>Mark a field as printable and map it into document templates (Section 8).</li>
+    <li>Activate/deactivate or version a field without losing historical data.</li>
+  </ul>
+
+  <h3>7.2 How it is stored</h3>
+  <p>Custom field <i>definitions</i> live in metadata tables; custom field <i>values</i> are stored per record. The engine uses MySQL <code>JSON</code> columns plus a definitions table, giving flexibility without schema migrations while keeping core columns strongly typed for reporting.</p>
+  <table>
+    <tr><th>Table</th><th>Purpose</th></tr>
+    <tr><td><code>field_definitions</code></td><td>Entity, key, type, labels (EN/AR), validation, options, role visibility, print flag, order, status</td></tr>
+    <tr><td><code>&lt;entity&gt;.custom_data</code> (JSON)</td><td>Key→value store of custom field values for each record</td></tr>
+    <tr><td><code>field_audit</code></td><td>Who changed which definition and when</td></tr>
+  </table>
+
+  <figure>
+  <svg viewBox="0 0 720 150" xmlns="http://www.w3.org/2000/svg" font-family="Helvetica,Arial" font-size="11">
+    <defs><marker id="a2" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#5b6472"/></marker></defs>
+    <rect x="10" y="50" width="150" height="50" rx="7" fill="#f4f1f6" stroke="#5a1a4d"/><text x="85" y="72" text-anchor="middle">Admin defines</text><text x="85" y="88" text-anchor="middle" font-size="9" fill="#5b6472">field (label, type, rules)</text>
+    <line x1="160" y1="75" x2="200" y2="75" stroke="#5b6472" marker-end="url(#a2)"/>
+    <rect x="202" y="50" width="150" height="50" rx="7" fill="#fff" stroke="#0e7c6b"/><text x="277" y="72" text-anchor="middle">Stored as metadata</text><text x="277" y="88" text-anchor="middle" font-size="9" fill="#5b6472">field_definitions</text>
+    <line x1="352" y1="75" x2="392" y2="75" stroke="#5b6472" marker-end="url(#a2)"/>
+    <rect x="394" y="50" width="150" height="50" rx="7" fill="#fff" stroke="#0e7c6b"/><text x="469" y="72" text-anchor="middle">Renders on form</text><text x="469" y="88" text-anchor="middle" font-size="9" fill="#5b6472">React dynamic form</text>
+    <line x1="544" y1="75" x2="584" y2="75" stroke="#5b6472" marker-end="url(#a2)"/>
+    <rect x="586" y="50" width="124" height="50" rx="7" fill="#eef6f4" stroke="#0e7c6b"/><text x="648" y="72" text-anchor="middle">Available to</text><text x="648" y="88" text-anchor="middle" font-size="9" fill="#5b6472">print &amp; reports</text>
+  </svg>
+  <figcaption>Figure 7.1 — Define-once, use-everywhere flow for dynamic fields.</figcaption>
+  </figure>
+</section>
+
+<!-- ================= 8. DYNAMIC PRINT ================= -->
+<section class="section">
+  <h2>8. Dynamic Print &amp; Document Engine</h2>
+  <p>The second core requirement is <b>dynamic printing</b>: every printed document (invoice, receipt voucher, payment voucher, reports) is driven by an editable template rather than hard-coded layout. Templates render to pixel-accurate PDF via a headless-Chromium HTML/CSS pipeline, fully supporting bilingual English/Arabic content and right-to-left layout.</p>
+
+  <h3>8.1 Capabilities</h3>
+  <ul>
+    <li>WYSIWYG / HTML template editor with company header, logo, address and Arabic/English blocks (matching the current vouchers).</li>
+    <li>Insert any standard or dynamic field as a placeholder (e.g. <code>{{customer.name}}</code>, <code>{{invoice.net_amount}}</code>, <code>{{custom.passport_no}}</code>).</li>
+    <li>Repeating sections (passenger lists, line items) and conditional blocks (show terms only on receipts).</li>
+    <li>Per-document settings: page size, margins, header/footer, watermark, language(s), and signature lines.</li>
+    <li>Multiple templates per document type with versioning; set a default and preview before publishing.</li>
+    <li>One-click reprint, bulk print, email as PDF, and download.</li>
+  </ul>
+
+  <h3>8.2 Documents reproduced from the current system</h3>
+  <table>
+    <tr><th>Document</th><th>Notes</th></tr>
+    <tr><td>Invoice</td><td>Bilingual, passenger grid, amount/discount/net, remarks</td></tr>
+    <tr><td>Receipt Voucher (سند قبض)</td><td>Matches current layout: terms text, received amount box, package, passenger details, total &amp; remaining balance, three signature lines</td></tr>
+    <tr><td>Payment Voucher</td><td>Expense/refund, paid-to, narration, amount</td></tr>
+    <tr><td>Income Summary / Departure-wise / Pending / Income Detail</td><td>Tabular reports with company header and totals</td></tr>
+    <tr><td>Passengers List</td><td>Grouped by departure date</td></tr>
+    <tr><td>Expense Report</td><td>Vouchers with narration and grand total</td></tr>
+  </table>
+  <div class="callout"><b>Bilingual &amp; RTL.</b> The engine handles mixed Latin/Arabic strings, RTL alignment, and Arabic-Indic numerals where required, so the new vouchers look like the existing ones while remaining fully editable by an admin.</div>
+</section>
+
+<!-- ================= 9. AI ================= -->
+<section class="section">
+  <h2>9. AI &amp; Automation Features</h2>
+  <p>AI is applied where it removes manual effort or reduces error. All AI features are optional, auditable, and keep a human in control of financial actions. The provider is configurable through an LLM gateway so the client is not locked to one vendor.</p>
+
+  <table>
+    <tr><th style="width:30%">Feature</th><th>What it does</th><th style="width:60px">Pri</th></tr>
+    <tr><td>Passport / ID OCR</td><td>Scan or photograph a passport; auto-extract passenger name, nationality, passport no, expiry and pre-fill the form for staff to confirm.</td><td>S</td></tr>
+    <tr><td>Smart data entry</td><td>Auto-suggest packages, detect duplicate customers, validate phone/visa formats, transliterate names EN↔AR.</td><td>S</td></tr>
+    <tr><td>Natural-language reports</td><td>Ask &ldquo;how much did we collect this week?&rdquo; or &ldquo;who has pending balance over 1000 QAR?&rdquo; and get an answer plus the underlying report.</td><td>C</td></tr>
+    <tr><td>Collection assistant</td><td>Draft polite bilingual payment-reminder messages for customers with outstanding balances.</td><td>C</td></tr>
+    <tr><td>Anomaly &amp; fraud hints</td><td>Flag unusual discounts, duplicate receipts, or out-of-pattern expenses for review.</td><td>C</td></tr>
+    <tr><td>Departure reminders</td><td>Auto-notify staff/customers of upcoming departures and missing documents.</td><td>S</td></tr>
+    <tr><td>Document Q&amp;A</td><td>Summarise a customer&rsquo;s history or answer questions over migrated records.</td><td>C</td></tr>
+  </table>
+  <div class="callout warn"><b>Guardrails.</b> AI never posts financial transactions or approves records on its own — it suggests, and a user confirms. Personal data sent to AI services is minimised, and the AI provider/region is a client decision. <span class="pill">TBC</span></div>
+</section>
+
+<!-- ================= 10. SECURITY ================= -->
+<section class="section">
+  <h2>10. Security &amp; Compliance</h2>
+  <h3>10.1 Authentication &amp; access</h3>
+  <ul>
+    <li>Individual user accounts with strong password policy; passwords hashed with argon2/bcrypt.</li>
+    <li>JWT access/refresh tokens; automatic session expiry and refresh.</li>
+    <li>Optional two-factor authentication (TOTP) for admin and finance roles.</li>
+    <li>Role-Based Access Control (RBAC) down to module and action level.</li>
+    <li>Account lockout after repeated failed logins; forced password reset flows.</li>
+  </ul>
+
+  <h3>10.2 Roles (initial)</h3>
+  <table>
+    <tr><th>Role</th><th>Typical permissions</th></tr>
+    <tr><td>Administrator</td><td>Full access incl. users, roles, dynamic fields, templates, settings</td></tr>
+    <tr><td>Manager</td><td>Approve invoices, view all reports &amp; dashboards, void/refund with reason</td></tr>
+    <tr><td>Counter staff / Agent</td><td>Create invoices, receipts, payments; print; no deletions or approvals</td></tr>
+    <tr><td>Accountant</td><td>Payments, expenses, refunds, financial reports &amp; exports</td></tr>
+    <tr><td>Viewer / Auditor</td><td>Read-only access to records, reports and audit log</td></tr>
+  </table>
+  <p class="small">Roles and permissions are configurable; the above is a starting point for confirmation.</p>
+
+  <h3>10.3 Data protection</h3>
+  <ul>
+    <li>TLS 1.2+ for all traffic (HTTPS only); HSTS enabled.</li>
+    <li>Encryption at rest for the database, backups and document storage.</li>
+    <li>Tenant/branch data isolation; row-level scoping by branch where applicable.</li>
+    <li>Daily automated backups with retention and tested restore; point-in-time recovery.</li>
+    <li>Secrets stored in a managed vault, never in code.</li>
+  </ul>
+
+  <h3>10.4 Auditability &amp; hardening</h3>
+  <ul>
+    <li>Full audit trail: who created/edited/deleted/approved which record and when (immutable log).</li>
+    <li>Soft-delete with reason for financial records; no silent hard deletes.</li>
+    <li>Protection against OWASP Top 10 (input validation, parameterised queries, output encoding, CSRF/XSS/SQLi defences).</li>
+    <li>Web Application Firewall, rate limiting and brute-force protection at the edge.</li>
+    <li>Dependency scanning and a security review before go-live.</li>
+  </ul>
+</section>
+
+<!-- ================= 11. DATA MODEL ================= -->
+<section class="section">
+  <h2>11. Data Model &amp; Database Design</h2>
+  <p>The MySQL schema (InnoDB, UTF-8mb4 for full Arabic support) centres on transactional integrity with foreign keys and indexed lookups. Core entities are shown below; the dynamic field engine adds metadata tables and JSON value columns alongside these.</p>
+
+  <figure>
+  <svg viewBox="0 0 740 430" xmlns="http://www.w3.org/2000/svg" font-family="Helvetica,Arial" font-size="10.5">
+    <defs><marker id="a3" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7d2b6e"/></marker></defs>
+    <!-- entities -->
+    <g>
+      <rect x="300" y="20" width="150" height="58" rx="6" fill="#5a1a4d"/><text x="375" y="40" text-anchor="middle" fill="#fff" font-weight="bold">customer</text>
+      <text x="312" y="58" fill="#e7d4e3" font-size="9">id · name · nationality_id</text><text x="312" y="71" fill="#e7d4e3" font-size="9">mobile1 · mobile2 · custom</text>
+    </g>
+    <g>
+      <rect x="40" y="120" width="150" height="70" rx="6" fill="#7d2b6e"/><text x="115" y="140" text-anchor="middle" fill="#fff" font-weight="bold">nationality</text>
+      <text x="52" y="158" fill="#f0e3ee" font-size="9">id · country_name</text><text x="52" y="171" fill="#f0e3ee" font-size="9">short_code · name_ar</text>
+    </g>
+    <g>
+      <rect x="300" y="120" width="150" height="80" rx="6" fill="#7d2b6e"/><text x="375" y="140" text-anchor="middle" fill="#fff" font-weight="bold">invoice</text>
+      <text x="312" y="158" fill="#f0e3ee" font-size="9">id · no · date · customer_id</text><text x="312" y="171" fill="#f0e3ee" font-size="9">package_id · departure_date</text><text x="312" y="184" fill="#f0e3ee" font-size="9">net_amount · status · approval</text>
+    </g>
+    <g>
+      <rect x="560" y="120" width="150" height="70" rx="6" fill="#7d2b6e"/><text x="635" y="140" text-anchor="middle" fill="#fff" font-weight="bold">package</text>
+      <text x="572" y="158" fill="#f0e3ee" font-size="9">id · name · name_ar</text><text x="572" y="171" fill="#f0e3ee" font-size="9">rate · includes_visa</text>
+    </g>
+    <g>
+      <rect x="120" y="250" width="150" height="74" rx="6" fill="#0e7c6b"/><text x="195" y="270" text-anchor="middle" fill="#fff" font-weight="bold">passenger</text>
+      <text x="132" y="288" fill="#dff0ec" font-size="9">id · invoice_id · sl_no</text><text x="132" y="301" fill="#dff0ec" font-size="9">name · visa_type_id</text><text x="132" y="314" fill="#dff0ec" font-size="9">visa_required</text>
+    </g>
+    <g>
+      <rect x="300" y="250" width="150" height="74" rx="6" fill="#0e7c6b"/><text x="375" y="270" text-anchor="middle" fill="#fff" font-weight="bold">receipt</text>
+      <text x="312" y="288" fill="#dff0ec" font-size="9">id · no · date · invoice_id</text><text x="312" y="301" fill="#dff0ec" font-size="9">mode · received_amount</text><text x="312" y="314" fill="#dff0ec" font-size="9">prev_balance</text>
+    </g>
+    <g>
+      <rect x="500" y="250" width="170" height="74" rx="6" fill="#0e7c6b"/><text x="585" y="270" text-anchor="middle" fill="#fff" font-weight="bold">payment</text>
+      <text x="512" y="288" fill="#dff0ec" font-size="9">id · no · date · type</text><text x="512" y="301" fill="#dff0ec" font-size="9">(expense/refund) · paid_to</text><text x="512" y="314" fill="#dff0ec" font-size="9">amount · invoice_id?</text>
+    </g>
+    <g>
+      <rect x="560" y="20" width="150" height="58" rx="6" fill="#5a1a4d"/><text x="635" y="40" text-anchor="middle" fill="#fff" font-weight="bold">visa_type</text>
+      <text x="572" y="58" fill="#e7d4e3" font-size="9">id · name · name_ar</text>
+    </g>
+    <!-- relations -->
+    <line x1="375" y1="78" x2="375" y2="118" stroke="#7d2b6e" marker-end="url(#a3)"/>
+    <line x1="300" y1="160" x2="192" y2="160" stroke="#7d2b6e" marker-end="url(#a3)"/>
+    <line x1="450" y1="160" x2="558" y2="160" stroke="#7d2b6e" marker-end="url(#a3)"/>
+    <line x1="340" y1="200" x2="230" y2="248" stroke="#0e7c6b" marker-end="url(#a3)"/>
+    <line x1="375" y1="200" x2="375" y2="248" stroke="#0e7c6b" marker-end="url(#a3)"/>
+    <line x1="430" y1="200" x2="560" y2="248" stroke="#0e7c6b" marker-end="url(#a3)"/>
+    <line x1="635" y1="78" x2="430" y2="252" stroke="#7d2b6e" stroke-dasharray="3,3" marker-end="url(#a3)"/>
+    <text x="690" y="360" font-size="9" fill="#5b6472">+ users, roles, field_definitions,</text>
+    <text x="690" y="372" font-size="9" fill="#5b6472" text-anchor="end">document_templates, audit_log, branch</text>
+  </svg>
+  <figcaption>Figure 11.1 — Core entity-relationship overview (simplified).</figcaption>
+  </figure>
+
+  <h3>11.1 Core tables</h3>
+  <table>
+    <tr><th>Table</th><th>Key columns</th></tr>
+    <tr><td><code>branch</code></td><td>id, name, address, contacts (multi-tenant support)</td></tr>
+    <tr><td><code>user</code> / <code>role</code> / <code>permission</code></td><td>RBAC: users, roles, permissions, assignments, 2FA</td></tr>
+    <tr><td><code>nationality</code></td><td>id, country_name, short_code, name_ar</td></tr>
+    <tr><td><code>visa_type</code></td><td>id, name, name_ar, active</td></tr>
+    <tr><td><code>package</code></td><td>id, name, name_ar, rate, currency, includes_visa, active</td></tr>
+    <tr><td><code>customer</code></td><td>id, name, nationality_id, mobile1, mobile2, custom_data(JSON)</td></tr>
+    <tr><td><code>invoice</code></td><td>id, no, date, customer_id, package_id, departure_date, seats, visas, room_type, amount, discount, net_amount, status, approval_status, custom_data</td></tr>
+    <tr><td><code>passenger</code></td><td>id, invoice_id, sl_no, name, visa_type_id, visa_required, custom_data</td></tr>
+    <tr><td><code>receipt</code></td><td>id, no, date, invoice_id, mode, prev_balance, received_amount, custom_data</td></tr>
+    <tr><td><code>payment</code></td><td>id, no, date, type(expense/refund), paid_to, mobile, narration, amount, invoice_id, category_id</td></tr>
+    <tr><td><code>field_definition</code> / <code>document_template</code></td><td>Dynamic field &amp; print metadata</td></tr>
+    <tr><td><code>audit_log</code></td><td>entity, record_id, action, user_id, before/after, timestamp</td></tr>
+  </table>
+</section>
+
+<!-- ================= 12. NFR ================= -->
+<section class="section">
+  <h2>12. Non-Functional Requirements</h2>
+  <table class="req">
+    <tr><th>ID</th><th>Requirement</th></tr>
+    <tr><td>NFR-1</td><td><b>Performance.</b> Common screens load in under 2 seconds; report generation under 5 seconds for typical ranges.</td></tr>
+    <tr><td>NFR-2</td><td><b>Availability.</b> Target 99.5%+ uptime with monitoring and alerting.</td></tr>
+    <tr><td>NFR-3</td><td><b>Scalability.</b> Horizontal scaling of the app tier; supports growth in branches, users and records.</td></tr>
+    <tr><td>NFR-4</td><td><b>Usability.</b> Familiar list+detail layout, keyboard-friendly data entry, responsive on mobile/tablet.</td></tr>
+    <tr><td>NFR-5</td><td><b>Localisation.</b> Full English/Arabic UI with RTL; Hijri/Gregorian date display option. <span class="pill">TBC</span></td></tr>
+    <tr><td>NFR-6</td><td><b>Compatibility.</b> Latest Chrome, Edge, Safari, Firefox; installable PWA.</td></tr>
+    <tr><td>NFR-7</td><td><b>Maintainability.</b> Documented API, automated tests, CI/CD, clear coding standards.</td></tr>
+    <tr><td>NFR-8</td><td><b>Backup &amp; recovery.</b> Daily backups, tested restore, defined RPO ≤ 24h and RTO ≤ 4h. <span class="pill">TBC</span></td></tr>
+    <tr><td>NFR-9</td><td><b>Auditability.</b> All data changes logged and retained for an agreed period.</td></tr>
+    <tr><td>NFR-10</td><td><b>Accessibility.</b> Reasonable WCAG-aligned contrast, labels and keyboard navigation.</td></tr>
+  </table>
+</section>
+
+<!-- ================= 13. MIGRATION ================= -->
+<section class="section">
+  <h2>13. Data Migration Strategy</h2>
+  <p>Historical data from the current desktop application is migrated into the new MySQL database so the business has a single, continuous record.</p>
+  <ol>
+    <li><b>Assess source.</b> Identify the current database engine and export options (direct DB access, backup file, or report/CSV export). <span class="pill">TBC</span></li>
+    <li><b>Map data.</b> Map source tables/fields to the new schema (customers, packages, visa types, nationalities, invoices, passengers, receipts, payments).</li>
+    <li><b>Build ETL.</b> Scripts to extract, clean (de-duplicate, fix encoding incl. Arabic), transform and load, preserving original document numbers.</li>
+    <li><b>Trial migration.</b> Load into staging; reconcile counts and financial totals against the old system&rsquo;s reports.</li>
+    <li><b>Validation &amp; sign-off.</b> Client verifies key records and report totals match.</li>
+    <li><b>Cutover.</b> Final delta migration, freeze old system, go live; keep the old system read-only as a fallback for an agreed period.</li>
+  </ol>
+  <div class="callout"><b>Dependency.</b> Migration scope and effort depend on access to the current data. Earliest possible sharing of a database export or sample helps confirm the plan.</div>
+</section>
+
+<!-- ================= 14. PLAN & FLOW ================= -->
+<section class="section">
+  <h2>14. Delivery Plan, Timeline &amp; Process Flow</h2>
+
+  <h3>14.1 Engagement &amp; delivery flow</h3>
+  <figure>
+  <svg viewBox="0 0 740 120" xmlns="http://www.w3.org/2000/svg" font-family="Helvetica,Arial" font-size="10">
+    <defs><marker id="a4" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#5b6472"/></marker></defs>
+    <g>
+      <rect x="8"  y="40" width="96" height="44" rx="8" fill="#5a1a4d"/><text x="56"  y="60" text-anchor="middle" fill="#fff">1. Discovery</text><text x="56" y="74" text-anchor="middle" fill="#e7d4e3" font-size="8">&amp; SRS sign-off</text>
+      <rect x="128" y="40" width="96" height="44" rx="8" fill="#6d2360"/><text x="176" y="60" text-anchor="middle" fill="#fff">2. UX/UI</text><text x="176" y="74" text-anchor="middle" fill="#e7d4e3" font-size="8">design</text>
+      <rect x="248" y="40" width="96" height="44" rx="8" fill="#7d2b6e"/><text x="296" y="60" text-anchor="middle" fill="#fff">3. Build</text><text x="296" y="74" text-anchor="middle" fill="#e7d4e3" font-size="8">in sprints</text>
+      <rect x="368" y="40" width="110" height="44" rx="8" fill="#0e7c6b"/><text x="423" y="60" text-anchor="middle" fill="#fff">4. Migration</text><text x="423" y="74" text-anchor="middle" fill="#dff0ec" font-size="8">&amp; integration</text>
+      <rect x="502" y="40" width="96" height="44" rx="8" fill="#0e7c6b"/><text x="550" y="60" text-anchor="middle" fill="#fff">5. UAT</text><text x="550" y="74" text-anchor="middle" fill="#dff0ec" font-size="8">&amp; security test</text>
+      <rect x="622" y="40" width="110" height="44" rx="8" fill="#11705f"/><text x="677" y="60" text-anchor="middle" fill="#fff">6. Go-live</text><text x="677" y="74" text-anchor="middle" fill="#dff0ec" font-size="8">&amp; support</text>
+    </g>
+    <line x1="104" y1="62" x2="126" y2="62" stroke="#5b6472" marker-end="url(#a4)"/>
+    <line x1="224" y1="62" x2="246" y2="62" stroke="#5b6472" marker-end="url(#a4)"/>
+    <line x1="344" y1="62" x2="366" y2="62" stroke="#5b6472" marker-end="url(#a4)"/>
+    <line x1="478" y1="62" x2="500" y2="62" stroke="#5b6472" marker-end="url(#a4)"/>
+    <line x1="598" y1="62" x2="620" y2="62" stroke="#5b6472" marker-end="url(#a4)"/>
+  </svg>
+  <figcaption>Figure 14.1 — End-to-end project flow from discovery to go-live.</figcaption>
+  </figure>
+
+  <h3>14.2 Indicative timeline</h3>
+  <p class="small">Indicative durations for an iterative delivery; phases overlap. Final schedule is confirmed after design sign-off. No pricing is included in this document.</p>
+  <div class="phase"><div class="hd"><span>Phase 1 — Discovery &amp; SRS sign-off</span><span>~2 weeks</span></div><div class="bd small">Confirm requirements, finalise this SRS, agree hosting, AI provider and migration source.</div></div>
+  <div class="phase"><div class="hd"><span>Phase 2 — UX/UI design</span><span>~2–3 weeks</span></div><div class="bd small">Wireframes and visual design for all screens, bilingual layouts, voucher templates; client approval.</div></div>
+  <div class="phase"><div class="hd"><span>Phase 3 — Core build (sprints)</span><span>~8–12 weeks</span></div><div class="bd small">Auth/RBAC, master data, invoicing, receipts, payments, dynamic field engine, dynamic print engine, reports &amp; dashboard.</div></div>
+  <div class="phase"><div class="hd"><span>Phase 4 — AI, migration &amp; integrations</span><span>~3–4 weeks</span></div><div class="bd small">OCR/assistant features, data migration scripts, trial migration &amp; reconciliation.</div></div>
+  <div class="phase"><div class="hd"><span>Phase 5 — UAT &amp; security testing</span><span>~2–3 weeks</span></div><div class="bd small">Client acceptance testing, bug-fix, performance &amp; security review.</div></div>
+  <div class="phase"><div class="hd"><span>Phase 6 — Go-live &amp; hypercare</span><span>~1–2 weeks + support</span></div><div class="bd small">Production cutover, training, documentation, and a post-launch support/warranty period.</div></div>
+  <p class="small"><b>Indicative total:</b> roughly 4.5–6 months end-to-end, depending on final scope, migration complexity and AI feature selection.</p>
+
+  <h3>14.3 Operational process flow (daily use)</h3>
+  <figure>
+  <svg viewBox="0 0 740 250" xmlns="http://www.w3.org/2000/svg" font-family="Helvetica,Arial" font-size="10">
+    <defs><marker id="a5" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#5b6472"/></marker></defs>
+    <rect x="40" y="20" width="130" height="44" rx="8" fill="#f4f1f6" stroke="#5a1a4d"/><text x="105" y="40" text-anchor="middle">Customer enquiry</text><text x="105" y="55" text-anchor="middle" font-size="8" fill="#5b6472">select package/visa</text>
+    <rect x="300" y="20" width="130" height="44" rx="8" fill="#f4f1f6" stroke="#5a1a4d"/><text x="365" y="40" text-anchor="middle">Create Invoice</text><text x="365" y="55" text-anchor="middle" font-size="8" fill="#5b6472">passengers, amount</text>
+    <rect x="560" y="20" width="140" height="44" rx="8" fill="#fbf1ec" stroke="#b5532a"/><text x="630" y="40" text-anchor="middle">Approval</text><text x="630" y="55" text-anchor="middle" font-size="8" fill="#5b6472">(if required)</text>
+
+    <rect x="560" y="110" width="140" height="44" rx="8" fill="#eef6f4" stroke="#0e7c6b"/><text x="630" y="130" text-anchor="middle">Receipt / Collection</text><text x="630" y="145" text-anchor="middle" font-size="8" fill="#5b6472">cash / bank</text>
+    <rect x="300" y="110" width="130" height="44" rx="8" fill="#eef6f4" stroke="#0e7c6b"/><text x="365" y="130" text-anchor="middle">Print voucher</text><text x="365" y="145" text-anchor="middle" font-size="8" fill="#5b6472">bilingual PDF</text>
+    <rect x="40" y="110" width="130" height="44" rx="8" fill="#eef6f4" stroke="#0e7c6b"/><text x="105" y="130" text-anchor="middle">Departure</text><text x="105" y="145" text-anchor="middle" font-size="8" fill="#5b6472">passenger list</text>
+
+    <rect x="40" y="195" width="190" height="44" rx="8" fill="#f4f1f6" stroke="#7d2b6e"/><text x="135" y="215" text-anchor="middle">Expenses &amp; refunds</text><text x="135" y="230" text-anchor="middle" font-size="8" fill="#5b6472">payment vouchers</text>
+    <rect x="300" y="195" width="400" height="44" rx="8" fill="#f4f1f6" stroke="#7d2b6e"/><text x="500" y="215" text-anchor="middle">Reports &amp; Dashboard — income, pending, expense, departures</text>
+
+    <line x1="170" y1="42" x2="298" y2="42" stroke="#5b6472" marker-end="url(#a5)"/>
+    <line x1="430" y1="42" x2="558" y2="42" stroke="#5b6472" marker-end="url(#a5)"/>
+    <line x1="630" y1="64" x2="630" y2="108" stroke="#5b6472" marker-end="url(#a5)"/>
+    <line x1="560" y1="132" x2="432" y2="132" stroke="#5b6472" marker-end="url(#a5)"/>
+    <line x1="300" y1="132" x2="172" y2="132" stroke="#5b6472" marker-end="url(#a5)"/>
+    <line x1="500" y1="154" x2="500" y2="193" stroke="#5b6472" marker-end="url(#a5)"/>
+    <line x1="135" y1="154" x2="135" y2="193" stroke="#5b6472" marker-end="url(#a5)"/>
+  </svg>
+  <figcaption>Figure 14.2 — Day-to-day operational flow in the new system.</figcaption>
+  </figure>
+</section>
+
+<!-- ================= 15. ASSUMPTIONS ================= -->
+<section class="section">
+  <h2>15. Assumptions, Risks &amp; Acceptance Criteria</h2>
+  <h3>15.1 Assumptions</h3>
+  <ul>
+    <li>The client will provide branding assets (logo, exact voucher wording EN/AR) and a sample of current data early.</li>
+    <li>The client nominates a product owner for timely decisions and UAT.</li>
+    <li>Cloud hosting and any third-party AI/email/SMS costs are billed to the client or via ionob as agreed. <span class="pill">TBC</span></li>
+    <li>Scope is as defined here; changes follow a simple change-control process.</li>
+  </ul>
+
+  <h3>15.2 Key risks &amp; mitigations</h3>
+  <table>
+    <tr><th>Risk</th><th>Mitigation</th></tr>
+    <tr><td>Current data not easily exportable / poor data quality</td><td>Early source assessment; ETL with cleansing; trial migration &amp; reconciliation</td></tr>
+    <tr><td>Voucher layouts must match exactly (Arabic/RTL)</td><td>Template engine + side-by-side review against current PDFs in design phase</td></tr>
+    <tr><td>Scope creep</td><td>Signed SRS baseline; change-control for additions</td></tr>
+    <tr><td>Data-residency / AI privacy concerns</td><td>Region selection, data minimisation, configurable AI provider, opt-in features</td></tr>
+    <tr><td>User adoption</td><td>Familiar UX, bilingual UI, training and hypercare support</td></tr>
+  </table>
+
+  <h3>15.3 Acceptance criteria</h3>
+  <ul>
+    <li>All <span class="tag">M</span> (Must) requirements implemented and demonstrated.</li>
+    <li>Current vouchers and reports reproduced and editable via the dynamic engines.</li>
+    <li>Historical data migrated and totals reconciled with the old system.</li>
+    <li>Security review passed; backups and restore verified.</li>
+    <li>Client UAT sign-off on staging before production go-live.</li>
+  </ul>
+
+  <h3>15.4 Open items for client decision</h3>
+  <table>
+    <tr><th>#</th><th>Item</th></tr>
+    <tr><td>1</td><td>Cloud provider &amp; hosting region (data-residency preference)</td></tr>
+    <tr><td>2</td><td>AI provider and which AI features to include in phase 1</td></tr>
+    <tr><td>3</td><td>Access to current data for migration (DB export / sample)</td></tr>
+    <tr><td>4</td><td>Number of branches and concurrent users to plan for</td></tr>
+    <tr><td>5</td><td>Native mobile apps and accounting-package export — phase 1 or later</td></tr>
+    <tr><td>6</td><td>Hijri date display, SMS/WhatsApp notifications, email provider</td></tr>
+  </table>
+
+  <div class="callout"><b>Next step.</b> Review this SRS, confirm the open items in 15.4, and sign off Section &ldquo;Document Control&rdquo;. On sign-off, ionob proceeds to UX/UI design and a confirmed delivery schedule.</div>
+
+  <p class="center small" style="margin-top:24px">Prepared by <b>ionob</b> &nbsp;•&nbsp; info@ionob.com &nbsp;•&nbsp; ION-SRS-RAWDA-001 v1.0 &nbsp;•&nbsp; Confidential</p>
+</section>
+
+</body>
+</html>
