@@ -3,7 +3,9 @@ import { api, fmtDate, fmtDateTime, getUser, startImpersonation } from '../api';
 import { Select, useToast, useConfirm, Badge, Panel, Field, Modal, Empty, Loader } from '../components/ui';
 import { usePerms, roleRank } from '../permissions';
 
-const ROLES = ['Super Admin', 'Admin', 'Manager', 'Employee'];
+// "Super Admin" is intentionally omitted everywhere — it's a hidden master role,
+// not listed, not selectable, and not shown in any directory.
+const ROLES = ['Admin', 'Manager', 'Employee'];
 const DEPARTMENTS = ['Management', 'Operations', 'Sales & Counter', 'Finance', 'Support'];
 const STATUSES = ['Active', 'Invite pending', 'Suspended', 'Inactive'];
 const STATUS_TONE = { Active: 'green', 'Invite pending': 'warn', Suspended: 'red', Inactive: 'blue' };
@@ -17,7 +19,6 @@ const APPROVABLE = new Set(['Invoice', 'Receipt Approval', 'Payment']);
 const STATIC_MODULES = new Set(['Dashboard', 'Reports']); // view-only modules
 
 const STANDARD_ROLES = [
-  { name: 'Super Admin', desc: 'Unrestricted access to every module and setting.', icon: 'ti-shield-star' },
   { name: 'Admin', desc: 'Manage users, master data and all business documents.', icon: 'ti-shield-check' },
   { name: 'Manager', desc: 'Approvals, adjustments and full reporting.', icon: 'ti-user-star' },
   { name: 'Employee', desc: 'Day-to-day counter work — invoices, receipts, payments.', icon: 'ti-user' },
@@ -172,7 +173,8 @@ function DirectoryTab({ isAdmin, canImpersonate, allRoles, prefs, customRoles, s
     setLoading(true);
     try {
       const data = await api.get('/api/users');
-      setRows(data.rows || []);
+      // never surface Super Admin accounts in the directory (defensive — API already excludes them)
+      setRows((data.rows || []).filter((u) => u.role !== 'Super Admin'));
     } catch (e) {
       toast(e.message);
     } finally {
@@ -1052,7 +1054,7 @@ export default function Users() {
 
   useEffect(() => {
     api.get('/api/settings/prefs').then((d) => setPrefs(d.prefs || {})).catch(() => setPrefs({}));
-    api.get('/api/users').then((d) => setUsers(d.rows || [])).catch(() => {});
+    api.get('/api/users').then((d) => setUsers((d.rows || []).filter((u) => u.role !== 'Super Admin'))).catch(() => {});
   }, [tab]); // refresh counts when switching tabs
 
   const customRoles = (prefs && prefs.roles) || [];

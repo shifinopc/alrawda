@@ -1546,8 +1546,9 @@ function EmailTemplateTab({ prefs, savePrefs }) {
   const [saving, setSaving] = useState(false);
   const [dragIdx, setDragIdx] = useState(null);
   const [company, setCompany] = useState({ name: 'AL RAWDA GROUP', nameAr: '', address: '', phone: '', email: '', website: '' });
+  const [coLogo, setCoLogo] = useState('');
 
-  // accurate preview: pull live company identity
+  // accurate preview: pull live company identity + logo (same source the emails use)
   useEffect(() => {
     api.get('/api/settings/company').then((d) => {
       const c = d.company || {}, b = d.branch || {};
@@ -1559,10 +1560,11 @@ function EmailTemplateTab({ prefs, savePrefs }) {
         email: (c.EMail || b.EMailID || '').trim(),
         website: (c.WebSite || '').trim(),
       });
+      setCoLogo(d.logo || '');
     }).catch(() => {});
   }, []);
 
-  const logo = (prefs.printTemplate || {}).logoImage || (prefs.companyProfile || {}).logo || '';
+  const logo = coLogo || (prefs.printTemplate || {}).logoImage || '';
   const previewCtx = {
     accent, company, logo,
     content: '<p style="margin:0 0 12px;">This is a <b>sample message</b> — each email\'s real content appears here.</p><p style="margin:0;">SMTP working &#10004;</p>',

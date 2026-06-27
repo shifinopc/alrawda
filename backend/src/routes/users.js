@@ -73,7 +73,8 @@ const USER_FIELDS = `id, username, display_name, email, role, active, status, mo
 // so impersonation-capable managers can pick a user)
 router.get('/', requirePermission('User Management', 'View'), async (_req, res) => {
   await ensureCols();
-  const rows = await query(`SELECT ${USER_FIELDS} FROM app_users ORDER BY id`);
+  // Super Admin accounts (e.g. the master `admin`) are hidden from the directory for everyone.
+  const rows = await query(`SELECT ${USER_FIELDS} FROM app_users WHERE COALESCE(role,'') <> 'Super Admin' ORDER BY id`);
   res.json({ rows });
 });
 
@@ -256,7 +257,7 @@ router.get('/sessions/recent', adminOnly, async (_req, res) => {
             u.username, u.display_name, u.role, u.photo
      FROM app_login_audit a
      JOIN app_users u ON u.id = a.user_id
-     WHERE IFNULL(a.success,1) = 1
+     WHERE IFNULL(a.success,1) = 1 AND COALESCE(u.role,'') <> 'Super Admin'
      ORDER BY a.id DESC LIMIT 25`
   ).catch(() => []);
   res.json({ rows });
