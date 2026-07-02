@@ -188,6 +188,8 @@ export default function Payments() {
       setInv({
         InvoiceCode: r.InvoiceCode,
         InvoiceNo: r.InvoiceNo,
+        InvoiceDate: r.InvoiceDate,
+        CreatedAt: r.InvoiceCreatedAt,
         CustomerName: r.CustomerName,
         net,
         paid,
@@ -204,6 +206,8 @@ export default function Payments() {
     setInv({
       InvoiceCode: r.InvoiceCode,
       InvoiceNo: r.InvoiceNo,
+      InvoiceDate: r.InvoiceDate,
+      CreatedAt: r.CreatedAt,
       CustomerName: r.CustomerName,
       net: Number(r.NetAmount || 0),
       paid: Number(r.received || 0),
@@ -226,7 +230,8 @@ export default function Payments() {
     !ro &&
     !busy &&
     form.paymentDate &&
-    amt > 0 &&
+    // an expense must be positive; a refund may be zero (e.g. cancel invoice, nothing collected)
+    (form.type === 'Refund' ? amt >= 0 : amt > 0) &&
     (form.type === 'Expense' ? form.paidTo.trim() !== '' : !!inv);
 
   const save = async () => {
@@ -576,7 +581,7 @@ export default function Payments() {
                                 }}
                                 onMouseDown={() => pickInvoice(r)}
                               >
-                                <b>{docNo('invoice', r.InvoiceNo, r.InvoiceDate)}</b> · {r.CustomerName}{' '}
+                                <b>{docNo('invoice', r.InvoiceNo, r.InvoiceDate, r.CreatedAt)}</b> · {r.CustomerName}{' '}
                                 <span className="muted">
                                   — paid QAR {fmtMoney(r.received)} · {r.status}
                                 </span>
@@ -589,7 +594,7 @@ export default function Payments() {
                     {inv ? (
                       <div style={{ marginTop: ro ? 0 : 8 }}>
                         <div style={{ fontWeight: 700, marginBottom: 6 }}>
-                          Invoice {docNo('invoice', inv.InvoiceNo)} · {inv.CustomerName}
+                          Invoice {docNo('invoice', inv.InvoiceNo, inv.InvoiceDate, inv.CreatedAt)} · {inv.CustomerName}
                         </div>
                         <div
                           className="totalbar"

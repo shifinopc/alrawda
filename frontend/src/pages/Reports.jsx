@@ -10,7 +10,6 @@ const INCOME_SUMMARY_COLS = [
   { key: 'InvoiceDate', label: 'Date', date: true },
   { key: 'CustomerName', label: 'Customer' },
   { key: 'DepartureDate', label: 'Departure', date: true },
-  { key: 'ApprovalStatus', label: 'Approval' },
   { key: 'InvoiceAmount', label: 'Invoice Amt', num: true },
   { key: 'ReceivedAmount', label: 'Received', num: true },
   { key: 'RefundAmount', label: 'Refund', num: true },

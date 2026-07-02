@@ -324,13 +324,26 @@ export default function Invoices() {
   const addPax = () => setPassengers((ps) => [...ps, blankPassenger()]);
   const removePax = (i) => setPassengers((ps) => ps.filter((_, idx) => idx !== i));
 
-  /* ---- package select ---- */
+  /* ---- package select: default 1 passenger and set amount = rate × passengers ---- */
   const onPackageChange = (code) => {
     setForm((f) => {
       const pkg = packages.find((p) => String(p.PackageCode) === String(code));
-      const amount = pkg && !(Number(f.amount) > 0) ? pkg.Rate : f.amount;
-      return { ...f, packageCode: code, amount };
+      const pax = Number(f.passengerCount) > 0 ? Number(f.passengerCount) : 1;
+      const amount = pkg ? Number(pkg.Rate || 0) * pax : f.amount;
+      return { ...f, packageCode: code, passengerCount: pax, amount };
     });
+    setErrors((er) => (er.amount ? { ...er, amount: undefined } : er));
+  };
+
+  /* ---- passenger qty change: when a package is chosen, amount = rate × passengers ---- */
+  const onPassengerCountChange = (val) => {
+    setForm((f) => {
+      const pkg = packages.find((p) => String(p.PackageCode) === String(f.packageCode));
+      const pax = Number(val) || 0;
+      const amount = pkg && pax > 0 ? Number(pkg.Rate || 0) * pax : f.amount;
+      return { ...f, passengerCount: val, amount };
+    });
+    setErrors((er) => (er.amount ? { ...er, amount: undefined } : er));
   };
 
   /* ---- save ---- */
@@ -551,7 +564,7 @@ export default function Invoices() {
                   <input value={form.mobile2} onChange={(e) => set('mobile2', e.target.value)} />
                 </Field>
                 <Field label="No. of Passengers">
-                  <input type="number" min="0" value={form.passengerCount} onChange={(e) => set('passengerCount', e.target.value)} />
+                  <input type="number" min="0" value={form.passengerCount} onChange={(e) => onPassengerCountChange(e.target.value)} />
                 </Field>
 
                 <Field label="No. of Seat">

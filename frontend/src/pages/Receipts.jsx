@@ -142,6 +142,7 @@ export default function Receipts() {
   const [sel, setSel] = useState(null); // selected receipt row (preview)
   const [invAmount, setInvAmount] = useState(null); // NetAmount of selected receipt's invoice
   const [invPassengers, setInvPassengers] = useState([]); // invoice passengers (with visa type) for the voucher
+  const [invRemarks, setInvRemarks] = useState(''); // invoice remark, shown on the receipt voucher
   const [templates, setTemplates] = useState({ print: null, receipt: null }); // Settings → templates
   const [paper, setPaper] = usePaper();
 
@@ -233,9 +234,10 @@ export default function Receipts() {
     setView('preview');
     setInvAmount(null);
     setInvPassengers([]);
+    setInvRemarks('');
     if (r.InvoiceCode) {
       api.get(`/api/invoices/${r.InvoiceCode}`)
-        .then((d) => { setInvAmount(d.invoice?.NetAmount ?? null); setInvPassengers(d.passengers || []); })
+        .then((d) => { setInvAmount(d.invoice?.NetAmount ?? null); setInvPassengers(d.passengers || []); setInvRemarks((d.invoice?.Remarks || '').trim()); })
         .catch(() => {});
     }
   };
@@ -505,6 +507,7 @@ export default function Receipts() {
                             ...f,
                             passengerDetails: paxDetailsText(d.passengers),
                             roomDetails: room,
+                            remarks: f.remarks || (d.invoice?.Remarks || '').trim(),
                           }));
                         })
                         .catch(() => {});
@@ -617,7 +620,7 @@ export default function Receipts() {
             >
               <PrintStyle id="rec-print" paper={paper} />
               <div id="rec-print">
-                <ReceiptVoucher r={sel} invoiceAmount={invAmount} passengers={invPassengers} printTemplate={templates.print} receiptTemplate={templates.receipt} />
+                <ReceiptVoucher r={sel} invoiceAmount={invAmount} passengers={invPassengers} invoiceRemarks={invRemarks} printTemplate={templates.print} receiptTemplate={templates.receipt} />
               </div>
             </Panel>
           )

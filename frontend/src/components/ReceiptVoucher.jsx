@@ -7,7 +7,7 @@ import { DocPrintMeta } from './DocParts';
 /** Printable receipt voucher — modern design.
  *  Branding (header/logo/watermark) comes from Settings → Invoice Template;
  *  all receipt content options come from Settings → Receipt Template. */
-export default function ReceiptVoucher({ r, invoiceAmount, passengers = [], printTemplate, receiptTemplate }) {
+export default function ReceiptVoucher({ r, invoiceAmount, passengers = [], invoiceRemarks = '', printTemplate, receiptTemplate }) {
   const t = mergeTemplate(printTemplate);
   const rt = mergeReceiptTemplate(printTemplate, receiptTemplate);
   const accent = rt.accentColor || '#8a1538';
@@ -162,7 +162,7 @@ export default function ReceiptVoucher({ r, invoiceAmount, passengers = [], prin
       {/* remarks */}
       <div className="rcv-cell" style={{ marginTop: 8 }}>
         <div className="rcv-lbl"><span>Remarks</span><span className="rcv-rtl">ملاحظات</span></div>
-        <div className="rcv-val" style={{ minHeight: 18 }}>{r.InvRemarks || ''}</div>
+        <div className="rcv-val" style={{ minHeight: 18 }}>{r.InvRemarks || invoiceRemarks || ''}</div>
       </div>
 
       {/* arabic notes (Receipt Template) */}

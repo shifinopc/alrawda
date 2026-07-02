@@ -31,7 +31,7 @@ const LIST_SQL = `
          p.CollectedAmount, p.MobileNo, TRIM(IFNULL(p.IsInvoiceCancel,'N')) AS IsInvoiceCancel,
          TRIM(IFNULL(p.approval_status,'Approved')) AS ApprovalStatus,
          p.created_by_name AS CreatedByName, p.created_at AS CreatedAt,
-         i.InvoiceNo, i.CustomerName
+         i.InvoiceNo, i.InvoiceDate, i.created_at AS InvoiceCreatedAt, i.CustomerName
   FROM UmrahPayment p
   LEFT JOIN UmrahInvoice i ON i.InvoiceCode = p.InvoiceCode`;
 
@@ -116,7 +116,9 @@ router.post('/', requirePermission('Payment', 'Create'), async (req, res) => {
   const b = req.body || {};
   const type = b.type === 'Refund' ? 'Refund' : 'Expense';
   const amount = Number(b.amount);
-  if (!amount || amount <= 0) return res.status(400).json({ error: 'Amount must be greater than zero' });
+  if (!Number.isFinite(amount) || amount < 0) return res.status(400).json({ error: 'Amount cannot be negative' });
+  // an expense must be positive; a refund may be zero (e.g. cancel an invoice with nothing collected)
+  if (type === 'Expense' && amount <= 0) return res.status(400).json({ error: 'Amount must be greater than zero' });
 
   const conn = await pool.getConnection();
   try {
@@ -134,7 +136,9 @@ router.post('/', requirePermission('Payment', 'Create'), async (req, res) => {
       invoiceCode = inv.InvoiceCode;
       invoiceAmount = Number(inv.NetAmount);
       collectedAmount = Number(inv.received);
-      if (collectedAmount <= 0) {
+      // only a POSITIVE refund needs money to have been collected; a zero refund
+      // (used to just cancel the invoice) is allowed even when nothing was collected
+      if (amount > 0 && collectedAmount <= 0) {
         await conn.rollback();
         return res.status(400).json({ error: 'Nothing has been collected on this invoice — there is nothing to refund' });
       }
@@ -192,7 +196,9 @@ router.put('/:code', requirePermission('Payment', 'Edit'), async (req, res) => {
       return res.status(403).json({ error: 'This payment is approved and locked. Ask an administrator to edit it.' });
     }
     const amount = Number(b.amount);
-    if (!amount || amount <= 0) { await conn.rollback(); return res.status(400).json({ error: 'Amount must be greater than zero' }); }
+    if (!Number.isFinite(amount) || amount < 0) { await conn.rollback(); return res.status(400).json({ error: 'Amount cannot be negative' }); }
+    // a refund may be zero (invoice cancellation); an expense must be positive
+    if (cur.TypeOfPayment !== 'Refund' && amount <= 0) { await conn.rollback(); return res.status(400).json({ error: 'Amount must be greater than zero' }); }
 
     if (cur.TypeOfPayment === 'Refund') {
       // re-validate against the refundable balance, excluding this payment
