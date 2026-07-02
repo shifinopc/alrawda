@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { api, fmtMoney, fmtDate, fmtDateTime, todayStr } from '../api';
+import { docNo, useDocNo } from '../docNumber';
 import { useToast, Badge, Panel, Field, Empty, PrintStyle, Loader } from '../components/ui';
 import ReportDoc from '../components/ReportDoc';
 import CustomerLedger from './CustomerLedger';
 
 /* ---- column definitions: { key, label, num (sum in footer), date } ---- */
 const INCOME_SUMMARY_COLS = [
-  { key: 'InvoiceNo', label: 'Invoice No' },
+  { key: 'InvoiceNo', label: 'Invoice No', doc: 'invoice', dateKey: 'InvoiceDate', createdKey: 'CreatedAt' },
   { key: 'InvoiceDate', label: 'Date', date: true },
   { key: 'CustomerName', label: 'Customer' },
   { key: 'DepartureDate', label: 'Departure', date: true },
@@ -28,7 +29,7 @@ const REPORTS = {
     label: 'Pending',
     path: '/api/reports/pending',
     cols: [
-      { key: 'InvoiceNo', label: 'Invoice No' },
+      { key: 'InvoiceNo', label: 'Invoice No', doc: 'invoice', dateKey: 'InvoiceDate', createdKey: 'CreatedAt' },
       { key: 'InvoiceDate', label: 'Date', date: true },
       { key: 'CustomerName', label: 'Customer' },
       { key: 'Mobile1', label: 'Mobile' },
@@ -46,20 +47,20 @@ const REPORTS = {
         dataKey: 'receipts',
         title: 'Receipts',
         cols: [
-          { key: 'RecieptNo', label: 'Receipt No' },
+          { key: 'RecieptNo', label: 'Receipt No', doc: 'receipt', dateKey: 'RecieptDate', createdKey: 'CreatedAt' },
           { key: 'RecieptDate', label: 'Date', date: true },
           { key: 'RecievedAmount', label: 'Amount', num: true },
-          { key: 'InvoiceNo', label: 'Invoice No' },
+          { key: 'InvoiceNo', label: 'Invoice No', doc: 'invoice', dateKey: 'InvoiceDate', createdKey: 'InvCreatedAt' },
         ],
       },
       {
         dataKey: 'refunds',
         title: 'Refunds',
         cols: [
-          { key: 'PaymentNo', label: 'Payment No' },
+          { key: 'PaymentNo', label: 'Payment No', doc: 'payment', dateKey: 'PaymentDate', createdKey: 'CreatedAt' },
           { key: 'PaymentDate', label: 'Date', date: true },
           { key: 'PaymentAmount', label: 'Amount', num: true },
-          { key: 'InvoiceNo', label: 'Invoice No' },
+          { key: 'InvoiceNo', label: 'Invoice No', doc: 'invoice', dateKey: 'InvoiceDate', createdKey: 'InvCreatedAt' },
         ],
       },
     ],
@@ -69,7 +70,7 @@ const REPORTS = {
     path: '/api/reports/passengers',
     cols: [
       { key: 'DepartureDate', label: 'Departure', date: true },
-      { key: 'InvoiceNo', label: 'Invoice No' },
+      { key: 'InvoiceNo', label: 'Invoice No', doc: 'invoice', dateKey: 'InvoiceDate', createdKey: 'CreatedAt' },
       { key: 'CustomerName', label: 'Customer' },
       { key: 'SlNo', label: 'Sl No' },
       { key: 'PassengerName', label: 'Passenger' },
@@ -85,7 +86,7 @@ const REPORTS = {
     label: 'Expense',
     path: '/api/reports/expense',
     cols: [
-      { key: 'PaymentNo', label: 'Payment No' },
+      { key: 'PaymentNo', label: 'Payment No', doc: 'payment', dateKey: 'PaymentDate', createdKey: 'CreatedAt' },
       { key: 'PaymentDate', label: 'Date', date: true },
       { key: 'PaidTo', label: 'Paid To' },
       { key: 'Narration', label: 'Narration' },
@@ -96,9 +97,9 @@ const REPORTS = {
     label: 'Refund',
     path: '/api/reports/refund',
     cols: [
-      { key: 'PaymentNo', label: 'Payment No' },
+      { key: 'PaymentNo', label: 'Payment No', doc: 'payment', dateKey: 'PaymentDate', createdKey: 'CreatedAt' },
       { key: 'PaymentDate', label: 'Date', date: true },
-      { key: 'InvoiceNo', label: 'Invoice No' },
+      { key: 'InvoiceNo', label: 'Invoice No', doc: 'invoice', dateKey: 'InvoiceDate', createdKey: 'InvCreatedAt' },
       { key: 'CustomerName', label: 'Customer' },
       { key: 'Reason', label: 'Reason' },
       { key: 'PaidAmount', label: 'Paid', num: true },
@@ -111,7 +112,7 @@ const REPORTS = {
     path: '/api/reports/adjustment',
     cols: [
       { key: 'created_at', label: 'Date', datetime: true },
-      { key: 'InvoiceNo', label: 'Invoice No' },
+      { key: 'InvoiceNo', label: 'Invoice No', doc: 'invoice', dateKey: 'InvoiceDate', createdKey: 'InvCreatedAt' },
       { key: 'CustomerName', label: 'Customer' },
       { key: 'reason', label: 'Reason' },
       { key: 'remarks', label: 'Remarks' },
@@ -131,6 +132,9 @@ const firstOfMonthStr = () => todayStr().slice(0, 8) + '01';
 
 const cellText = (col, row) => {
   const v = row[col.key];
+  // format document numbers (invoice / receipt / payment) with the same prefix rules as
+  // the rest of the app — migrated docs stay raw, new ones get the INV-/RCT-/PAY- prefix
+  if (col.doc) return v == null || v === '' ? '' : docNo(col.doc, v, row[col.dateKey], row[col.createdKey]);
   if (col.datetime) return v ? fmtDateTime(v) : '';
   if (col.date) return v ? fmtDate(v) : '';
   if (col.num) return fmtMoney(v);
@@ -179,7 +183,7 @@ const csvCell = (v) => `"${String(v == null ? '' : v).replace(/"/g, '""')}"`;
 const tableToCsvLines = (cols, rows) => {
   const lines = [cols.map((c) => csvCell(c.label)).join(',')];
   (rows || []).forEach((r) => {
-    lines.push(cols.map((c) => csvCell(c.datetime ? (r[c.key] ? fmtDateTime(r[c.key]) : '') : c.date ? (r[c.key] ? fmtDate(r[c.key]) : '') : c.num ? Number(r[c.key] || 0) : r[c.key])).join(','));
+    lines.push(cols.map((c) => csvCell(c.doc ? cellText(c, r) : c.datetime ? (r[c.key] ? fmtDateTime(r[c.key]) : '') : c.date ? (r[c.key] ? fmtDate(r[c.key]) : '') : c.num ? Number(r[c.key] || 0) : r[c.key])).join(','));
   });
   if (cols.some((c) => c.num)) {
     lines.push(cols.map((c, i) => (i === 0 ? csvCell('Total') : c.num ? (rows || []).reduce((s, r) => s + Number(r[c.key] || 0), 0) : '')).join(','));
@@ -189,6 +193,7 @@ const tableToCsvLines = (cols, rows) => {
 
 export default function Reports() {
   const push = useToast();
+  useDocNo(); // load the numbering config so invoice/receipt/payment numbers render with the right prefix
   const [tab, setTab] = useState('reports');
   const [type, setType] = useState('income-summary');
   const [from, setFrom] = useState(firstOfMonthStr());
@@ -240,7 +245,7 @@ export default function Reports() {
     const tableHtml = (cols, rows) => {
       const head = `<tr>${cols.map((c) => `<th style="background:#8a1538;color:#fff;border:1px solid #ccc;padding:4px">${esc(c.label)}</th>`).join('')}</tr>`;
       const body = (rows || []).map((r) =>
-        `<tr>${cols.map((c) => `<td style="border:1px solid #ccc;padding:4px"${c.num ? ' x:num' : ''}>${esc(c.datetime ? (r[c.key] ? fmtDateTime(r[c.key]) : '') : c.date ? (r[c.key] ? fmtDate(r[c.key]) : '') : c.num ? Number(r[c.key] || 0) : r[c.key])}</td>`).join('')}</tr>`).join('');
+        `<tr>${cols.map((c) => `<td style="border:1px solid #ccc;padding:4px"${c.num ? ' x:num' : ''}>${esc(c.doc ? cellText(c, r) : c.datetime ? (r[c.key] ? fmtDateTime(r[c.key]) : '') : c.date ? (r[c.key] ? fmtDate(r[c.key]) : '') : c.num ? Number(r[c.key] || 0) : r[c.key])}</td>`).join('')}</tr>`).join('');
       const totals = cols.some((c) => c.num)
         ? `<tr>${cols.map((c, i) => `<td style="border:1px solid #ccc;padding:4px;font-weight:bold">${i === 0 ? 'Total' : c.num ? (rows || []).reduce((s, r) => s + Number(r[c.key] || 0), 0) : ''}</td>`).join('')}</tr>`
         : '';

@@ -5,7 +5,7 @@ const { ensureTable: ensureAdjustments } = require('./adjustments');
 const router = express.Router();
 
 const INVOICE_SUMMARY = (dateCol, order) => `
-  SELECT i.InvoiceNo, i.InvoiceDate, i.CustomerName, i.Mobile1, i.DepartureDate,
+  SELECT i.InvoiceNo, i.InvoiceDate, i.created_at AS CreatedAt, i.CustomerName, i.Mobile1, i.DepartureDate,
          TRIM(IFNULL(i.ApprovalStatus,'Pending')) AS ApprovalStatus, i.ApprovalComments,
          i.NetAmount AS InvoiceAmount,
          IFNULL(r.received,0) AS ReceivedAmount,
@@ -44,7 +44,7 @@ router.get('/departure-wise', async (req, res) => {
 // GET /api/reports/pending?from=&to=
 router.get('/pending', async (req, res) => {
   const rows = await query(
-    `SELECT i.InvoiceNo, i.InvoiceDate, i.CustomerName, i.Mobile1,
+    `SELECT i.InvoiceNo, i.InvoiceDate, i.created_at AS CreatedAt, i.CustomerName, i.Mobile1,
             i.NetAmount AS InvoiceAmount, IFNULL(r.received,0) AS ReceivedAmount,
             (i.NetAmount - IFNULL(r.received,0)) AS Balance
      FROM UmrahInvoice i
@@ -62,13 +62,15 @@ router.get('/income-report', async (req, res) => {
   const [from, to] = range(req);
   const invoices = await query(INVOICE_SUMMARY('InvoiceDate', 'i.InvoiceNo'), [from, to]);
   const receipts = await query(
-    `SELECT r.RecieptNo, r.RecieptDate, r.RecievedAmount, i.InvoiceNo
+    `SELECT r.RecieptNo, r.RecieptDate, r.created_at AS CreatedAt, r.RecievedAmount,
+            i.InvoiceNo, i.InvoiceDate, i.created_at AS InvCreatedAt
      FROM UmrahReciept r JOIN UmrahInvoice i ON i.InvoiceCode = r.InvoiceCode
      WHERE r.is_deleted = 0 AND i.is_deleted = 0 AND DATE(i.InvoiceDate) BETWEEN ? AND ? ORDER BY i.InvoiceNo, r.RecieptNo`,
     [from, to]
   );
   const refunds = await query(
-    `SELECT p.PaymentNo, p.PaymentDate, p.PaymentAmount, i.InvoiceNo
+    `SELECT p.PaymentNo, p.PaymentDate, p.created_at AS CreatedAt, p.PaymentAmount,
+            i.InvoiceNo, i.InvoiceDate, i.created_at AS InvCreatedAt
      FROM UmrahPayment p JOIN UmrahInvoice i ON i.InvoiceCode = p.InvoiceCode
      WHERE i.is_deleted=0 AND TRIM(p.TypeOfPayment)='Refund' AND p.is_deleted=0 AND DATE(i.InvoiceDate) BETWEEN ? AND ?
      ORDER BY i.InvoiceNo, p.PaymentNo`,
@@ -80,7 +82,7 @@ router.get('/income-report', async (req, res) => {
 // GET /api/reports/passengers?from=&to=  (by departure date)
 router.get('/passengers', async (req, res) => {
   const rows = await query(
-    `SELECT i.DepartureDate, i.InvoiceNo, i.CustomerName, ps.SlNo, ps.PassengerName,
+    `SELECT i.DepartureDate, i.InvoiceNo, i.InvoiceDate, i.created_at AS CreatedAt, i.CustomerName, ps.SlNo, ps.PassengerName,
             v.VisaType
      FROM UmrahPassengers ps
      JOIN UmrahInvoice i ON i.InvoiceCode = ps.InvoiceCode
@@ -95,7 +97,7 @@ router.get('/passengers', async (req, res) => {
 // GET /api/reports/expense?from=&to=
 router.get('/expense', async (req, res) => {
   const rows = await query(
-    `SELECT PaymentNo, PaymentDate, PaidTo, Narration, PaymentAmount
+    `SELECT PaymentNo, PaymentDate, created_at AS CreatedAt, PaidTo, Narration, PaymentAmount
      FROM UmrahPayment
      WHERE TRIM(TypeOfPayment)='Expense' AND is_deleted=0 AND DATE(PaymentDate) BETWEEN ? AND ?
      ORDER BY PaymentNo`,
@@ -107,7 +109,7 @@ router.get('/expense', async (req, res) => {
 // GET /api/reports/refund?from=&to=
 router.get('/refund', async (req, res) => {
   const rows = await query(
-    `SELECT p.PaymentNo, p.PaymentDate, i.InvoiceNo, i.CustomerName, p.Narration AS Reason,
+    `SELECT p.PaymentNo, p.PaymentDate, p.created_at AS CreatedAt, i.InvoiceNo, i.InvoiceDate, i.created_at AS InvCreatedAt, i.CustomerName, p.Narration AS Reason,
             p.CollectedAmount AS PaidAmount, p.PaymentAmount AS RefundAmount,
             TRIM(IFNULL(p.IsInvoiceCancel,'N')) AS InvoiceCancelled
      FROM UmrahPayment p LEFT JOIN UmrahInvoice i ON i.InvoiceCode = p.InvoiceCode
@@ -122,7 +124,7 @@ router.get('/refund', async (req, res) => {
 router.get('/adjustment', async (req, res) => {
   await ensureAdjustments();
   const rows = await query(
-    `SELECT a.created_at, i.InvoiceNo, i.CustomerName, a.reason, a.remarks,
+    `SELECT a.created_at, i.InvoiceNo, i.InvoiceDate, i.created_at AS InvCreatedAt, i.CustomerName, a.reason, a.remarks,
             a.amount AS Amount, a.status, a.created_by_name, a.approved_by_name
      FROM invoice_adjustments a
      LEFT JOIN UmrahInvoice i ON i.InvoiceCode = a.invoice_code
