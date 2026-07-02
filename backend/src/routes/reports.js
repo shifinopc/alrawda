@@ -7,9 +7,12 @@ const router = express.Router();
 const INVOICE_SUMMARY = (dateCol, order) => `
   SELECT i.InvoiceNo, i.InvoiceDate, i.created_at AS CreatedAt, i.CustomerName, i.Mobile1, i.DepartureDate,
          TRIM(IFNULL(i.ApprovalStatus,'Pending')) AS ApprovalStatus, i.ApprovalComments,
-         i.NetAmount AS InvoiceAmount,
+         (i.NetAmount + IFNULL(adj.adjAmount,0)) AS InvoiceAmount,
          IFNULL(r.received,0) AS ReceivedAmount,
+         IFNULL(r.rcCount,0) AS ReceiptCount,
+         IFNULL(r.rcApproved,0) AS ApprovedReceiptCount,
          IFNULL(f.refund,0) AS RefundAmount,
+         IFNULL(adj.adjAmount,0) AS AdjustmentAmount,
          (IFNULL(r.received,0) - IFNULL(f.refund,0)) AS Income,
          (i.NetAmount - IFNULL(r.received,0)) AS Balance,
          CASE WHEN TRIM(IFNULL(i.CancelYesNo,'N'))='Y' THEN 'Cancelled'
@@ -17,11 +20,16 @@ const INVOICE_SUMMARY = (dateCol, order) => `
               WHEN IFNULL(r.received,0) > 0 THEN 'Partially Paid'
               ELSE 'Not Paid' END AS InvoiceStatus
   FROM UmrahInvoice i
-  LEFT JOIN (SELECT InvoiceCode, SUM(RecievedAmount) received FROM UmrahReciept WHERE is_deleted=0 GROUP BY InvoiceCode) r
+  LEFT JOIN (SELECT InvoiceCode, SUM(RecievedAmount) received, COUNT(*) AS rcCount,
+                    SUM(CASE WHEN TRIM(IFNULL(ReceiptApproved,''))='Y' THEN 1 ELSE 0 END) AS rcApproved
+             FROM UmrahReciept WHERE is_deleted=0 GROUP BY InvoiceCode) r
     ON r.InvoiceCode = i.InvoiceCode
   LEFT JOIN (SELECT InvoiceCode, SUM(PaymentAmount) refund FROM UmrahPayment
              WHERE TRIM(TypeOfPayment)='Refund' AND is_deleted=0 GROUP BY InvoiceCode) f
     ON f.InvoiceCode = i.InvoiceCode
+  LEFT JOIN (SELECT invoice_code, SUM(amount) adjAmount FROM invoice_adjustments
+             WHERE status='Approved' GROUP BY invoice_code) adj
+    ON adj.invoice_code = i.InvoiceCode
   WHERE i.is_deleted = 0 AND DATE(i.${dateCol}) BETWEEN ? AND ?
   ORDER BY ${order}`;
 
@@ -33,11 +41,13 @@ function range(req) {
 
 // GET /api/reports/income-summary?from=&to=
 router.get('/income-summary', async (req, res) => {
+  await ensureAdjustments(); // INVOICE_SUMMARY joins invoice_adjustments
   res.json({ rows: await query(INVOICE_SUMMARY('InvoiceDate', 'i.InvoiceNo'), range(req)) });
 });
 
 // GET /api/reports/departure-wise?from=&to=  (filtered + sorted by departure date)
 router.get('/departure-wise', async (req, res) => {
+  await ensureAdjustments();
   res.json({ rows: await query(INVOICE_SUMMARY('DepartureDate', 'i.DepartureDate, i.InvoiceNo'), range(req)) });
 });
 
@@ -59,6 +69,7 @@ router.get('/pending', async (req, res) => {
 
 // GET /api/reports/income-report?from=&to=  (invoice + receipt + refund detail)
 router.get('/income-report', async (req, res) => {
+  await ensureAdjustments();
   const [from, to] = range(req);
   const invoices = await query(INVOICE_SUMMARY('InvoiceDate', 'i.InvoiceNo'), [from, to]);
   const receipts = await query(

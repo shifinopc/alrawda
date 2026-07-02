@@ -39,7 +39,7 @@ router.get('/', async (req, res) => {
   if (req.query.invoiceCode) { where.push('a.invoice_code = ?'); params.push(req.query.invoiceCode); }
   const whereSql = where.length ? `WHERE ${where.join(' AND ')}` : '';
   const rows = await query(
-    `SELECT a.*, i.InvoiceNo, i.CustomerName,
+    `SELECT a.*, i.InvoiceNo, i.InvoiceDate, i.created_at AS InvCreatedAt, i.CustomerName,
             (i.NetAmount - IFNULL((SELECT SUM(RecievedAmount) FROM UmrahReciept WHERE InvoiceCode=i.InvoiceCode AND is_deleted=0),0)) AS balance
      FROM invoice_adjustments a
      LEFT JOIN UmrahInvoice i ON i.InvoiceCode = a.invoice_code

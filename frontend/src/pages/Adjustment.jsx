@@ -95,13 +95,13 @@ export default function Adjustment() {
     if (!sel || amt <= 0 || amt > balance || busy) return;
     if (!(await confirm({
       title: 'Apply adjustment?',
-      message: `QAR ${fmtMoney(amt)} will be written off Invoice ${docNo('invoice', sel.InvoiceNo)} (${sel.CustomerName}). New balance: QAR ${fmtMoney(after)}${after <= 0 ? ' — Fully Paid' : ''}.`,
+      message: `QAR ${fmtMoney(amt)} will be written off Invoice ${docNo('invoice', sel.InvoiceNo, sel.InvoiceDate, sel.CreatedAt)} (${sel.CustomerName}). New balance: QAR ${fmtMoney(after)}${after <= 0 ? ' — Fully Paid' : ''}.`,
       confirmText: 'Apply',
     }))) return;
     setBusy(true);
     try {
       const r = await api.post('/api/adjustments', { invoiceCode: sel.InvoiceCode, amount: amt, reason, remarks });
-      toast(`Invoice ${docNo('invoice', sel.InvoiceNo)} adjusted — new balance QAR ${fmtMoney(r.newBalance)}`);
+      toast(`Invoice ${docNo('invoice', sel.InvoiceNo, sel.InvoiceDate, sel.CreatedAt)} adjusted — new balance QAR ${fmtMoney(r.newBalance)}`);
       setSel(null); setAmount(''); setRemarks('');
       await Promise.all([loadBills(), loadHistory()]);
     } catch (e) {
@@ -116,7 +116,7 @@ export default function Adjustment() {
     setBusy(true);
     try {
       const r = await api.put(`/api/adjustments/${viewAdj.id}`, { amount: v, reason: edit.reason, remarks: edit.remarks });
-      toast(`Adjustment updated — Invoice ${docNo('invoice', viewAdj.InvoiceNo)} balance QAR ${fmtMoney(r.newBalance)}`);
+      toast(`Adjustment updated — Invoice ${docNo('invoice', viewAdj.InvoiceNo, viewAdj.InvoiceDate, viewAdj.InvCreatedAt)} balance QAR ${fmtMoney(r.newBalance)}`);
       setViewAdj(null);
       await Promise.all([loadBills(), loadHistory()]);
     } catch (e) {
@@ -129,7 +129,7 @@ export default function Adjustment() {
     if (!viewAdj) return;
     if (!(await confirm({
       title: 'Remove adjustment?',
-      message: `The QAR ${fmtMoney(viewAdj.amount)} write-off on Invoice ${docNo('invoice', viewAdj.InvoiceNo)} will be reversed and the balance restored.`,
+      message: `The QAR ${fmtMoney(viewAdj.amount)} write-off on Invoice ${docNo('invoice', viewAdj.InvoiceNo, viewAdj.InvoiceDate, viewAdj.InvCreatedAt)} will be reversed and the balance restored.`,
       confirmText: 'Remove', danger: true,
     }))) return;
     setBusy(true);
@@ -163,7 +163,7 @@ export default function Adjustment() {
               <tbody>
                 {bills.map((r) => (
                   <tr key={r.InvoiceCode} className={sel?.InvoiceCode === r.InvoiceCode ? 'sel' : ''} onClick={() => pick(r)}>
-                    <td>{docNo('invoice', r.InvoiceNo, r.InvoiceDate)}</td>
+                    <td>{docNo('invoice', r.InvoiceNo, r.InvoiceDate, r.CreatedAt)}</td>
                     <td>{r.CustomerName}</td>
                     <td className="num"><b style={{ color: 'var(--red)' }}>{fmtMoney(r.balance)}</b></td>
                   </tr>
@@ -182,7 +182,7 @@ export default function Adjustment() {
             <Empty icon="ti-adjustments" text="Select a bill on the left to write off part of its balance." />
           </Panel>
         ) : (
-          <Panel title={`Adjust Invoice ${docNo('invoice', sel.InvoiceNo)} · ${sel.CustomerName}`} bodyStyle={{ padding: 0 }}>
+          <Panel title={`Adjust Invoice ${docNo('invoice', sel.InvoiceNo, sel.InvoiceDate, sel.CreatedAt)} · ${sel.CustomerName}`} bodyStyle={{ padding: 0 }}>
             <div className="totalbar" style={{ borderTop: 0, borderBottom: '1px solid var(--line)' }}>
               <div className="tcell"><small>Invoice (net)</small><b>QAR {fmtMoney(sel.NetAmount)}</b></div>
               <div className="tcell"><small>Already paid</small><b>QAR {fmtMoney(sel.received)}</b></div>
@@ -234,7 +234,7 @@ export default function Adjustment() {
                 <tbody>
                   {history.map((a) => (
                     <tr key={a.id} onClick={() => openAdj(a)} style={{ cursor: 'pointer' }} title="View / edit">
-                      <td>{docNo('invoice', a.InvoiceNo)}</td>
+                      <td>{docNo('invoice', a.InvoiceNo, a.InvoiceDate, a.InvCreatedAt)}</td>
                       <td>{a.CustomerName}</td>
                       <td>{a.reason || '—'}{a.remarks ? ` · ${a.remarks}` : ''}</td>
                       <td className="num">{fmtMoney(a.amount)}</td>
@@ -251,7 +251,7 @@ export default function Adjustment() {
 
       {viewAdj && (
         <Modal
-          title={`Adjustment · Invoice ${docNo('invoice', viewAdj.InvoiceNo)}`}
+          title={`Adjustment · Invoice ${docNo('invoice', viewAdj.InvoiceNo, viewAdj.InvoiceDate, viewAdj.InvCreatedAt)}`}
           onClose={() => setViewAdj(null)}
           width={460}
           footer={

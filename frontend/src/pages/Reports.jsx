@@ -14,8 +14,12 @@ const INCOME_SUMMARY_COLS = [
   { key: 'InvoiceAmount', label: 'Invoice Amt', num: true },
   { key: 'ReceivedAmount', label: 'Received', num: true },
   { key: 'RefundAmount', label: 'Refund', num: true },
+  { key: 'AdjustmentAmount', label: 'Adjustment', num: true },
   { key: 'Income', label: 'Income', num: true },
   { key: 'Balance', label: 'Balance', num: true },
+  // receipt-approval progress: approved receipts / total receipts (e.g. 1/2, 2/2)
+  { key: 'ReceiptApproval', label: 'Rcpt. Approved',
+    render: (r) => Number(r.ReceiptCount) > 0 ? `${Number(r.ApprovedReceiptCount)}/${Number(r.ReceiptCount)}` : '—' },
   { key: 'InvoiceStatus', label: 'Status', badge: true },
 ];
 
@@ -132,6 +136,7 @@ const firstOfMonthStr = () => todayStr().slice(0, 8) + '01';
 
 const cellText = (col, row) => {
   const v = row[col.key];
+  if (col.render) return col.render(row);
   // format document numbers (invoice / receipt / payment) with the same prefix rules as
   // the rest of the app — migrated docs stay raw, new ones get the INV-/RCT-/PAY- prefix
   if (col.doc) return v == null || v === '' ? '' : docNo(col.doc, v, row[col.dateKey], row[col.createdKey]);
@@ -183,7 +188,7 @@ const csvCell = (v) => `"${String(v == null ? '' : v).replace(/"/g, '""')}"`;
 const tableToCsvLines = (cols, rows) => {
   const lines = [cols.map((c) => csvCell(c.label)).join(',')];
   (rows || []).forEach((r) => {
-    lines.push(cols.map((c) => csvCell(c.doc ? cellText(c, r) : c.datetime ? (r[c.key] ? fmtDateTime(r[c.key]) : '') : c.date ? (r[c.key] ? fmtDate(r[c.key]) : '') : c.num ? Number(r[c.key] || 0) : r[c.key])).join(','));
+    lines.push(cols.map((c) => csvCell(c.doc || c.render ? cellText(c, r) : c.datetime ? (r[c.key] ? fmtDateTime(r[c.key]) : '') : c.date ? (r[c.key] ? fmtDate(r[c.key]) : '') : c.num ? Number(r[c.key] || 0) : r[c.key])).join(','));
   });
   if (cols.some((c) => c.num)) {
     lines.push(cols.map((c, i) => (i === 0 ? csvCell('Total') : c.num ? (rows || []).reduce((s, r) => s + Number(r[c.key] || 0), 0) : '')).join(','));
@@ -245,7 +250,7 @@ export default function Reports() {
     const tableHtml = (cols, rows) => {
       const head = `<tr>${cols.map((c) => `<th style="background:#8a1538;color:#fff;border:1px solid #ccc;padding:4px">${esc(c.label)}</th>`).join('')}</tr>`;
       const body = (rows || []).map((r) =>
-        `<tr>${cols.map((c) => `<td style="border:1px solid #ccc;padding:4px"${c.num ? ' x:num' : ''}>${esc(c.doc ? cellText(c, r) : c.datetime ? (r[c.key] ? fmtDateTime(r[c.key]) : '') : c.date ? (r[c.key] ? fmtDate(r[c.key]) : '') : c.num ? Number(r[c.key] || 0) : r[c.key])}</td>`).join('')}</tr>`).join('');
+        `<tr>${cols.map((c) => `<td style="border:1px solid #ccc;padding:4px"${c.num ? ' x:num' : ''}>${esc(c.doc || c.render ? cellText(c, r) : c.datetime ? (r[c.key] ? fmtDateTime(r[c.key]) : '') : c.date ? (r[c.key] ? fmtDate(r[c.key]) : '') : c.num ? Number(r[c.key] || 0) : r[c.key])}</td>`).join('')}</tr>`).join('');
       const totals = cols.some((c) => c.num)
         ? `<tr>${cols.map((c, i) => `<td style="border:1px solid #ccc;padding:4px;font-weight:bold">${i === 0 ? 'Total' : c.num ? (rows || []).reduce((s, r) => s + Number(r[c.key] || 0), 0) : ''}</td>`).join('')}</tr>`
         : '';
