@@ -482,14 +482,18 @@ export default function Receipts() {
                     onSelect={(inv) => {
                       setForm((f) => ({ ...f, invoiceCode: String(inv.InvoiceCode), receivedAmount: Number(inv.balance) }));
                       setErrors((er) => ({ ...er, invoiceCode: undefined, receivedAmount: undefined }));
-                      // pre-fill passenger + room details from the invoice's passenger list
+                      // pre-fill passenger + room details from the invoice
                       api.get(`/api/invoices/${inv.InvoiceCode}`)
                         .then((d) => {
                           const names = (d.passengers || []).map((p) => (p.PassengerName || '').trim()).filter(Boolean);
+                          // receipt Room Details holds the full descriptor: "Normal" / "Separate - 2 BEDS" / "Nil"
+                          const rtype = (d.invoice?.RoomType || '').trim();
+                          const rdet = (d.invoice?.RoomDetails || '').trim();
+                          const room = rtype && rdet ? `${rtype} - ${rdet}` : (rtype || rdet);
                           setForm((f) => ({
                             ...f,
                             passengerDetails: names.join('\n'),
-                            roomDetails: d.invoice?.RoomDetails || '',
+                            roomDetails: room,
                           }));
                         })
                         .catch(() => {});

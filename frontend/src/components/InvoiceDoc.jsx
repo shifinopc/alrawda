@@ -2,7 +2,7 @@ import React from 'react';
 import { fmtMoney, fmtDate } from '../api';
 import { docNo } from '../docNumber';
 import { mergeTemplate, mergeInvoiceTemplate } from '../printTemplate';
-import { DocWatermark, DocHeader, DocFooter, DocPrintMeta, Cell } from './DocParts';
+import { DocWatermark, DocHeader, DocFooter, DocPrintMeta, Cell, roomText } from './DocParts';
 
 const STATUS_AR = { Paid: 'مدفوع', 'Partially Paid': 'مدفوع جزئياً', 'Not Paid': 'غير مدفوع', Cancelled: 'ملغى' };
 
@@ -43,8 +43,7 @@ export default function InvoiceDoc({ invoice, passengers = [], receipts = [], re
         {inv.ShowAgent && inv.AgentName && (
           <Cell en="Agent" ar="الوكيل">{inv.AgentName}{inv.AgentMobile ? ` (${inv.AgentMobile})` : ''}</Cell>
         )}
-        <Cell en="Room Type" ar="نوع الغرفة">{inv.RoomType || '—'}</Cell>
-        {inv.RoomDetails && <Cell en="Room Details" ar="تفاصيل الغرفة" span>{inv.RoomDetails}</Cell>}
+        <Cell en="Room Type" ar="نوع الغرفة">{roomText(inv.RoomType, inv.RoomDetails)}</Cell>
       </div>
 
       {/* counts strip */}

@@ -104,7 +104,7 @@ export default function ReceiptVoucher({ r, invoiceAmount, printTemplate, receip
         </Cell>
         <Cell en="Contact No. 1" ar="رقم الاتصال 1">{r.Mobile1 || '—'}</Cell>
         <Cell en="Contact No. 2" ar="رقم الاتصال 2">{r.Mobile2 || '—'}</Cell>
-        <Cell en="Room Details" ar="تفاصيل الغرفة">{r.RoomDetails || 'Nil'}</Cell>
+        <Cell en="Room Type" ar="نوع الغرفة">{r.RoomDetails || r.RoomType || '—'}</Cell>
         <Cell en="Departure Date" ar="تاريخ المغادرة">{fmtDate(r.DepartureDate)}</Cell>
         <Cell en="Package" ar="باقة" span>{r.PackageName || '—'}</Cell>
       </div>

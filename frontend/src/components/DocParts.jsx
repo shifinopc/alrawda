@@ -112,3 +112,12 @@ export const Cell = ({ en, ar, children, span }) => (
     <div className="rcv-val">{children ?? '—'}</div>
   </div>
 );
+
+/** Combined room display: "Normal" when no details, "Normal - <details>" when present.
+ *  Applies to any room type (Normal / Separate / Nil). Used on invoice + receipt prints. */
+export const roomText = (type, details) => {
+  const t = (type || '').trim();
+  const d = (details || '').trim();
+  if (t && d) return `${t} - ${d}`;
+  return t || d || '—';
+};
