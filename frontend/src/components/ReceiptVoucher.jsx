@@ -13,17 +13,17 @@ export default function ReceiptVoucher({ r, invoiceAmount, passengers = [], prin
   const accent = rt.accentColor || '#8a1538';
   const cur = rt.currencyLabel || 'QAR';
   const totalAmount = r.InvoiceAmount ?? invoiceAmount;
-  // map passenger name -> visa type (from the invoice) so each line can show the visa type
-  const visaByName = {};
-  (passengers || []).forEach((p) => {
-    const nm = (p.PassengerName || '').trim().toUpperCase();
-    if (nm && (p.VisaType || '').trim()) visaByName[nm] = p.VisaType.trim();
-  });
+  // invoice passengers -> { name, visa }; longest names first so "AHMED ALI" wins over "AHMED"
+  const paxVisa = (passengers || [])
+    .map((p) => ({ name: (p.PassengerName || '').trim().toUpperCase(), visa: (p.VisaType || '').trim() }))
+    .filter((p) => p.name && p.visa)
+    .sort((a, b) => b.name.length - a.name.length);
   const paxLines = (r.PassengerDetails || '').split('\n').map((s) => s.trim()).filter(Boolean)
     .map((line) => {
-      if (line.includes('—') || line.includes(' - ')) return line; // already has visa type
-      const visa = visaByName[line.toUpperCase()];
-      return visa ? `${line} — ${visa}` : line;
+      if (line.includes('—') || line.includes(' - ')) return line; // already has a visa type
+      const up = line.toUpperCase();
+      const match = paxVisa.find((p) => up.includes(p.name)); // tolerate "1. " numbering prefixes
+      return match ? `${line} — ${match.visa}` : line;
     });
   const notes = String(rt.notesArabic || '').split('\n').map((s) => s.trim()).filter(Boolean);
 
