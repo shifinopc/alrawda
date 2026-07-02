@@ -253,6 +253,15 @@ export default function Receipts() {
     });
     setErrors({});
     setView('form');
+    // older receipts were saved without passenger details — backfill from the invoice
+    if (!(sel.PassengerDetails || '').trim() && sel.InvoiceCode) {
+      api.get(`/api/invoices/${sel.InvoiceCode}`)
+        .then((d) => {
+          const names = (d.passengers || []).map((p) => (p.PassengerName || '').trim()).filter(Boolean);
+          if (names.length) setForm((f) => ({ ...f, passengerDetails: f.passengerDetails || names.join('\n') }));
+        })
+        .catch(() => {});
+    }
   };
 
   const cancelForm = () => {
@@ -473,6 +482,17 @@ export default function Receipts() {
                     onSelect={(inv) => {
                       setForm((f) => ({ ...f, invoiceCode: String(inv.InvoiceCode), receivedAmount: Number(inv.balance) }));
                       setErrors((er) => ({ ...er, invoiceCode: undefined, receivedAmount: undefined }));
+                      // pre-fill passenger + room details from the invoice's passenger list
+                      api.get(`/api/invoices/${inv.InvoiceCode}`)
+                        .then((d) => {
+                          const names = (d.passengers || []).map((p) => (p.PassengerName || '').trim()).filter(Boolean);
+                          setForm((f) => ({
+                            ...f,
+                            passengerDetails: names.join('\n'),
+                            roomDetails: d.invoice?.RoomDetails || '',
+                          }));
+                        })
+                        .catch(() => {});
                     }}
                   />
                 )}
