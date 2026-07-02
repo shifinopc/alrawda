@@ -7,13 +7,24 @@ import { DocPrintMeta } from './DocParts';
 /** Printable receipt voucher — modern design.
  *  Branding (header/logo/watermark) comes from Settings → Invoice Template;
  *  all receipt content options come from Settings → Receipt Template. */
-export default function ReceiptVoucher({ r, invoiceAmount, printTemplate, receiptTemplate }) {
+export default function ReceiptVoucher({ r, invoiceAmount, passengers = [], printTemplate, receiptTemplate }) {
   const t = mergeTemplate(printTemplate);
   const rt = mergeReceiptTemplate(printTemplate, receiptTemplate);
   const accent = rt.accentColor || '#8a1538';
   const cur = rt.currencyLabel || 'QAR';
   const totalAmount = r.InvoiceAmount ?? invoiceAmount;
-  const paxLines = (r.PassengerDetails || '').split('\n').map((s) => s.trim()).filter(Boolean);
+  // map passenger name -> visa type (from the invoice) so each line can show the visa type
+  const visaByName = {};
+  (passengers || []).forEach((p) => {
+    const nm = (p.PassengerName || '').trim().toUpperCase();
+    if (nm && (p.VisaType || '').trim()) visaByName[nm] = p.VisaType.trim();
+  });
+  const paxLines = (r.PassengerDetails || '').split('\n').map((s) => s.trim()).filter(Boolean)
+    .map((line) => {
+      if (line.includes('—') || line.includes(' - ')) return line; // already has visa type
+      const visa = visaByName[line.toUpperCase()];
+      return visa ? `${line} — ${visa}` : line;
+    });
   const notes = String(rt.notesArabic || '').split('\n').map((s) => s.trim()).filter(Boolean);
 
   // standard receipt money breakdown (fall back gracefully for migrated receipts

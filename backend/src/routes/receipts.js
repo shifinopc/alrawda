@@ -102,7 +102,7 @@ router.post('/', requirePermission('Receipt', 'Create'), async (req, res) => {
   const b = req.body || {};
   if (!b.invoiceCode) return res.status(400).json({ error: 'Invoice is required' });
   const amount = Number(b.receivedAmount);
-  if (!amount || amount <= 0) return res.status(400).json({ error: 'Received amount must be greater than zero' });
+  if (!Number.isFinite(amount) || amount < 0) return res.status(400).json({ error: 'Received amount cannot be negative' });
 
   const conn = await pool.getConnection();
   try {
@@ -166,7 +166,7 @@ router.put('/:code', requirePermission('Receipt', 'Edit'), async (req, res) => {
       return res.status(403).json({ error: `This receipt is ${why}. It can no longer be edited.` });
     }
     const amount = Number(b.receivedAmount);
-    if (!amount || amount <= 0) { await conn.rollback(); return res.status(400).json({ error: 'Received amount must be greater than zero' }); }
+    if (!Number.isFinite(amount) || amount < 0) { await conn.rollback(); return res.status(400).json({ error: 'Received amount cannot be negative' }); }
 
     // recompute balances against the invoice, excluding this receipt
     const [[inv]] = await conn.query(

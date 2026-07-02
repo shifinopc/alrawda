@@ -90,6 +90,16 @@ const blankForm = () => ({
   remarks: '',
 });
 
+// Build the Passenger Details text from an invoice's passengers: "NAME — Visa Type" per line.
+const paxDetailsText = (passengers) => (passengers || [])
+  .filter((p) => (p.PassengerName || '').trim())
+  .map((p) => {
+    const nm = p.PassengerName.trim();
+    const vt = (p.VisaType || '').trim();
+    return vt ? `${nm} — ${vt}` : nm;
+  })
+  .join('\n');
+
 
 const DetailCell = ({ label, children }) => (
   <div>
@@ -131,6 +141,7 @@ export default function Receipts() {
   const [editCode, setEditCode] = useState(null);
   const [sel, setSel] = useState(null); // selected receipt row (preview)
   const [invAmount, setInvAmount] = useState(null); // NetAmount of selected receipt's invoice
+  const [invPassengers, setInvPassengers] = useState([]); // invoice passengers (with visa type) for the voucher
   const [templates, setTemplates] = useState({ print: null, receipt: null }); // Settings → templates
   const [paper, setPaper] = usePaper();
 
@@ -221,9 +232,10 @@ export default function Receipts() {
     setSel(r);
     setView('preview');
     setInvAmount(null);
+    setInvPassengers([]);
     if (r.InvoiceCode) {
       api.get(`/api/invoices/${r.InvoiceCode}`)
-        .then((d) => setInvAmount(d.invoice?.NetAmount ?? null))
+        .then((d) => { setInvAmount(d.invoice?.NetAmount ?? null); setInvPassengers(d.passengers || []); })
         .catch(() => {});
     }
   };
@@ -257,8 +269,8 @@ export default function Receipts() {
     if (!(sel.PassengerDetails || '').trim() && sel.InvoiceCode) {
       api.get(`/api/invoices/${sel.InvoiceCode}`)
         .then((d) => {
-          const names = (d.passengers || []).map((p) => (p.PassengerName || '').trim()).filter(Boolean);
-          if (names.length) setForm((f) => ({ ...f, passengerDetails: f.passengerDetails || names.join('\n') }));
+          const text = paxDetailsText(d.passengers);
+          if (text) setForm((f) => ({ ...f, passengerDetails: f.passengerDetails || text }));
         })
         .catch(() => {});
     }
@@ -304,7 +316,7 @@ export default function Receipts() {
     const errs = {};
     if (!form.invoiceCode) errs.invoiceCode = 'Please select an invoice';
     if (!form.receiptDate) errs.receiptDate = 'Receipt date is required';
-    if (!(amt > 0)) errs.receivedAmount = 'Enter an amount greater than zero';
+    if (!Number.isFinite(amt) || amt < 0) errs.receivedAmount = 'Enter a valid amount (0 or more)';
     if (Object.keys(errs).length) { setErrors(errs); return; }
     setErrors({});
     setSaving(true);
@@ -485,14 +497,13 @@ export default function Receipts() {
                       // pre-fill passenger + room details from the invoice
                       api.get(`/api/invoices/${inv.InvoiceCode}`)
                         .then((d) => {
-                          const names = (d.passengers || []).map((p) => (p.PassengerName || '').trim()).filter(Boolean);
                           // receipt Room Details holds the full descriptor: "Normal" / "Separate - 2 BEDS" / "Nil"
                           const rtype = (d.invoice?.RoomType || '').trim();
                           const rdet = (d.invoice?.RoomDetails || '').trim();
                           const room = rtype && rdet ? `${rtype} - ${rdet}` : (rtype || rdet);
                           setForm((f) => ({
                             ...f,
-                            passengerDetails: names.join('\n'),
+                            passengerDetails: paxDetailsText(d.passengers),
                             roomDetails: room,
                           }));
                         })
@@ -606,7 +617,7 @@ export default function Receipts() {
             >
               <PrintStyle id="rec-print" paper={paper} />
               <div id="rec-print">
-                <ReceiptVoucher r={sel} invoiceAmount={invAmount} printTemplate={templates.print} receiptTemplate={templates.receipt} />
+                <ReceiptVoucher r={sel} invoiceAmount={invAmount} passengers={invPassengers} printTemplate={templates.print} receiptTemplate={templates.receipt} />
               </div>
             </Panel>
           )
