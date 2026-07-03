@@ -289,7 +289,14 @@ export default function Reports() {
       const data = await api.get(`${def.path}?${q.toString()}`);
       setResult({ type, from, to, data });
     } catch (e) {
-      push(e.message || 'Failed to load report');
+      // translate raw API errors (e.g. a 404 "Not found: GET /reports/…") into a clear message
+      const raw = e.message || '';
+      const msg = /not found/i.test(raw)
+        ? `The "${def.label}" report isn't available on the server yet. Please make sure the app is fully updated, then try again.`
+        : /session expired/i.test(raw)
+          ? 'Your session has expired — please sign in again.'
+          : `Couldn't load the ${def.label} report. Please try again${raw ? ` (${raw})` : ''}.`;
+      push(msg);
     } finally {
       setLoading(false);
     }
