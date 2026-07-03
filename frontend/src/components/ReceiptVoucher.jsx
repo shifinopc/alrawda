@@ -13,17 +13,24 @@ export default function ReceiptVoucher({ r, invoiceAmount, passengers = [], invo
   const accent = rt.accentColor || '#8a1538';
   const cur = rt.currencyLabel || 'QAR';
   const totalAmount = r.InvoiceAmount ?? invoiceAmount;
-  // invoice passengers -> { name, visa }; longest names first so "AHMED ALI" wins over "AHMED"
-  const paxVisa = (passengers || [])
-    .map((p) => ({ name: (p.PassengerName || '').trim().toUpperCase(), visa: (p.VisaType || '').trim() }))
-    .filter((p) => p.name && p.visa)
+  // invoice passengers -> { name, visa, required }; longest names first so "AHMED ALI" wins over "AHMED"
+  const paxInfo = (passengers || [])
+    .map((p) => ({
+      name: (p.PassengerName || '').trim().toUpperCase(),
+      visa: (p.VisaType || '').trim(),
+      required: p.VisaRequiredCode == null ? null : Number(p.VisaRequiredCode) === 1,
+    }))
+    .filter((p) => p.name)
     .sort((a, b) => b.name.length - a.name.length);
   const paxLines = (r.PassengerDetails || '').split('\n').map((s) => s.trim()).filter(Boolean)
     .map((line) => {
-      if (line.includes('—') || line.includes(' - ')) return line; // already has a visa type
-      const up = line.toUpperCase();
-      const match = paxVisa.find((p) => up.includes(p.name)); // tolerate "1. " numbering prefixes
-      return match ? `${line} — ${match.visa}` : line;
+      const nameOnly = line.split('—')[0].trim(); // strip any existing "— visa …" suffix
+      const m = paxInfo.find((p) => nameOnly.toUpperCase().includes(p.name)); // tolerate "1." prefixes
+      if (!m) return line;
+      let s = nameOnly;
+      if (m.visa) s += ` — ${m.visa}`;
+      if (m.required != null) s += ` — Visa Required: ${m.required ? 'Yes' : 'No'}`;
+      return s;
     });
   const notes = String(rt.notesArabic || '').split('\n').map((s) => s.trim()).filter(Boolean);
 
@@ -118,6 +125,9 @@ export default function ReceiptVoucher({ r, invoiceAmount, passengers = [], invo
         <Cell en="Room Type" ar="نوع الغرفة">{r.RoomDetails || r.RoomType || '—'}</Cell>
         <Cell en="Departure Date" ar="تاريخ المغادرة">{fmtDate(r.DepartureDate)}</Cell>
         <Cell en="Package" ar="باقة" span>{r.PackageName || '—'}</Cell>
+        {r.ShowAgent && r.AgentName ? (
+          <Cell en="Agent" ar="الوكيل" span>{r.AgentName}{r.AgentMobile ? ` (${r.AgentMobile})` : ''}</Cell>
+        ) : null}
       </div>
 
       {/* counts strip */}

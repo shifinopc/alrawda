@@ -335,11 +335,13 @@ router.get('/open-invoices', async (_req, res) => {
     `SELECT i.InvoiceCode, i.InvoiceNo, i.CustomerName, i.Mobile1, i.DepartureDate,
             i.PassengerCount, i.SeatCount, i.VisaCount, i.RoomType, i.NatinalityCode,
             c.CountryName AS Nationality, i.PackageCode, p.PackageName,
+            i.ShowAgent, ag.AgentName, ag.MobileNo AS AgentMobile,
             i.NetAmount, IFNULL(r.received,0) AS received,
             (i.NetAmount - IFNULL(r.received,0)) AS balance
      FROM UmrahInvoice i
      LEFT JOIN UmrahPackage p ON p.PackageCode = i.PackageCode
      LEFT JOIN AdminCountryInfo c ON c.CountryCode = i.NatinalityCode
+     LEFT JOIN agents ag ON ag.AgentCode = i.AgentCode
      LEFT JOIN (SELECT InvoiceCode, SUM(RecievedAmount) received FROM UmrahReciept WHERE is_deleted=0 GROUP BY InvoiceCode) r
        ON r.InvoiceCode = i.InvoiceCode
      WHERE TRIM(IFNULL(i.CancelYesNo,'N')) <> 'Y'

@@ -90,13 +90,16 @@ const blankForm = () => ({
   remarks: '',
 });
 
-// Build the Passenger Details text from an invoice's passengers: "NAME — Visa Type" per line.
+// Build the Passenger Details text from an invoice's passengers:
+// "NAME — Visa Type — Visa Required: Yes/No" per line (matches the invoice passenger table).
 const paxDetailsText = (passengers) => (passengers || [])
   .filter((p) => (p.PassengerName || '').trim())
   .map((p) => {
-    const nm = p.PassengerName.trim();
+    let s = p.PassengerName.trim();
     const vt = (p.VisaType || '').trim();
-    return vt ? `${nm} — ${vt}` : nm;
+    if (vt) s += ` — ${vt}`;
+    if (p.VisaRequiredCode != null) s += ` — Visa Required: ${Number(p.VisaRequiredCode) === 1 ? 'Yes' : 'No'}`;
+    return s;
   })
   .join('\n');
 
@@ -519,6 +522,12 @@ export default function Receipts() {
               <Field label="Customer Name">{roInput((editing ? sel?.CustomerName : selInvoice?.CustomerName))}</Field>
               <Field label="Nationality">{roInput((editing ? sel?.Nationality : selInvoice?.Nationality))}</Field>
               <Field label="Package">{roInput((editing ? sel?.PackageName : selInvoice?.PackageName))}</Field>
+              {(() => {
+                const src = editing ? sel : selInvoice; // agent shows only when the invoice has "Show agent" on
+                return src && src.ShowAgent && src.AgentName ? (
+                  <Field label="Agent">{roInput(`${src.AgentName}${src.AgentMobile ? ` (${src.AgentMobile})` : ''}`)}</Field>
+                ) : null;
+              })()}
 
               <Field label="Mobile No 1">{roInput((editing ? sel?.Mobile1 : selInvoice?.Mobile1))}</Field>
               <Field label="Departure Date">{roInput((editing ? (sel?.DepartureDate ? fmtDate(sel.DepartureDate) : '') : (selInvoice ? fmtDate(selInvoice.DepartureDate) : '')))}</Field>

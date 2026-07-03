@@ -90,6 +90,52 @@ router.get('/income-report', async (req, res) => {
   res.json({ invoices, receipts, refunds });
 });
 
+// GET /api/reports/agent-wise?from=&to=&agentCode=  (invoices booked through an agent)
+const AGENT_SUMMARY = `
+  SELECT ag.AgentName, i.InvoiceCode, i.InvoiceNo, i.InvoiceDate, i.created_at AS CreatedAt, i.CustomerName,
+         (i.NetAmount + IFNULL(adj.adjAmount,0)) AS InvoiceAmount,
+         IFNULL(r.received,0) AS ReceivedAmount,
+         IFNULL(adj.adjAmount,0) AS AdjustmentAmount,
+         IFNULL(f.refund,0) AS RefundAmount,
+         (i.NetAmount - IFNULL(r.received,0)) AS Balance,
+         CASE WHEN TRIM(IFNULL(i.CancelYesNo,'N'))='Y' THEN 'Cancelled'
+              WHEN i.NetAmount - IFNULL(r.received,0) <= 0 THEN 'Paid'
+              WHEN IFNULL(r.received,0) > 0 THEN 'Partially Paid'
+              ELSE 'Not Paid' END AS InvoiceStatus
+  FROM UmrahInvoice i
+  JOIN agents ag ON ag.AgentCode = i.AgentCode
+  LEFT JOIN (SELECT InvoiceCode, SUM(RecievedAmount) received FROM UmrahReciept WHERE is_deleted=0 GROUP BY InvoiceCode) r
+    ON r.InvoiceCode = i.InvoiceCode
+  LEFT JOIN (SELECT InvoiceCode, SUM(PaymentAmount) refund FROM UmrahPayment
+             WHERE TRIM(TypeOfPayment)='Refund' AND is_deleted=0 GROUP BY InvoiceCode) f
+    ON f.InvoiceCode = i.InvoiceCode
+  LEFT JOIN (SELECT invoice_code, SUM(amount) adjAmount FROM invoice_adjustments
+             WHERE status='Approved' GROUP BY invoice_code) adj
+    ON adj.invoice_code = i.InvoiceCode
+  WHERE i.is_deleted = 0 AND DATE(i.InvoiceDate) BETWEEN ? AND ? {AGENT}
+  ORDER BY ag.AgentName, i.InvoiceNo`;
+
+router.get('/agent-wise', async (req, res) => {
+  await ensureAdjustments();
+  const [from, to] = range(req);
+  const params = [from, to];
+  let agentSql = '';
+  if (req.query.agentCode) { agentSql = 'AND i.AgentCode = ?'; params.push(req.query.agentCode); }
+  const rows = await query(AGENT_SUMMARY.replace('{AGENT}', agentSql), params);
+  // attach each invoice's receipts (for the "Receipt No" column)
+  const codes = rows.map((r) => r.InvoiceCode);
+  let receipts = [];
+  if (codes.length) {
+    receipts = await query(
+      `SELECT InvoiceCode, RecieptNo, RecieptDate, created_at AS CreatedAt
+       FROM UmrahReciept WHERE is_deleted = 0 AND InvoiceCode IN (?) ORDER BY RecieptNo`, [codes]);
+  }
+  const byInv = {};
+  receipts.forEach((rc) => { (byInv[rc.InvoiceCode] = byInv[rc.InvoiceCode] || []).push(rc); });
+  rows.forEach((r) => { r.receipts = byInv[r.InvoiceCode] || []; });
+  res.json({ rows });
+});
+
 // GET /api/reports/passengers?from=&to=  (by departure date)
 router.get('/passengers', async (req, res) => {
   const rows = await query(

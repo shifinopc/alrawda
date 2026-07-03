@@ -40,9 +40,9 @@ export default function InvoiceDoc({ invoice, passengers = [], receipts = [], re
         <Cell en="Mobile No 1" ar="رقم الاتصال 1">{inv.Mobile1 || '—'}</Cell>
         <Cell en="Mobile No 2" ar="رقم الاتصال 2">{inv.Mobile2 || '—'}</Cell>
         <Cell en="Package" ar="باقة">{inv.PackageName || '—'}</Cell>
-        {inv.ShowAgent && inv.AgentName && (
+        {inv.ShowAgent && inv.AgentName ? (
           <Cell en="Agent" ar="الوكيل">{inv.AgentName}{inv.AgentMobile ? ` (${inv.AgentMobile})` : ''}</Cell>
-        )}
+        ) : null}
         <Cell en="Room Type" ar="نوع الغرفة">{roomText(inv.RoomType, inv.RoomDetails)}</Cell>
       </div>
 

@@ -24,11 +24,13 @@ const LIST_SQL = `
          r.created_by_name AS CreatedByName, r.created_at AS CreatedAt,
          i.InvoiceNo, i.InvoiceDate, i.created_at AS InvoiceCreatedAt, i.CustomerName, i.Mobile1, i.Mobile2, i.DepartureDate,
          i.PassengerCount, i.SeatCount, i.VisaCount, i.NetAmount AS InvoiceAmount, i.RoomType,
+         i.ShowAgent, ag.AgentName, ag.MobileNo AS AgentMobile,
          p.PackageName, c.CountryName AS Nationality
   FROM UmrahReciept r
   LEFT JOIN UmrahInvoice i ON i.InvoiceCode = r.InvoiceCode
   LEFT JOIN UmrahPackage p ON p.PackageCode = i.PackageCode
-  LEFT JOIN AdminCountryInfo c ON c.CountryCode = i.NatinalityCode`;
+  LEFT JOIN AdminCountryInfo c ON c.CountryCode = i.NatinalityCode
+  LEFT JOIN agents ag ON ag.AgentCode = i.AgentCode`;
 
 // GET /api/receipts?recNo=&date=&customer=&status=open|approved
 router.get('/', async (req, res) => {

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { api, fmtMoney, fmtDate, fmtDateTime, todayStr } from '../api';
 import { docNo, useDocNo } from '../docNumber';
-import { useToast, Badge, Panel, Field, Empty, PrintStyle, Loader } from '../components/ui';
+import { useToast, Badge, Panel, Field, Empty, PrintStyle, Loader, Select } from '../components/ui';
 import ReportDoc from '../components/ReportDoc';
 import CustomerLedger from './CustomerLedger';
 
@@ -126,6 +126,24 @@ const REPORTS = {
       { key: 'approved_by_name', label: 'Approved By' },
     ],
   },
+  'agent-wise': {
+    label: 'Agent wise',
+    path: '/api/reports/agent-wise',
+    agentFilter: true,
+    cols: [
+      { key: 'AgentName', label: 'Agent' },
+      { key: 'InvoiceNo', label: 'Invoice No', doc: 'invoice', dateKey: 'InvoiceDate', createdKey: 'CreatedAt' },
+      { key: 'RecNo', label: 'Receipt No',
+        render: (r) => (r.receipts || []).map((x) => docNo('receipt', x.RecieptNo, x.RecieptDate, x.CreatedAt)).join(', ') || '—' },
+      { key: 'CustomerName', label: 'Customer' },
+      { key: 'InvoiceAmount', label: 'Invoice Amt', num: true },
+      { key: 'ReceivedAmount', label: 'Received', num: true },
+      { key: 'AdjustmentAmount', label: 'Adjustment', num: true },
+      { key: 'RefundAmount', label: 'Refund', num: true },
+      { key: 'Balance', label: 'Balance', num: true },
+      { key: 'InvoiceStatus', label: 'Status', badge: true },
+    ],
+  },
 };
 
 const statusTone = (s) =>
@@ -182,6 +200,51 @@ function ReportTable({ cols, rows }) {
   );
 }
 
+// Agent-wise table: one row per RECEIPT, with the invoice-level cells (agent, invoice,
+// amounts, status) merged (rowSpan) across that invoice's receipt rows.
+function AgentWiseTable({ cols, rows }) {
+  if (!rows || !rows.length) return <Empty icon="ti-file-search" text="No records found for this period." />;
+  const hasTotals = cols.some((c) => c.num);
+  return (
+    <table className="tbl">
+      <thead>
+        <tr>{cols.map((c) => <th key={c.key} className={c.num ? 'num' : ''}>{c.label}</th>)}</tr>
+      </thead>
+      <tbody>
+        {rows.map((inv, ri) => {
+          const recs = inv.receipts && inv.receipts.length ? inv.receipts : [null];
+          return recs.map((rec, i) => (
+            <tr key={`${ri}-${i}`}>
+              {cols.map((c) => {
+                if (c.key === 'RecNo') {
+                  return <td key={c.key}>{rec ? docNo('receipt', rec.RecieptNo, rec.RecieptDate, rec.CreatedAt) : '—'}</td>;
+                }
+                if (i > 0) return null; // merged from the first receipt row
+                return (
+                  <td key={c.key} className={c.num ? 'num' : ''} rowSpan={recs.length} style={{ verticalAlign: 'middle' }}>
+                    {c.badge && inv[c.key] ? <Badge tone={statusTone(inv[c.key])}>{inv[c.key]}</Badge> : cellText(c, inv)}
+                  </td>
+                );
+              })}
+            </tr>
+          ));
+        })}
+      </tbody>
+      {hasTotals && (
+        <tfoot>
+          <tr>
+            {cols.map((c, i) => (
+              <td key={c.key} className={c.num ? 'num' : ''}>
+                {i === 0 ? `Total (${rows.length})` : c.num ? fmtMoney(rows.reduce((s, r) => s + Number(r[c.key] || 0), 0)) : ''}
+              </td>
+            ))}
+          </tr>
+        </tfoot>
+      )}
+    </table>
+  );
+}
+
 /* ---- CSV helpers ---- */
 const csvCell = (v) => `"${String(v == null ? '' : v).replace(/"/g, '""')}"`;
 
@@ -207,17 +270,23 @@ export default function Reports() {
   // result = { type, from, to, data } for the last fetched report
   const [result, setResult] = useState(null);
   const [templates, setTemplates] = useState({ print: null, report: null });
+  const [agents, setAgents] = useState([]);
+  const [agentCode, setAgentCode] = useState('');
 
   useEffect(() => {
     api.get('/api/settings/prefs')
       .then((d) => setTemplates({ print: d.prefs?.printTemplate || {}, report: d.prefs?.reportTemplate || {} }))
       .catch(() => setTemplates({ print: {}, report: {} }));
+    api.get('/api/masters/agents').then((d) => setAgents(d.rows || [])).catch(() => {});
   }, []);
 
   const runFilter = async () => {
     setLoading(true);
     try {
-      const data = await api.get(`${REPORTS[type].path}?from=${from}&to=${to}`);
+      const def = REPORTS[type];
+      const q = new URLSearchParams({ from, to });
+      if (def.agentFilter && agentCode) q.set('agentCode', agentCode);
+      const data = await api.get(`${def.path}?${q.toString()}`);
       setResult({ type, from, to, data });
     } catch (e) {
       push(e.message || 'Failed to load report');
@@ -329,6 +398,14 @@ export default function Reports() {
           <Field label="End Date">
             <input type="date" value={to} onChange={(e) => setTo(e.target.value)} />
           </Field>
+          {REPORTS[type].agentFilter && (
+            <Field label="Agent">
+              <div style={{ minWidth: 200 }}>
+                <Select value={agentCode} onChange={setAgentCode} placeholder="All agents"
+                  options={[{ value: '', label: 'All agents' }, ...agents.map((a) => ({ value: String(a.AgentCode), label: a.AgentName }))]} />
+              </div>
+            </Field>
+          )}
           <div style={{ display: 'flex', gap: 6, paddingBottom: 2 }}>
             <button className="btn sm" onClick={() => { setFrom(todayStr()); setTo(todayStr()); }}>Today</button>
             <button className="btn sm" onClick={() => { setFrom(firstOfMonthStr()); setTo(todayStr()); }}>This month</button>
@@ -389,6 +466,8 @@ export default function Reports() {
                   <ReportTable cols={s.cols} rows={result.data[s.dataKey]} />
                 </div>
               ))
+            ) : result.type === 'agent-wise' ? (
+              <AgentWiseTable cols={def.cols} rows={result.data.rows} />
             ) : (
               <ReportTable cols={def.cols} rows={result.data.rows} />
             )}
