@@ -27,10 +27,8 @@ export default function ReceiptVoucher({ r, invoiceAmount, passengers = [], invo
       const nameOnly = line.split('—')[0].trim(); // strip any existing "— visa …" suffix
       const m = paxInfo.find((p) => nameOnly.toUpperCase().includes(p.name)); // tolerate "1." prefixes
       if (!m) return line;
-      let s = nameOnly;
-      if (m.visa) s += ` — ${m.visa}`;
-      if (m.required != null) s += ` — Visa Required: ${m.required ? 'Yes' : 'No'}`;
-      return s;
+      // receipt/print shows only name + visa type; the visa-required flag stays on the invoice
+      return m.visa ? `${nameOnly} — ${m.visa}` : nameOnly;
     });
   const notes = String(rt.notesArabic || '').split('\n').map((s) => s.trim()).filter(Boolean);
 

@@ -90,16 +90,14 @@ const blankForm = () => ({
   remarks: '',
 });
 
-// Build the Passenger Details text from an invoice's passengers:
-// "NAME — Visa Type — Visa Required: Yes/No" per line (matches the invoice passenger table).
+// Build the Passenger Details text from an invoice's passengers: "NAME — Visa Type" per line
+// (the visa-required flag is shown on the invoice only, not on the receipt).
 const paxDetailsText = (passengers) => (passengers || [])
   .filter((p) => (p.PassengerName || '').trim())
   .map((p) => {
-    let s = p.PassengerName.trim();
+    const nm = p.PassengerName.trim();
     const vt = (p.VisaType || '').trim();
-    if (vt) s += ` — ${vt}`;
-    if (p.VisaRequiredCode != null) s += ` — Visa Required: ${Number(p.VisaRequiredCode) === 1 ? 'Yes' : 'No'}`;
-    return s;
+    return vt ? `${nm} — ${vt}` : nm;
   })
   .join('\n');
 
