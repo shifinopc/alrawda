@@ -22,13 +22,14 @@ export default function ReceiptVoucher({ r, invoiceAmount, passengers = [], invo
     }))
     .filter((p) => p.name)
     .sort((a, b) => b.name.length - a.name.length);
+  // each line -> { text: "Name — Visa Type", required: bool|null }.
+  // Visa-required is shown on-screen (preview) but hidden in PRINT (see .rcv-visa-req rule).
   const paxLines = (r.PassengerDetails || '').split('\n').map((s) => s.trim()).filter(Boolean)
     .map((line) => {
       const nameOnly = line.split('—')[0].trim(); // strip any existing "— visa …" suffix
       const m = paxInfo.find((p) => nameOnly.toUpperCase().includes(p.name)); // tolerate "1." prefixes
-      if (!m) return line;
-      // receipt/print shows only name + visa type; the visa-required flag stays on the invoice
-      return m.visa ? `${nameOnly} — ${m.visa}` : nameOnly;
+      if (!m) return { text: line, required: null };
+      return { text: m.visa ? `${nameOnly} — ${m.visa}` : nameOnly, required: m.required };
     });
   const notes = String(rt.notesArabic || '').split('\n').map((s) => s.trim()).filter(Boolean);
 
@@ -143,7 +144,12 @@ export default function ReceiptVoucher({ r, invoiceAmount, passengers = [], invo
           <div className="rcv-pax">
             <div className="rcv-lbl"><span>Passengers Details</span><span className="rcv-rtl">تفاصيل الركاب</span></div>
             {paxLines.length
-              ? paxLines.map((l, i) => <div key={i} className="rcv-paxline">{l}</div>)
+              ? paxLines.map((l, i) => (
+                <div key={i} className="rcv-paxline">
+                  {l.text}
+                  {l.required != null && <span className="rcv-visa-req"> — Visa Required: {l.required ? 'Yes' : 'No'}</span>}
+                </div>
+              ))
               : <div className="rcv-paxline" style={{ color: '#999' }}>—</div>}
           </div>
         )}

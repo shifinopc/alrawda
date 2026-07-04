@@ -698,6 +698,8 @@ input, select, textarea, button { font-family: inherit; font-size: inherit; colo
 .rcv-split { display: flex; gap: 14px; align-items: stretch; }
 .rcv-pax { flex: 1; border: 1px solid #e3e3e3; border-radius: 8px; padding: 6px 11px; }
 .rcv-paxline { font-weight: 700; padding: 2px 0; }
+.rcv-visa-req { color: inherit; font-weight: inherit; }
+@media print { .rcv-visa-req { display: none !important; } }
 .rcv-totals { min-width: 270px; display: flex; flex-direction: column; gap: 6px; }
 .rcv-totals .row {
   display: flex; justify-content: space-between; align-items: center; gap: 12px;
