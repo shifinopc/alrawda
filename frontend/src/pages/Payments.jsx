@@ -147,9 +147,18 @@ export default function Payments() {
     if (!q || ro) { setInvResults([]); return undefined; }
     invTimer.current = setTimeout(async () => {
       try {
-        const byNo = /^\d/.test(q);
+        // number search when the query starts with a digit or a doc prefix like "INV-26-0009";
+        // extract the trailing sequence (INV-26-0009 -> 9) since invoices are stored by raw number
+        const looksLikeNo = /^\d/.test(q) || /^[a-z]+[-\s]*\d/i.test(q);
+        let invNo = '', customer = '';
+        if (looksLikeNo) {
+          const m = q.match(/(\d+)\s*$/);
+          invNo = m ? String(parseInt(m[1], 10)) : q;
+        } else {
+          customer = q;
+        }
         const d = await api.get(
-          `/api/invoices?invNo=${byNo ? encodeURIComponent(q) : ''}&customer=${byNo ? '' : encodeURIComponent(q)}&pageSize=30`
+          `/api/invoices?invNo=${encodeURIComponent(invNo)}&customer=${encodeURIComponent(customer)}&pageSize=30`
         );
         setInvResults(d.rows || []);
       } catch {

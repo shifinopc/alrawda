@@ -30,8 +30,8 @@ export default function ReceiptVoucher({ r, invoiceAmount, passengers = [], invo
       const clean = line.replace(/^\d+[.)]\s*/, ''); // drop any leading serial number
       const nameOnly = clean.split('—')[0].trim();   // strip any existing "— visa …" suffix
       const m = paxInfo.find((p) => nameOnly.toUpperCase().includes(p.name));
-      if (!m) return { text: clean, required: null };
-      return { text: m.visa ? `${nameOnly} — ${m.visa}` : nameOnly, required: m.required };
+      if (!m) return { name: clean, visa: '', required: null };
+      return { name: nameOnly, visa: m.visa || '', required: m.required };
     });
   const notes = String(rt.notesArabic || '').split('\n').map((s) => s.trim()).filter(Boolean);
 
@@ -151,7 +151,11 @@ export default function ReceiptVoucher({ r, invoiceAmount, passengers = [], invo
             {paxLines.length
               ? paxLines.map((l, i) => (
                 <div key={i} className="rcv-paxline">
-                  {i + 1}. {l.text}
+                  {i + 1}. {l.name}
+                  {/* visa type: always shown, except in PRINT when visa is NOT required (name only) */}
+                  {l.visa && (l.required === false
+                    ? <span className="rcv-visa-req"> — {l.visa}</span>
+                    : <span> — {l.visa}</span>)}
                   {l.required != null && <span className="rcv-visa-req"> — Visa Required: {l.required ? 'Yes' : 'No'}</span>}
                 </div>
               ))
