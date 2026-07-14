@@ -108,7 +108,7 @@ export default function FilterBuilder({ fields, conds, setConds }) {
     const def = byKey[key];
     closeMenu();
     const id = newId(key);
-    const value = def.type === 'select' ? (def.options?.[0] ?? '') : def.type === 'daterange' ? { from: '', to: '' } : '';
+    const value = def.type === 'select' ? (def.options?.[0] ?? '') : (def.type === 'daterange' || def.type === 'numrange') ? { from: '', to: '' } : '';
     const mode = def.match ? 'equals' : undefined; // default precise match; switchable to contains
     setConds((c) => [...c, { id, field: key, value, mode }]);
     // text/date open an inline editor; select/daterange are usable immediately
@@ -142,6 +142,14 @@ export default function FilterBuilder({ fields, conds, setConds }) {
                 <input type="date" title="From date" value={c.value?.from || ''} onChange={(e) => setRange(c.id, 'from', e.target.value)} />
                 <span className="fop">–</span>
                 <input type="date" title="To date" value={c.value?.to || ''} onChange={(e) => setRange(c.id, 'to', e.target.value)} />
+              </>
+            ) : def.type === 'numrange' ? (
+              <>
+                <input type="text" title="From number" style={{ width: 96 }} value={c.value?.from || ''}
+                  placeholder={def.fromPlaceholder || 'from'} onChange={(e) => setRange(c.id, 'from', e.target.value)} />
+                <span className="fop">–</span>
+                <input type="text" title="To number" style={{ width: 96 }} value={c.value?.to || ''}
+                  placeholder={def.toPlaceholder || 'to'} onChange={(e) => setRange(c.id, 'to', e.target.value)} />
               </>
             ) : (
               <>

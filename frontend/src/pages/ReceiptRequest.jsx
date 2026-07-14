@@ -9,10 +9,11 @@ const REQ_LABEL = { Pending: 'Pending approval', Approved: 'Approved · Locked',
 
 /* ---------- dynamic filter fields for the open-receipts picker (client-side) ---------- */
 const RR_FILTERS = [
-  { key: 'recNo',     label: 'Rec No',     op: 'contains', match: true, type: 'text',   icon: 'ti-receipt',       placeholder: 'e.g. 12748' },
-  { key: 'invoiceNo', label: 'Invoice No', op: 'contains', match: true, type: 'text',   icon: 'ti-file-invoice',  placeholder: 'e.g. 8465' },
-  { key: 'customer',  label: 'Customer',   op: 'contains', type: 'text',   icon: 'ti-user',          placeholder: 'name' },
-  { key: 'dateRange', label: 'Date',       type: 'daterange', icon: 'ti-calendar' },
+  { key: 'recNo',      label: 'Rec No',            op: 'contains', match: true, type: 'text', icon: 'ti-receipt',      placeholder: 'e.g. 12748' },
+  { key: 'invoiceNo',  label: 'Invoice No',        op: 'contains', match: true, type: 'text', icon: 'ti-file-invoice', placeholder: 'e.g. 8465' },
+  { key: 'invNoRange', label: 'Invoice No (range)', type: 'numrange', icon: 'ti-file-invoice', fromPlaceholder: 'e.g. INV-26-0001', toPlaceholder: 'e.g. INV-26-0004' },
+  { key: 'customer',   label: 'Customer',           op: 'contains', type: 'text', icon: 'ti-user',         placeholder: 'name' },
+  { key: 'dateRange',  label: 'Date',               type: 'daterange', icon: 'ti-calendar' },
   { key: 'mode',      label: 'Mode',       op: '=',        type: 'select', icon: 'ti-wallet', options: ['Cash', 'Bank'] },
 ];
 
@@ -59,16 +60,29 @@ export default function ReceiptRequest() {
   const recNo = (recCond?.value || '').toString().trim();
   const invoiceNo = (invCond?.value || '').toString().trim();
   const customer = (custCond?.value || '').toString().trim();
+  const invRangeCond = conds.find((c) => c.field === 'invNoRange');
+  const invNoFrom = (invRangeCond?.value?.from || '').toString().trim();
+  const invNoTo = (invRangeCond?.value?.to || '').toString().trim();
+  const loadSeq = React.useRef(0); // monotonic id so only the latest open-receipts fetch wins
 
   const loadOpen = async () => {
-    const hasFilter = from || to || recNo || invoiceNo || customer;
+    const hasFilter = from || to || recNo || invoiceNo || customer || invNoFrom || invNoTo;
     const q = new URLSearchParams({ status: 'open', pageSize: hasFilter ? '1000' : '200' });
     if (from) q.set('from', from);
     if (to) q.set('to', to);
     if (recNo) { q.set('recNo', docNumSearchValue(recNo)); if (recCond.mode === 'equals') q.set('recNoMode', 'equals'); }
     if (invoiceNo) { q.set('invoiceNo', docNumSearchValue(invoiceNo)); if (invCond.mode === 'equals') q.set('invoiceNoMode', 'equals'); }
+    // invoice-number range targets the current INV-26 series only (numbers 1-199 also exist as
+    // old migrated invoices; scope to docs with a creation date so the two don't mix)
+    if (invNoFrom) q.set('invNoFrom', docNumSearchValue(invNoFrom));
+    if (invNoTo) q.set('invNoTo', docNumSearchValue(invNoTo));
+    if (invNoFrom || invNoTo) q.set('invNoNew', '1');
     if (customer) q.set('customer', customer);
+    // guard against out-of-order responses: typing a range fires several requests, and a
+    // broader (slower) one must not clobber the newer, narrower result. Only the latest applies.
+    const seq = ++loadSeq.current;
     const o = await api.get(`/api/receipts?${q.toString()}`);
+    if (seq !== loadSeq.current) return;
     setOpen(o.rows || []);
     setOpenTotal(o.total ?? (o.rows || []).length);
   };
@@ -97,7 +111,7 @@ export default function ReceiptRequest() {
   useEffect(() => {
     if (!mounted.current) { mounted.current = true; return; }
     loadOpen().catch((e) => toast(e.message));
-  }, [from, to, recNo, invoiceNo, customer, recCond?.mode, invCond?.mode]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [from, to, recNo, invoiceNo, customer, invNoFrom, invNoTo, recCond?.mode, invCond?.mode]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const selected = useMemo(() => open.filter((r) => sel[r.RecieptCode]), [open, sel]);
   const total = selected.reduce((a, r) => a + Number(r.RecievedAmount || 0), 0);

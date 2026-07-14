@@ -46,6 +46,11 @@ router.get('/', async (req, res) => {
     if (req.query.invoiceNoMode === 'equals') { where.push('i.InvoiceNo = ?'); params.push(invoiceNo); }
     else { where.push('i.InvoiceNo LIKE ?'); params.push(`%${invoiceNo}%`); }
   }
+  if (req.query.invNoFrom) { where.push('i.InvoiceNo >= ?'); params.push(req.query.invNoFrom); }
+  if (req.query.invNoTo)   { where.push('i.InvoiceNo <= ?'); params.push(req.query.invNoTo); }
+  // InvoiceNo is not unique: the new INV-26 series restarted at 1, so numbers 1-199 collide
+  // with old migrated invoices. invNoNew scopes a range to the current series (has a created date).
+  if (req.query.invNoNew === '1') where.push('i.created_at IS NOT NULL');
   if (date) { where.push('DATE(r.RecieptDate) = ?'); params.push(date); }
   if (req.query.from) { where.push('DATE(r.RecieptDate) >= ?'); params.push(req.query.from); }
   if (req.query.to) { where.push('DATE(r.RecieptDate) <= ?'); params.push(req.query.to); }
