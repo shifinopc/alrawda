@@ -124,6 +124,9 @@ function RequestCard({ req, onProcessed, canApprove, onView, onViewInvoice }) {
   const approved = receipts.filter((r) => ticks[r.RecieptCode]);
   const returned = receipts.length - approved.length;
   const approvedAmount = approved.reduce((s, r) => s + Number(r.RecievedAmount || 0), 0);
+  const allTicked = receipts.length > 0 && approved.length === receipts.length;
+  const someTicked = approved.length > 0 && !allTicked;
+  const toggleAll = () => setTicks(allTicked ? {} : Object.fromEntries(receipts.map((r) => [r.RecieptCode, true])));
 
   const process = async (rejectAll) => {
     const approveCodes = rejectAll ? [] : approved.map((r) => r.RecieptCode);
@@ -169,7 +172,14 @@ function RequestCard({ req, onProcessed, canApprove, onView, onViewInvoice }) {
       <table className="tbl">
         <thead>
           <tr>
-            <th style={{ width: 34 }} title="Tick to approve" />
+            <th style={{ width: 34 }} title="Approve all / none">
+              <input
+                type="checkbox" checked={allTicked}
+                ref={(el) => { if (el) el.indeterminate = someTicked; }}
+                onChange={toggleAll}
+                style={{ width: 16, height: 16, accentColor: 'var(--accent)' }}
+              />
+            </th>
             <th>Rec No</th><th>Customer</th><th>Built from</th><th>Mode</th><th className="num">Amount</th>
           </tr>
         </thead>
