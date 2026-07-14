@@ -19,14 +19,7 @@ const RR_FILTERS = [
 // does a receipt row satisfy every active condition?
 function matchesConds(r, conds) {
   return conds.every((c) => {
-    if (c.field === 'dateRange') {
-      const { from, to } = c.value || {};
-      if (!from && !to) return true;
-      const d = String(r.RecieptDate || r.CreatedAt || '').slice(0, 10);
-      if (from && d < from) return false;
-      if (to && d > to) return false;
-      return true;
-    }
+    if (c.field === 'dateRange') return true; // date range is applied server-side (see loadOpen)
     const raw = (c.value ?? '').toString().trim();
     if (!raw) return true; // unset condition = no constraint
     const v = raw.toLowerCase();
@@ -64,18 +57,31 @@ export default function ReceiptRequest() {
   const [saving, setSaving] = useState(false);
   const [drawer, setDrawer] = useState(null);    // { request, receipts }
 
+  // date range is filtered SERVER-SIDE (there can be thousands of open receipts, so
+  // client-only filtering of the newest 200 would hide older ones and mis-handle timezones)
+  const dateCond = conds.find((c) => c.field === 'dateRange');
+  const from = dateCond?.value?.from || '';
+  const to = dateCond?.value?.to || '';
+
+  const loadOpen = async (fromV, toV) => {
+    const q = new URLSearchParams({ status: 'open', pageSize: fromV || toV ? '1000' : '200' });
+    if (fromV) q.set('from', fromV);
+    if (toV) q.set('to', toV);
+    const o = await api.get(`/api/receipts?${q.toString()}`);
+    setOpen(o.rows || []);
+  };
+
   const load = async () => {
     setLoading(true);
     try {
-      const [o, r, n] = await Promise.all([
-        api.get('/api/receipts?status=open&pageSize=200'),
+      const [r, n] = await Promise.all([
         api.get('/api/receipt-requests'),
         api.get('/api/receipt-requests/next-no'),
       ]);
-      setOpen(o.rows || []);
       setRequests(r.rows || []);
       setNextNo(n.next);
       setSel({});
+      await loadOpen(from, to);
     } catch (e) {
       toast(e.message);
     } finally {
@@ -84,6 +90,12 @@ export default function ReceiptRequest() {
   };
 
   useEffect(() => { load(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  // re-fetch open receipts from the server whenever the date range changes (skips the initial mount)
+  const mounted = React.useRef(false);
+  useEffect(() => {
+    if (!mounted.current) { mounted.current = true; return; }
+    loadOpen(from, to).catch((e) => toast(e.message));
+  }, [from, to]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const selected = useMemo(() => open.filter((r) => sel[r.RecieptCode]), [open, sel]);
   const total = selected.reduce((a, r) => a + Number(r.RecievedAmount || 0), 0);

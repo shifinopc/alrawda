@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { api, fmtMoney, fmtDate, fmtDateTime, todayStr } from '../api';
+import { api, postPdf, fmtMoney, fmtDate, fmtDateTime, todayStr } from '../api';
 import { docNo, useDocNo } from '../docNumber';
 import { useToast, Badge, Panel, Field, Empty, PrintStyle, Loader, Select } from '../components/ui';
 import ReportDoc from '../components/ReportDoc';
@@ -299,6 +299,33 @@ export default function Reports() {
       push(msg);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // serialize a table (cols + rows) into display-ready cells for the PDF endpoint
+  const serializeTable = (cols, rows) => ({
+    columns: cols.map((c) => ({ label: c.label, num: !!c.num })),
+    rows: (rows || []).map((r) => cols.map((c) => (c.badge ? String(r[c.key] ?? '') : cellText(c, r)))),
+    totals: cols.some((c) => c.num)
+      ? cols.map((c, i) => (i === 0 ? `Total (${(rows || []).length})`
+        : c.num ? fmtMoney((rows || []).reduce((s, r) => s + Number(r[c.key] || 0), 0)) : ''))
+      : null,
+  });
+
+  const [pdfBusy, setPdfBusy] = useState(false);
+  const exportPdf = async () => {
+    if (!result) { push('Load a report first, then export.'); return; }
+    const def = REPORTS[result.type];
+    const sections = def.sections
+      ? def.sections.map((s) => ({ title: s.title, ...serializeTable(s.cols, result.data[s.dataKey] || []) }))
+      : [serializeTable(def.cols, result.data.rows || [])];
+    setPdfBusy(true);
+    try {
+      await postPdf('/api/reports/pdf', { title: def.label, from: result.from, to: result.to, landscape: true, sections });
+    } catch (e) {
+      push(e.message || 'Could not generate the PDF.');
+    } finally {
+      setPdfBusy(false);
     }
   };
 

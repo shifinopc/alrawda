@@ -36,7 +36,7 @@ const LIST_SQL = `
 router.get('/', async (req, res) => {
   const { recNo, invoiceNo, date, customer, status } = req.query;
   const page = Math.max(1, Number(req.query.page) || 1);
-  const pageSize = Math.min(200, Number(req.query.pageSize) || 50);
+  const pageSize = Math.min(1000, Number(req.query.pageSize) || 50);
   const where = [`r.is_deleted = ${req.query.deleted === '1' ? 1 : 0}`], params = [];
   if (recNo) {
     if (req.query.recNoMode === 'equals') { where.push('r.RecieptNo = ?'); params.push(recNo); }

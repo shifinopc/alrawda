@@ -192,4 +192,81 @@ router.get('/adjustment', async (req, res) => {
   res.json({ rows });
 });
 
+/* ---------- PDF export (server-rendered, with "Page X of Y" footer) ----------
+   The frontend already formats every cell (doc-number prefixes, money, badges, agent
+   merges) so it POSTs the display-ready table; we just wrap it in a branded, paginated
+   PDF. Body: { title, from, to, landscape, sections:[{title,columns:[{label,num}],rows:[[..]],totals:[..]|null}] } */
+const esc = (s) => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+async function reportHeader() {
+  let pt = {};
+  try { const rows = await query("SELECT v FROM app_settings WHERE k = 'printTemplate'"); if (rows.length) pt = JSON.parse(rows[0].v) || {}; } catch { /* defaults */ }
+  return {
+    name: (pt.headerLine1 || 'AL RAWDA GROUP').trim(),
+    ar: (pt.headerLine2 || '').trim(),
+    contact: (pt.headerContact || '').trim(),
+    address: (pt.headerContact2 || '').trim(),
+    logo: pt.logoImage || null,
+  };
+}
+
+function reportHtml({ title, from, to, sections, header }) {
+  const tbl = (s) => {
+    const cols = s.columns || [];
+    const head = `<tr>${cols.map((c) => `<th class="${c.num ? 'num' : ''}">${esc(c.label)}</th>`).join('')}</tr>`;
+    const body = (s.rows || []).map((r) =>
+      `<tr>${r.map((cell, i) => `<td class="${cols[i] && cols[i].num ? 'num' : ''}">${esc(cell)}</td>`).join('')}</tr>`).join('');
+    const tot = s.totals
+      ? `<tr class="tot">${s.totals.map((cell, i) => `<td class="${cols[i] && cols[i].num ? 'num' : ''}">${esc(cell)}</td>`).join('')}</tr>` : '';
+    return `${s.title ? `<div class="sec">${esc(s.title)}</div>` : ''}<table><thead>${head}</thead><tbody>${body}${tot}</tbody></table>`;
+  };
+  return `<!doctype html><html><head><meta charset="utf-8"><style>
+    *{box-sizing:border-box}
+    body{font-family:Arial,'Segoe UI',sans-serif;margin:0;color:#222}
+    .hdr{text-align:center;border-bottom:2px solid #8a1538;padding-bottom:7px;margin-bottom:8px}
+    .hdr img{height:42px;margin-bottom:3px}
+    .hdr .ar{color:#8a1538;font-size:14px;font-weight:bold}
+    .hdr .en{color:#8a1538;font-size:15px;font-weight:bold}
+    .hdr .c{font-size:10px;color:#444}
+    .rtitle{display:flex;justify-content:space-between;align-items:center;margin:4px 0 8px}
+    .rtitle h2{color:#8a1538;font-size:15px;margin:0}
+    .rtitle .range{border:1px solid #8a1538;border-radius:20px;padding:2px 10px;font-size:11px;color:#8a1538}
+    table{width:100%;border-collapse:collapse;font-size:10px;margin-bottom:10px}
+    thead{display:table-header-group}
+    th{background:#8a1538;color:#fff;padding:5px 6px;text-align:left;font-size:11px}
+    td{padding:4px 6px;border-bottom:1px solid #e6e6e6}
+    .num{text-align:right;font-variant-numeric:tabular-nums}
+    tbody tr:nth-child(even){background:#f7f6f9}
+    tr.tot td{font-weight:bold;border-top:2px solid #8a1538;background:#fff}
+    .sec{font-weight:bold;color:#8a1538;margin:8px 0 4px;font-size:12px}
+  </style></head><body>
+    <div class="hdr">
+      ${header.logo ? `<img src="${header.logo}"/>` : ''}
+      ${header.ar ? `<div class="ar">${esc(header.ar)}</div>` : ''}
+      <div class="en">${esc(header.name)}</div>
+      ${header.contact ? `<div class="c">${esc(header.contact)}</div>` : ''}
+      ${header.address ? `<div class="c">${esc(header.address)}</div>` : ''}
+    </div>
+    <div class="rtitle"><h2>${esc(title)}</h2>${from ? `<span class="range">${esc(from)} — ${esc(to)}</span>` : ''}</div>
+    ${(sections || []).map(tbl).join('')}
+  </body></html>`;
+}
+
+// POST /api/reports/pdf
+router.post('/pdf', async (req, res) => {
+  const { renderReportPdf } = require('../pdf');
+  const b = req.body || {};
+  const header = await reportHeader();
+  const html = reportHtml({ title: b.title || 'Report', from: b.from, to: b.to, sections: b.sections || [], header });
+  try {
+    const pdf = Buffer.from(await renderReportPdf(html, { landscape: b.landscape !== false }));
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `inline; filename="${(b.title || 'report').replace(/[^\w-]+/g, '_')}.pdf"`);
+    res.setHeader('Content-Length', pdf.length);
+    res.end(pdf);
+  } catch (e) {
+    res.status(500).json({ error: `PDF generation failed: ${e.message}` });
+  }
+});
+
 module.exports = router;

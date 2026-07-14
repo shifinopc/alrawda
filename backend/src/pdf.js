@@ -371,6 +371,29 @@ async function renderPdf(html, paper = 'a5') {
   }
 }
 
+/* Multi-page report PDF with a "Page X of Y" footer on every page (Chrome/CSS can't do
+   this via @page; puppeteer's header/footer templates can). */
+async function renderReportPdf(html, { landscape = true } = {}) {
+  const browser = await getBrowser();
+  const page = await browser.newPage();
+  try {
+    await page.setContent(html, { waitUntil: 'networkidle0' });
+    return await page.pdf({
+      format: 'A4',
+      landscape,
+      printBackground: true,
+      displayHeaderFooter: true,
+      headerTemplate: '<span></span>', // suppress the default date/title header
+      footerTemplate:
+        '<div style="width:100%;font-size:9px;color:#555;padding:0 10mm;box-sizing:border-box;text-align:right;">'
+        + 'Page <span class="pageNumber"></span> of <span class="totalPages"></span></div>',
+      margin: { top: '8mm', right: '8mm', bottom: '14mm', left: '8mm' },
+    });
+  } finally {
+    await page.close().catch(() => {});
+  }
+}
+
 /* ------------------------------------------------------------------ *
  * High-level builders — fetch data + render. Reused by routes/mailer *
  * ------------------------------------------------------------------ */
@@ -449,4 +472,4 @@ async function buildInvoicePdf(code, paper) {
   return { buffer, name: `Invoice-${inv.InvoiceNo}.pdf`, row: inv };
 }
 
-module.exports = { buildReceiptPdf, buildPaymentPdf, buildInvoicePdf, renderPdf };
+module.exports = { buildReceiptPdf, buildPaymentPdf, buildInvoicePdf, renderPdf, renderReportPdf };

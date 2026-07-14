@@ -109,6 +109,23 @@ export async function downloadPdf(kind, code, { paper = 'a5', filename } = {}) {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
+/** POST JSON and open the returned PDF in a new tab (for server-rendered reports). */
+export async function postPdf(path, body) {
+  const res = await fetch(`${API_BASE}${path}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...(getToken() ? { Authorization: `Bearer ${getToken()}` } : {}) },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) {
+    let msg = `Could not generate PDF (${res.status})`;
+    try { msg = (await res.json()).error || msg; } catch { /* ignore */ }
+    throw new Error(msg);
+  }
+  const url = URL.createObjectURL(await res.blob());
+  window.open(url, '_blank');
+  setTimeout(() => URL.revokeObjectURL(url), 60000);
+}
+
 /* ---- formatting helpers ---- */
 export const fmtMoney = (v) =>
   Number(v ?? 0).toLocaleString('en-QA', { maximumFractionDigits: 2 });
