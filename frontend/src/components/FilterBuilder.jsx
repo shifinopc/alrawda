@@ -37,7 +37,7 @@ const MATCH_MODES = [
   { key: 'equals', label: 'Equals', icon: 'ti-equal', hint: 'exact match' },
 ];
 
-export default function FilterBuilder({ fields, conds, setConds }) {
+export default function FilterBuilder({ fields, conds, setConds, leading = null, trailing = null, flush = false }) {
   const byKey = Object.fromEntries(fields.map((f) => [f.key, f]));
   const [adding, setAdding] = useState(false);
   const [menuPos, setMenuPos] = useState(null); // {top,left} for the portal dropdown
@@ -128,7 +128,8 @@ export default function FilterBuilder({ fields, conds, setConds }) {
   const disp = (c) => (byKey[c.field]?.type === 'date' ? fmtDate(c.value) : c.value);
 
   return (
-    <div className="fbar" ref={ref}>
+    <div className={`fbar${flush ? ' fbar-flush' : ''}`} ref={ref}>
+      {leading}
       {conds.map((c) => {
         const def = byKey[c.field];
         if (!def) return null;
@@ -188,13 +189,17 @@ export default function FilterBuilder({ fields, conds, setConds }) {
         );
       })}
 
-      <button type="button" className="faddbtn" ref={btnRef} onClick={openMenu}>
-        <i className="ti ti-plus" style={{ fontSize: 14 }} /> Add filter
-      </button>
+      {fields.length > 0 && (
+        <button type="button" className="faddbtn" ref={btnRef} onClick={openMenu}>
+          <i className="ti ti-plus" style={{ fontSize: 14 }} /> Add filter
+        </button>
+      )}
 
       {conds.length > 0 && (
         <button type="button" className="fclear" onClick={() => { setConds([]); setEditId(null); }}>Clear all</button>
       )}
+
+      {trailing}
 
       {adding && menuPos && createPortal(
         <div

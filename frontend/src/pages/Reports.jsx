@@ -4,6 +4,7 @@ import { docNo, useDocNo } from '../docNumber';
 import { useToast, Badge, Panel, Field, Empty, PrintStyle, Loader, Select } from '../components/ui';
 import ReportDoc from '../components/ReportDoc';
 import CustomerLedger from './CustomerLedger';
+import FilterBuilder, { condVal, condRange, condMode } from '../components/FilterBuilder';
 
 /* ---- column definitions: { key, label, num (sum in footer), date } ---- */
 const INCOME_SUMMARY_COLS = [
@@ -152,6 +153,34 @@ const statusTone = (s) =>
 
 const firstOfMonthStr = () => todayStr().slice(0, 8) + '01';
 
+// map a formatted doc-number query to the raw stored number (drop prefix + leading zeros):
+// "INV-26-0004" -> "4", "0004" -> "4", "8466" -> "8466"
+const invNoSearchValue = (q) => {
+  const m = String(q || '').trim().match(/(\d+)\s*$/);
+  return m ? String(parseInt(m[1], 10)) : String(q || '').trim();
+};
+
+// dynamic filter fields available for the report tables (chip UI, filtered client-side over
+// the already-loaded rows). Only offered for reports whose columns actually carry that data.
+const REPORT_FILTER_DEFS = {
+  invNo:      { key: 'invNo',      label: 'Invoice No',        op: 'contains', match: true, type: 'text', icon: 'ti-file-invoice', placeholder: 'e.g. 8466 or INV-26-0001' },
+  invNoRange: { key: 'invNoRange', label: 'Invoice No (range)', type: 'numrange', icon: 'ti-file-invoice', fromPlaceholder: 'e.g. INV-26-0001', toPlaceholder: 'e.g. INV-26-0004' },
+  customer:   { key: 'customer',   label: 'Customer',          op: 'contains', type: 'text', icon: 'ti-user', placeholder: 'name' },
+};
+
+// does a report definition expose a given row key (in its flat cols or any section)?
+const reportHasKey = (def, key) =>
+  def ? (def.sections ? def.sections.some((s) => s.cols.some((c) => c.key === key))
+                      : (def.cols || []).some((c) => c.key === key)) : false;
+
+// which chip filters make sense for a given report type
+const filterFieldsFor = (def) => {
+  const fields = [];
+  if (reportHasKey(def, 'InvoiceNo')) fields.push(REPORT_FILTER_DEFS.invNo, REPORT_FILTER_DEFS.invNoRange);
+  if (reportHasKey(def, 'CustomerName')) fields.push(REPORT_FILTER_DEFS.customer);
+  return fields;
+};
+
 const cellText = (col, row) => {
   const v = row[col.key];
   if (col.render) return col.render(row);
@@ -272,6 +301,44 @@ export default function Reports() {
   const [templates, setTemplates] = useState({ print: null, report: null });
   const [agents, setAgents] = useState([]);
   const [agentCode, setAgentCode] = useState('');
+  const [conds, setConds] = useState([]); // dynamic chip filters over the loaded report rows
+
+  const filterFields = filterFieldsFor(REPORTS[type]);
+
+  // switch report type: clear the previously loaded report (so a stale one isn't shown for the
+  // new type) and drop any chip filters that don't apply to the new report
+  const changeType = (key) => {
+    setType(key);
+    setResult(null);
+    const ok = new Set(filterFieldsFor(REPORTS[key]).map((f) => f.key));
+    setConds((cs) => cs.filter((c) => ok.has(c.field)));
+  };
+
+  // apply the active chip filters to a set of report rows (invoice-no / range / customer)
+  const applyConds = (rows) => {
+    if (!rows || !conds.length) return rows || [];
+    const invNo = condVal(conds, 'invNo');
+    const invNeedle = invNo ? invNoSearchValue(invNo) : '';
+    const invEquals = condMode(conds, 'invNo') === 'equals';
+    const range = condRange(conds, 'invNoRange');
+    const rFrom = range.from ? Number(invNoSearchValue(range.from)) : null;
+    const rTo = range.to ? Number(invNoSearchValue(range.to)) : null;
+    const cust = condVal(conds, 'customer').toLowerCase();
+    return rows.filter((r) => {
+      if (invNeedle) {
+        const raw = String(r.InvoiceNo ?? '');
+        if (invEquals ? raw !== invNeedle : !raw.includes(invNeedle)) return false;
+      }
+      if (rFrom != null || rTo != null) {
+        const n = Number(r.InvoiceNo);
+        if (!Number.isFinite(n)) return false;
+        if (rFrom != null && n < rFrom) return false;
+        if (rTo != null && n > rTo) return false;
+      }
+      if (cust && !String(r.CustomerName ?? '').toLowerCase().includes(cust)) return false;
+      return true;
+    });
+  };
 
   useEffect(() => {
     api.get('/api/settings/prefs')
@@ -317,8 +384,8 @@ export default function Reports() {
     if (!result) { push('Load a report first, then export.'); return; }
     const def = REPORTS[result.type];
     const sections = def.sections
-      ? def.sections.map((s) => ({ title: s.title, ...serializeTable(s.cols, result.data[s.dataKey] || []) }))
-      : [serializeTable(def.cols, result.data.rows || [])];
+      ? def.sections.map((s) => ({ title: s.title, ...serializeTable(s.cols, applyConds(result.data[s.dataKey] || [])) }))
+      : [serializeTable(def.cols, applyConds(result.data.rows || []))];
     setPdfBusy(true);
     try {
       await postPdf('/api/reports/pdf', { title: def.label, from: result.from, to: result.to, landscape: true, sections });
@@ -337,10 +404,10 @@ export default function Reports() {
       def.sections.forEach((s, i) => {
         if (i > 0) lines.push('');
         lines.push(csvCell(s.title));
-        lines = lines.concat(tableToCsvLines(s.cols, result.data[s.dataKey] || []));
+        lines = lines.concat(tableToCsvLines(s.cols, applyConds(result.data[s.dataKey] || [])));
       });
     } else {
-      lines = tableToCsvLines(def.cols, result.data.rows || []);
+      lines = tableToCsvLines(def.cols, applyConds(result.data.rows || []));
     }
     download(['﻿' + lines.join('\r\n')], 'text/csv;charset=utf-8;', 'report.csv');
   };
@@ -361,9 +428,9 @@ export default function Reports() {
     };
     let inner = `<h3>${esc(def.label)} — ${fmtDate(result.from)} to ${fmtDate(result.to)}</h3>`;
     if (def.sections) {
-      def.sections.forEach((s) => { inner += `<h4>${esc(s.title)}</h4>` + tableHtml(s.cols, result.data[s.dataKey] || []); });
+      def.sections.forEach((s) => { inner += `<h4>${esc(s.title)}</h4>` + tableHtml(s.cols, applyConds(result.data[s.dataKey] || [])); });
     } else {
-      inner += tableHtml(def.cols, result.data.rows || []);
+      inner += tableHtml(def.cols, applyConds(result.data.rows || []));
     }
     const html = `<html xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="utf-8"></head><body>${inner}</body></html>`;
     download([html], 'application/vnd.ms-excel;charset=utf-8;', `${result.type}.xls`);
@@ -419,61 +486,52 @@ export default function Reports() {
                 type="radio"
                 name="reporttype"
                 checked={type === key}
-                onChange={() => setType(key)}
+                onChange={() => changeType(key)}
               />
               {r.label}
             </label>
           ))}
         </div>
-        <div style={{ display: 'flex', alignItems: 'flex-end', gap: 12, flexWrap: 'wrap', marginTop: 8 }}>
-          <Field label="Start Date">
-            <input type="date" value={from} onChange={(e) => setFrom(e.target.value)} />
-          </Field>
-          <Field label="End Date">
-            <input type="date" value={to} onChange={(e) => setTo(e.target.value)} />
-          </Field>
-          {REPORTS[type].agentFilter && (
-            <Field label="Agent">
-              <div style={{ minWidth: 200 }}>
-                <Select value={agentCode} onChange={setAgentCode} placeholder="All agents"
-                  options={[{ value: '', label: 'All agents' }, ...agents.map((a) => ({ value: String(a.AgentCode), label: a.AgentName }))]} />
+        {/* one row: date period + row filters on the left, actions on the right */}
+        <div style={{ marginTop: 4 }}>
+          <FilterBuilder
+            fields={filterFields}
+            conds={conds}
+            setConds={setConds}
+            flush
+            leading={
+              /* fixed report period — always present, drives the server query (not removable) */
+              <span className="fchip">
+                <i className="ti ti-calendar" style={{ fontSize: 14, color: 'var(--accent)' }} />
+                <span className="fk">Date</span>
+                <input type="date" title="From date" value={from} onChange={(e) => setFrom(e.target.value)} />
+                <span className="fop">–</span>
+                <input type="date" title="To date" value={to} onChange={(e) => setTo(e.target.value)} />
+              </span>
+            }
+            trailing={
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                {REPORTS[type].agentFilter && (
+                  <div style={{ minWidth: 180 }}>
+                    <Select value={agentCode} onChange={setAgentCode} placeholder="All agents"
+                      options={[{ value: '', label: 'All agents' }, ...agents.map((a) => ({ value: String(a.AgentCode), label: a.AgentName }))]} />
+                  </div>
+                )}
+                <button className="btn primary" onClick={runFilter} disabled={loading}>
+                  <i className="ti ti-refresh" /> {loading ? 'Loading…' : 'Load Report'}
+                </button>
+                <button className="btn" onClick={() => window.print()}>
+                  <i className="ti ti-printer" /> Print / Preview
+                </button>
+                <button className="btn success" onClick={exportExcel}>
+                  <i className="ti ti-file-spreadsheet" /> Export Excel
+                </button>
+                <button className="btn" onClick={exportCsv}>
+                  <i className="ti ti-file-text" /> CSV
+                </button>
               </div>
-            </Field>
-          )}
-          <div style={{ display: 'flex', gap: 6, paddingBottom: 2 }}>
-            <button className="btn sm" onClick={() => { setFrom(todayStr()); setTo(todayStr()); }}>Today</button>
-            <button className="btn sm" onClick={() => { setFrom(firstOfMonthStr()); setTo(todayStr()); }}>This month</button>
-            <button
-              className="btn sm"
-              onClick={() => {
-                const d = new Date(); d.setDate(1); d.setDate(0); // last day of previous month
-                const end = d.toISOString().slice(0, 10);
-                setFrom(end.slice(0, 8) + '01'); setTo(end);
-              }}
-            >
-              Last month
-            </button>
-            <button
-              className="btn sm"
-              onClick={() => { setFrom(todayStr().slice(0, 4) + '-01-01'); setTo(todayStr()); }}
-            >
-              This year
-            </button>
-          </div>
-          <div style={{ display: 'flex', gap: 8 }}>
-            <button className="btn primary" onClick={runFilter} disabled={loading}>
-              <i className="ti ti-filter" /> {loading ? 'Loading…' : 'Filter'}
-            </button>
-            <button className="btn" onClick={() => window.print()}>
-              <i className="ti ti-printer" /> Print / Preview
-            </button>
-            <button className="btn success" onClick={exportExcel}>
-              <i className="ti ti-file-spreadsheet" /> Export Excel
-            </button>
-            <button className="btn" onClick={exportCsv}>
-              <i className="ti ti-file-text" /> CSV
-            </button>
-          </div>
+            }
+          />
         </div>
       </Panel>
 
@@ -483,7 +541,7 @@ export default function Reports() {
         ) : !result ? (
           <Empty
             icon="ti-report-analytics"
-            text="Choose a report type and date range, then click Filter to load the report."
+            text="Choose a report type and date range, then click Load Report to show it."
           />
         ) : (
           <ReportDoc
@@ -497,13 +555,13 @@ export default function Reports() {
               def.sections.map((s) => (
                 <div key={s.dataKey} style={{ marginBottom: 16 }}>
                   <div className="rpt-section">{s.title}</div>
-                  <ReportTable cols={s.cols} rows={result.data[s.dataKey]} />
+                  <ReportTable cols={s.cols} rows={applyConds(result.data[s.dataKey])} />
                 </div>
               ))
             ) : result.type === 'agent-wise' ? (
-              <AgentWiseTable cols={def.cols} rows={result.data.rows} />
+              <AgentWiseTable cols={def.cols} rows={applyConds(result.data.rows)} />
             ) : (
-              <ReportTable cols={def.cols} rows={result.data.rows} />
+              <ReportTable cols={def.cols} rows={applyConds(result.data.rows)} />
             )}
           </ReportDoc>
         )}
