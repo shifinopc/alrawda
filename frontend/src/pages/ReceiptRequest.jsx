@@ -24,14 +24,18 @@ function matchesConds(r, conds) {
     if (!raw) return true; // unset condition = no constraint
     const v = raw.toLowerCase();
     switch (c.field) {
-      case 'recNo':
-        if (c.mode === 'equals') return String(r.RecieptNo || '').toLowerCase() === v;
-        return String(r.RecieptNo || '').toLowerCase().includes(v) ||
-               docNo('receipt', r.RecieptNo, r.RecieptDate).toLowerCase().includes(v);
-      case 'invoiceNo':
-        if (c.mode === 'equals') return !!r.InvoiceNo && String(r.InvoiceNo).toLowerCase() === v;
-        return !!r.InvoiceNo && (String(r.InvoiceNo).toLowerCase().includes(v) ||
-               docNo('invoice', r.InvoiceNo, r.InvoiceDate).toLowerCase().includes(v));
+      case 'recNo': {
+        // match either the raw number (222) or the formatted one (RCT-2026-07-0222)
+        const raw = String(r.RecieptNo ?? '').toLowerCase();
+        const fmt = docNo('receipt', r.RecieptNo, r.RecieptDate, r.CreatedAt).toLowerCase();
+        return c.mode === 'equals' ? (raw === v || fmt === v) : (raw.includes(v) || fmt.includes(v));
+      }
+      case 'invoiceNo': {
+        if (!r.InvoiceNo) return false;
+        const raw = String(r.InvoiceNo).toLowerCase();
+        const fmt = docNo('invoice', r.InvoiceNo, r.InvoiceDate, r.InvoiceCreatedAt).toLowerCase();
+        return c.mode === 'equals' ? (raw === v || fmt === v) : (raw.includes(v) || fmt.includes(v));
+      }
       case 'customer':
         return String(r.CustomerName || '').toLowerCase().includes(v);
       case 'mode':

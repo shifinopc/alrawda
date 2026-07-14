@@ -9,10 +9,19 @@ import { docNo, useDocNo } from '../docNumber';
 import FilterBuilder, { condVal, condRange, condMode } from '../components/FilterBuilder';
 
 const INVOICE_FILTERS = [
-  { key: 'invNo', label: 'Invoice No', op: 'contains', match: true, type: 'text', icon: 'ti-file-invoice', placeholder: 'e.g. 8466' },
+  { key: 'invNo', label: 'Invoice No', op: 'contains', match: true, type: 'text', icon: 'ti-file-invoice', placeholder: 'e.g. 8466 or INV-26-0001' },
   { key: 'customer', label: 'Customer', op: 'contains', type: 'text', icon: 'ti-user', placeholder: 'name' },
   { key: 'dateRange', label: 'Date', type: 'daterange', icon: 'ti-calendar' },
 ];
+
+// treat a query starting with a digit OR "INV…" as an invoice-number search
+const looksLikeInvNo = (q) => /^\d/.test(q) || /^inv[\s\-/]?/i.test(String(q || ''));
+// invoices are stored by raw number, so map a formatted query to that number and drop
+// leading zeros (so both equals and LIKE match): "INV-26-0001" -> "1", "0001" -> "1", "8466" -> "8466"
+const invNoSearchValue = (q) => {
+  const m = String(q || '').trim().match(/(\d+)\s*$/);
+  return m ? String(parseInt(m[1], 10)) : String(q || '').trim();
+};
 
 const blankPassenger = () => ({ passengerName: '', visaTypeCode: '', visaRequiredCode: 1 });
 
@@ -65,7 +74,7 @@ export default function Invoices() {
   useEffect(() => {
     const q = new URLSearchParams(location.search).get('q');
     if (!q) return;
-    const field = /^\d+$/.test(q) ? 'invNo' : 'customer';
+    const field = looksLikeInvNo(q) ? 'invNo' : 'customer';
     // topbar search is a broad find → use 'contains' (manual filter chips default to 'equals')
     setConds([{ id: `q-${field}-${Date.now()}`, field, value: q, mode: field === 'invNo' ? 'contains' : undefined }]);
   }, [location.search]);
@@ -119,7 +128,7 @@ export default function Invoices() {
     setListLoading(true);
     try {
       const p = new URLSearchParams();
-      const invNo = condVal(conds, 'invNo'); if (invNo) { p.set('invNo', invNo); if (condMode(conds, 'invNo') === 'equals') p.set('invNoMode', 'equals'); }
+      const invNo = condVal(conds, 'invNo'); if (invNo) { p.set('invNo', invNoSearchValue(invNo)); if (condMode(conds, 'invNo') === 'equals') p.set('invNoMode', 'equals'); }
       const dr = condRange(conds, 'dateRange'); if (dr.from) p.set('from', dr.from); if (dr.to) p.set('to', dr.to);
       const customer = condVal(conds, 'customer'); if (customer) p.set('customer', customer);
       p.set('deleted', showDeleted ? '1' : '0');

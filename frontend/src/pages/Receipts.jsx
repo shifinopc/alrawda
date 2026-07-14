@@ -9,11 +9,18 @@ import { docNo, useDocNo } from '../docNumber';
 import FilterBuilder, { condVal, condRange, condMode } from '../components/FilterBuilder';
 
 const RECEIPT_FILTERS = [
-  { key: 'recNo', label: 'Rec No', op: 'contains', match: true, type: 'text', icon: 'ti-receipt', placeholder: 'e.g. 12748' },
-  { key: 'invoiceNo', label: 'Invoice No', op: 'contains', match: true, type: 'text', icon: 'ti-file-invoice', placeholder: 'e.g. 8466' },
+  { key: 'recNo', label: 'Rec No', op: 'contains', match: true, type: 'text', icon: 'ti-receipt', placeholder: 'e.g. 12748 or RCT-2026-07-0009' },
+  { key: 'invoiceNo', label: 'Invoice No', op: 'contains', match: true, type: 'text', icon: 'ti-file-invoice', placeholder: 'e.g. 8466 or INV-26-0001' },
   { key: 'customer', label: 'Customer', op: 'contains', type: 'text', icon: 'ti-user', placeholder: 'name' },
   { key: 'dateRange', label: 'Date', type: 'daterange', icon: 'ti-calendar' },
 ];
+
+// map a formatted doc-number query to the raw stored number (drop prefix + leading zeros)
+// so "INV-26-0001"/"RCT-2026-07-0009" match, not just the plain sequence
+const docNumSearchValue = (q) => {
+  const m = String(q || '').trim().match(/(\d+)\s*$/);
+  return m ? String(parseInt(m[1], 10)) : String(q || '').trim();
+};
 
 const receiptStatusTone = (s) => (s === 'Approved' ? 'green' : 'blue');
 
@@ -188,8 +195,8 @@ export default function Receipts() {
     setListLoading(true);
     try {
       const p = new URLSearchParams();
-      const recNo = condVal(conds, 'recNo'); if (recNo) { p.set('recNo', recNo); if (condMode(conds, 'recNo') === 'equals') p.set('recNoMode', 'equals'); }
-      const invoiceNo = condVal(conds, 'invoiceNo'); if (invoiceNo) { p.set('invoiceNo', invoiceNo); if (condMode(conds, 'invoiceNo') === 'equals') p.set('invoiceNoMode', 'equals'); }
+      const recNo = condVal(conds, 'recNo'); if (recNo) { p.set('recNo', docNumSearchValue(recNo)); if (condMode(conds, 'recNo') === 'equals') p.set('recNoMode', 'equals'); }
+      const invoiceNo = condVal(conds, 'invoiceNo'); if (invoiceNo) { p.set('invoiceNo', docNumSearchValue(invoiceNo)); if (condMode(conds, 'invoiceNo') === 'equals') p.set('invoiceNoMode', 'equals'); }
       const dr = condRange(conds, 'dateRange'); if (dr.from) p.set('from', dr.from); if (dr.to) p.set('to', dr.to);
       const customer = condVal(conds, 'customer'); if (customer) p.set('customer', customer);
       p.set('deleted', showDeleted ? '1' : '0');
