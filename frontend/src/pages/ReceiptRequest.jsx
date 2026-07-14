@@ -16,40 +16,27 @@ const RR_FILTERS = [
   { key: 'mode',      label: 'Mode',       op: '=',        type: 'select', icon: 'ti-wallet', options: ['Cash', 'Bank'] },
 ];
 
-// does a receipt row satisfy every active condition?
+// map a formatted doc-number query to the raw stored number (drop prefix + leading zeros)
+const docNumSearchValue = (q) => {
+  const m = String(q || '').trim().match(/(\d+)\s*$/);
+  return m ? String(parseInt(m[1], 10)) : String(q || '').trim();
+};
+
+// date/recNo/invoiceNo/customer are all applied server-side (see loadOpen); only Mode is
+// filtered on the client because the receipts endpoint has no payment-mode parameter.
 function matchesConds(r, conds) {
   return conds.every((c) => {
-    if (c.field === 'dateRange') return true; // date range is applied server-side (see loadOpen)
-    const raw = (c.value ?? '').toString().trim();
-    if (!raw) return true; // unset condition = no constraint
-    const v = raw.toLowerCase();
-    switch (c.field) {
-      case 'recNo': {
-        // match either the raw number (222) or the formatted one (RCT-2026-07-0222)
-        const raw = String(r.RecieptNo ?? '').toLowerCase();
-        const fmt = docNo('receipt', r.RecieptNo, r.RecieptDate, r.CreatedAt).toLowerCase();
-        return c.mode === 'equals' ? (raw === v || fmt === v) : (raw.includes(v) || fmt.includes(v));
-      }
-      case 'invoiceNo': {
-        if (!r.InvoiceNo) return false;
-        const raw = String(r.InvoiceNo).toLowerCase();
-        const fmt = docNo('invoice', r.InvoiceNo, r.InvoiceDate, r.InvoiceCreatedAt).toLowerCase();
-        return c.mode === 'equals' ? (raw === v || fmt === v) : (raw.includes(v) || fmt.includes(v));
-      }
-      case 'customer':
-        return String(r.CustomerName || '').toLowerCase().includes(v);
-      case 'mode':
-        return String(r.PaymentMode || '').toLowerCase() === v;
-      default:
-        return true;
-    }
+    if (c.field !== 'mode') return true;
+    const v = (c.value ?? '').toString().trim().toLowerCase();
+    return !v || String(r.PaymentMode || '').toLowerCase() === v;
   });
 }
 
 export default function ReceiptRequest() {
   const toast = useToast();
   useDocNo();
-  const [open, setOpen] = useState([]);          // open receipts available for booking
+  const [open, setOpen] = useState([]);          // open receipts available for booking (fetched, capped)
+  const [openTotal, setOpenTotal] = useState(0); // total open receipts matching the current filter (server count)
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [sel, setSel] = useState({});            // RecieptCode -> bool
@@ -61,18 +48,29 @@ export default function ReceiptRequest() {
   const [saving, setSaving] = useState(false);
   const [drawer, setDrawer] = useState(null);    // { request, receipts }
 
-  // date range is filtered SERVER-SIDE (there can be thousands of open receipts, so
-  // client-only filtering of the newest 200 would hide older ones and mis-handle timezones)
+  // ALL filters are applied SERVER-SIDE: there can be thousands of open receipts (incl. ones
+  // freed up by a rejected request), so client-only filtering of the newest 200 would hide them.
   const dateCond = conds.find((c) => c.field === 'dateRange');
   const from = dateCond?.value?.from || '';
   const to = dateCond?.value?.to || '';
+  const recCond = conds.find((c) => c.field === 'recNo');
+  const invCond = conds.find((c) => c.field === 'invoiceNo');
+  const custCond = conds.find((c) => c.field === 'customer');
+  const recNo = (recCond?.value || '').toString().trim();
+  const invoiceNo = (invCond?.value || '').toString().trim();
+  const customer = (custCond?.value || '').toString().trim();
 
-  const loadOpen = async (fromV, toV) => {
-    const q = new URLSearchParams({ status: 'open', pageSize: fromV || toV ? '1000' : '200' });
-    if (fromV) q.set('from', fromV);
-    if (toV) q.set('to', toV);
+  const loadOpen = async () => {
+    const hasFilter = from || to || recNo || invoiceNo || customer;
+    const q = new URLSearchParams({ status: 'open', pageSize: hasFilter ? '1000' : '200' });
+    if (from) q.set('from', from);
+    if (to) q.set('to', to);
+    if (recNo) { q.set('recNo', docNumSearchValue(recNo)); if (recCond.mode === 'equals') q.set('recNoMode', 'equals'); }
+    if (invoiceNo) { q.set('invoiceNo', docNumSearchValue(invoiceNo)); if (invCond.mode === 'equals') q.set('invoiceNoMode', 'equals'); }
+    if (customer) q.set('customer', customer);
     const o = await api.get(`/api/receipts?${q.toString()}`);
     setOpen(o.rows || []);
+    setOpenTotal(o.total ?? (o.rows || []).length);
   };
 
   const load = async () => {
@@ -85,7 +83,7 @@ export default function ReceiptRequest() {
       setRequests(r.rows || []);
       setNextNo(n.next);
       setSel({});
-      await loadOpen(from, to);
+      await loadOpen();
     } catch (e) {
       toast(e.message);
     } finally {
@@ -94,12 +92,12 @@ export default function ReceiptRequest() {
   };
 
   useEffect(() => { load(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
-  // re-fetch open receipts from the server whenever the date range changes (skips the initial mount)
+  // re-fetch open receipts from the server whenever any filter changes (skips the initial mount)
   const mounted = React.useRef(false);
   useEffect(() => {
     if (!mounted.current) { mounted.current = true; return; }
-    loadOpen(from, to).catch((e) => toast(e.message));
-  }, [from, to]); // eslint-disable-line react-hooks/exhaustive-deps
+    loadOpen().catch((e) => toast(e.message));
+  }, [from, to, recNo, invoiceNo, customer, recCond?.mode, invCond?.mode]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const selected = useMemo(() => open.filter((r) => sel[r.RecieptCode]), [open, sel]);
   const total = selected.reduce((a, r) => a + Number(r.RecievedAmount || 0), 0);
@@ -170,7 +168,9 @@ export default function ReceiptRequest() {
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, margin: '16px 0 8px', flexWrap: 'wrap' }}>
           <b>Select receipts to book</b>
           <span className="muted" style={{ fontWeight: 700 }}>
-            Showing {shownOpen.length} of {open.length} · Selected {selected.length} · Total QAR {fmtMoney(total)}
+            Showing {shownOpen.length} of {openTotal.toLocaleString()}
+            {openTotal > open.length && <span style={{ color: 'var(--accent)' }}> · newest {open.length} loaded — filter by date / number to load the rest</span>}
+            {' '}· Selected {selected.length} · Total QAR {fmtMoney(total)}
           </span>
         </div>
         <FilterBuilder fields={RR_FILTERS} conds={conds} setConds={setConds} />
