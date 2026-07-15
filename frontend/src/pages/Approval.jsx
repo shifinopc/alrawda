@@ -180,7 +180,7 @@ function RequestCard({ req, onProcessed, canApprove, onView, onViewInvoice }) {
                 style={{ width: 16, height: 16, accentColor: 'var(--accent)' }}
               />
             </th>
-            <th>Rec No</th><th>Customer</th><th>Built from</th><th>Mode</th><th className="num">Amount</th>
+            <th>Rec No</th><th>Invoice No</th><th>Customer</th><th>Built from</th><th>Mode</th><th className="num">Amount</th>
           </tr>
         </thead>
         <tbody>
@@ -194,6 +194,7 @@ function RequestCard({ req, onProcessed, canApprove, onView, onViewInvoice }) {
                 />
               </td>
               <td>{docNo('receipt', r.RecieptNo, r.RecieptDate)}</td>
+              <td>{r.InvoiceNo ? docNo('invoice', r.InvoiceNo, r.InvoiceDate, r.InvoiceCreatedAt) : '—'}</td>
               <td>{r.CustomerName}</td>
               <td>{r.PackageName || (r.InvoiceNo ? `Invoice ${docNo('invoice', r.InvoiceNo)}` : '—')}</td>
               <td>{r.PaymentMode}</td>
