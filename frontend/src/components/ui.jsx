@@ -282,11 +282,14 @@ export const PrintStyle = ({ id, paper = 'a4', landscape = false }) => (
     #${id} .rcv-ar-title { font-size: 15.5px; }
     #${id} .rcv-en-title { font-size: 13px; }
     #${id} .rcv-contact { font-size: 8.5px; }
-    #${id} .rcv-titleband { gap: 7px; margin-bottom: 8px; }
-    #${id} .rcv-doc { font-size: 12.5px; }
-    #${id} .rcv-chip, #${id} .rcv-chip-num { font-size: 11px; padding: 2px 9px; }
-    #${id} .rcv-mode { font-size: 10px; }
-    #${id} .rcv-meta { font-size: 10px; }
+    /* compressed so the whole band (EN title … AR title) fits ONE line on the
+       narrow A5 sheet, matching the on-screen preview */
+    #${id} .rcv-titleband { gap: 5px; margin-bottom: 8px; }
+    #${id} .rcv-band-mid { gap: 4px 5px; }
+    #${id} .rcv-doc { font-size: 11px; }
+    #${id} .rcv-chip, #${id} .rcv-chip-num { font-size: 10px; padding: 2px 6px; }
+    #${id} .rcv-mode { font-size: 9.5px; padding: 2px 6px; }
+    #${id} .rcv-meta { font-size: 9.5px; }
     #${id} .rcv-amount { padding: 5px 12px; margin-bottom: 8px; font-size: 11px; }
     #${id} .rcv-amount b { font-size: 17px; }
     #${id} .rcv-grid { gap: 5px 8px; margin-bottom: 7px; }

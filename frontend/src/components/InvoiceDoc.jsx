@@ -26,9 +26,11 @@ export default function InvoiceDoc({ invoice, passengers = [], receipts = [], re
       {/* title band */}
       <div className="rcv-titleband">
         <span className="rcv-doc">{it.titleEn}</span>
-        <span className="rcv-chip">No. {docNo('invoice', inv.InvoiceNo, inv.InvoiceDate, inv.CreatedAt)}</span>
-        {inv.status && <span className="rcv-mode">{inv.status}{STATUS_AR[inv.status] ? ` · ${STATUS_AR[inv.status]}` : ''}</span>}
-        <span className="rcv-meta">Date: <b>{fmtDate(inv.InvoiceDate)}</b> · Departure: <b>{fmtDate(inv.DepartureDate)}</b></span>
+        <span className="rcv-band-mid">
+          <span className="rcv-chip">No. {docNo('invoice', inv.InvoiceNo, inv.InvoiceDate, inv.CreatedAt)}</span>
+          {inv.status && <span className="rcv-mode">{inv.status}{STATUS_AR[inv.status] ? ` · ${STATUS_AR[inv.status]}` : ''}</span>}
+          <span className="rcv-meta">Date: <b>{fmtDate(inv.InvoiceDate)}</b> · Departure: <b>{fmtDate(inv.DepartureDate)}</b></span>
+        </span>
         <span className="rcv-doc rcv-rtl">{it.titleAr}</span>
       </div>
 

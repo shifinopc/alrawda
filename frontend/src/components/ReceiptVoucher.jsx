@@ -102,10 +102,12 @@ export default function ReceiptVoucher({ r, invoiceAmount, passengers = [], invo
       {/* document title band */}
       <div className="rcv-titleband">
         <span className="rcv-doc">{rt.titleEn}</span>
-        <span className="rcv-chip-num">No. {docNo('receipt', r.RecieptNo, r.RecieptDate, r.CreatedAt)}</span>
-        <span className="rcv-mode">{r.PaymentMode}{r.PaymentMode === 'Bank' && r.Bank ? ` — ${r.Bank}${r.ChequeNo ? ` / ${r.ChequeNo}` : ''}` : ''}</span>
-        <span className="rcv-meta">Date: <b>{fmtDate(r.RecieptDate)}</b></span>
-        {r.InvoiceNo && <span className="rcv-chip">Invoice {docNo('invoice', r.InvoiceNo)}</span>}
+        <span className="rcv-band-mid">
+          <span className="rcv-chip-num">No. {docNo('receipt', r.RecieptNo, r.RecieptDate, r.CreatedAt)}</span>
+          <span className="rcv-mode">{r.PaymentMode}{r.PaymentMode === 'Bank' && r.Bank ? ` — ${r.Bank}${r.ChequeNo ? ` / ${r.ChequeNo}` : ''}` : ''}</span>
+          <span className="rcv-meta">Date: <b>{fmtDate(r.RecieptDate)}</b></span>
+          {r.InvoiceNo && <span className="rcv-chip">Invoice {docNo('invoice', r.InvoiceNo)}</span>}
+        </span>
         <span className="rcv-doc rcv-rtl">{rt.titleAr}</span>
       </div>
 

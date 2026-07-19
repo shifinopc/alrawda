@@ -21,9 +21,11 @@ export default function PaymentVoucher({ p, printTemplate, paymentTemplate }) {
       {/* title band */}
       <div className="rcv-titleband">
         <span className="rcv-doc">{pt.titleEn}</span>
-        <span className="rcv-chip">No. {docNo('payment', p.PaymentNo, p.PaymentDate, p.CreatedAt)}</span>
-        <span className="rcv-mode">{isRefund ? 'Refund · استرداد' : 'Expense · مصروف'}</span>
-        <span className="rcv-meta">Date: <b>{fmtDate(p.PaymentDate)}</b></span>
+        <span className="rcv-band-mid">
+          <span className="rcv-chip">No. {docNo('payment', p.PaymentNo, p.PaymentDate, p.CreatedAt)}</span>
+          <span className="rcv-mode">{isRefund ? 'Refund · استرداد' : 'Expense · مصروف'}</span>
+          <span className="rcv-meta">Date: <b>{fmtDate(p.PaymentDate)}</b></span>
+        </span>
         <span className="rcv-doc rcv-rtl">{pt.titleAr}</span>
       </div>
 
