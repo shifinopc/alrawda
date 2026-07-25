@@ -502,7 +502,7 @@ export default function Receipts() {
                     value={form.invoiceCode}
                     error={errors.invoiceCode}
                     onSelect={(inv) => {
-                      setForm((f) => ({ ...f, invoiceCode: String(inv.InvoiceCode), receivedAmount: Number(inv.balance) }));
+                      setForm((f) => ({ ...f, invoiceCode: String(inv.InvoiceCode), receivedAmount: 0 }));
                       setErrors((er) => ({ ...er, invoiceCode: undefined, receivedAmount: undefined }));
                       // pre-fill passenger + room details from the invoice
                       api.get(`/api/invoices/${inv.InvoiceCode}`)
