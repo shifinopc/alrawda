@@ -55,6 +55,8 @@ router.get('/', async (req, res) => {
   if (req.query.from) { where.push('DATE(r.RecieptDate) >= ?'); params.push(req.query.from); }
   if (req.query.to) { where.push('DATE(r.RecieptDate) <= ?'); params.push(req.query.to); }
   if (customer) { where.push('i.CustomerName LIKE ?'); params.push(`%${customer}%`); }
+  // same filters, minus the status clause — used to report what the status filter hides
+  const baseWhere = [...where];
   if (status === 'open') where.push(`(r.ReceiptApproved IS NULL OR TRIM(r.ReceiptApproved) = '') AND NOT ${BOOKED_EXISTS}`);
   if (status === 'booked') where.push(`(r.ReceiptApproved IS NULL OR TRIM(r.ReceiptApproved) = '') AND ${BOOKED_EXISTS}`);
   if (status === 'approved') where.push(`TRIM(IFNULL(r.ReceiptApproved,'')) = 'Y'`);
@@ -67,7 +69,31 @@ router.get('/', async (req, res) => {
     `SELECT COUNT(*) AS total FROM UmrahReciept r LEFT JOIN UmrahInvoice i ON i.InvoiceCode = r.InvoiceCode ${whereSql}`,
     params
   );
-  res.json({ rows, page, pageSize, total });
+  // For the booking picker: report the receipts the "open" filter hides (already approved, or
+  // sitting in a pending request). Without this the picker total looks short against reports,
+  // which count every receipt on an invoice regardless of approval state.
+  let excluded = null;
+  if (status === 'open') {
+    const APPROVED = `TRIM(IFNULL(r.ReceiptApproved,'')) = 'Y'`;
+    const BOOKED = `(r.ReceiptApproved IS NULL OR TRIM(r.ReceiptApproved) = '') AND ${BOOKED_EXISTS}`;
+    const [ex] = await query(
+      `SELECT
+         SUM(CASE WHEN ${APPROVED} THEN 1 ELSE 0 END) AS approvedCount,
+         IFNULL(SUM(CASE WHEN ${APPROVED} THEN r.RecievedAmount ELSE 0 END),0) AS approvedAmount,
+         SUM(CASE WHEN ${BOOKED} THEN 1 ELSE 0 END) AS bookedCount,
+         IFNULL(SUM(CASE WHEN ${BOOKED} THEN r.RecievedAmount ELSE 0 END),0) AS bookedAmount
+       FROM UmrahReciept r LEFT JOIN UmrahInvoice i ON i.InvoiceCode = r.InvoiceCode
+       ${baseWhere.length ? `WHERE ${baseWhere.join(' AND ')}` : ''}`,
+      params
+    );
+    excluded = {
+      approvedCount: Number(ex.approvedCount) || 0,
+      approvedAmount: Number(ex.approvedAmount) || 0,
+      bookedCount: Number(ex.bookedCount) || 0,
+      bookedAmount: Number(ex.bookedAmount) || 0,
+    };
+  }
+  res.json({ rows, page, pageSize, total, excluded });
 });
 
 // GET /api/receipts/next-no

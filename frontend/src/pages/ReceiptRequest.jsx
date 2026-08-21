@@ -38,6 +38,7 @@ export default function ReceiptRequest() {
   useDocNo();
   const [open, setOpen] = useState([]);          // open receipts available for booking (fetched, capped)
   const [openTotal, setOpenTotal] = useState(0); // total open receipts matching the current filter (server count)
+  const [excluded, setExcluded] = useState(null); // receipts the "open" filter hides (approved / already booked)
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [sel, setSel] = useState({});            // RecieptCode -> bool
@@ -85,6 +86,7 @@ export default function ReceiptRequest() {
     if (seq !== loadSeq.current) return;
     setOpen(o.rows || []);
     setOpenTotal(o.total ?? (o.rows || []).length);
+    setExcluded(o.excluded || null);
   };
 
   const load = async () => {
@@ -112,6 +114,10 @@ export default function ReceiptRequest() {
     if (!mounted.current) { mounted.current = true; return; }
     loadOpen().catch((e) => toast(e.message));
   }, [from, to, recNo, invoiceNo, customer, invNoFrom, invNoTo, recCond?.mode, invCond?.mode]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // receipts hidden by the "open" filter — surfaced so the picker total reconciles with reports
+  const hiddenCount = (excluded?.approvedCount || 0) + (excluded?.bookedCount || 0);
+  const hiddenAmount = (excluded?.approvedAmount || 0) + (excluded?.bookedAmount || 0);
 
   const selected = useMemo(() => open.filter((r) => sel[r.RecieptCode]), [open, sel]);
   const total = selected.reduce((a, r) => a + Number(r.RecievedAmount || 0), 0);
@@ -187,6 +193,16 @@ export default function ReceiptRequest() {
             {' '}· Selected {selected.length} · Total QAR {fmtMoney(total)}
           </span>
         </div>
+        {hiddenCount > 0 && (
+          <div className="muted" style={{ fontWeight: 700, fontSize: 12.5, marginBottom: 8 }}>
+            <i className="ti ti-info-circle" />{' '}
+            Not shown here: {hiddenCount} receipt{hiddenCount > 1 ? 's' : ''} (QAR {fmtMoney(hiddenAmount)}) matching
+            this filter {excluded.approvedCount > 0 && excluded.bookedCount > 0
+              ? `— ${excluded.approvedCount} already approved, ${excluded.bookedCount} in a pending request`
+              : excluded.approvedCount > 0 ? '— already approved' : '— already in a pending request'}.
+            Reports count these, so report totals will be higher by this amount.
+          </div>
+        )}
         <FilterBuilder fields={RR_FILTERS} conds={conds} setConds={setConds} />
 
         {loading ? (
