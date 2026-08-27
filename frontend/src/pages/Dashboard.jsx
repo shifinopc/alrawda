@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api, fmtMoney, fmtDate, todayStr, getUser } from '../api';
-import { useToast, Badge, Panel, Empty, Loader } from '../components/ui';
+import { useToast, Badge, Panel, Empty, Loader, Pager } from '../components/ui';
+import { docNo, useDocNo } from '../docNumber';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -31,6 +32,18 @@ ChartJS.register(
 const PALETTE = ['#7c00ff', '#9a3cff', '#b06aff', '#c79aff', '#e0cdfa'];
 const ACCENT = '#7c00ff';
 
+/* Age filters for the pending-invoice list. Default: over 30 days.
+   Values are 31/61/91 so a filter never double-counts the boundary day. */
+const AGE_FILTERS = [
+  { key: 31, label: 'Over 30 days' },
+  { key: 61, label: 'Over 60 days' },
+  { key: 91, label: 'Over 90 days' },
+  { key: 0, label: 'All pending' },
+];
+const AGE_PAGE_SIZE = 6; // fits the column height alongside the charts in the same row
+
+const ageTone = (d) => (d > 90 ? 'red' : d > 60 ? 'warn' : d > 30 ? 'blue' : 'green');
+
 const RANGES = [
   { key: 'week', label: 'Week', days: 7 },
   { key: 'month', label: 'Month', days: 30 },
@@ -59,10 +72,16 @@ const ChartBox = ({ height = 260, children }) => (
 export default function Dashboard() {
   const push = useToast();
   const navigate = useNavigate();
+  useDocNo();
   const user = getUser() || { name: 'there' };
   const [range, setRange] = useState('week');
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  // pending-invoice list: age filter (default 30 days and above) + pagination
+  const [minAge, setMinAge] = useState(31);
+  const [agePage, setAgePage] = useState(1);
+  const [aged, setAged] = useState(null);
+  const [agedLoading, setAgedLoading] = useState(true);
 
   useEffect(() => {
     let alive = true;
@@ -77,6 +96,17 @@ export default function Dashboard() {
       .finally(() => { if (alive) setLoading(false); });
     return () => { alive = false; };
   }, [range]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    let alive = true;
+    setAgedLoading(true);
+    api
+      .get(`/api/dashboard/pending-invoices?minAge=${minAge}&page=${agePage}&pageSize=${AGE_PAGE_SIZE}`)
+      .then((d) => { if (alive) setAged(d); })
+      .catch((e) => { if (alive) push(e.message || 'Failed to load pending invoices'); })
+      .finally(() => { if (alive) setAgedLoading(false); });
+    return () => { alive = false; };
+  }, [minAge, agePage]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const todayLong = new Date().toLocaleDateString('en-GB', {
     weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
@@ -238,8 +268,8 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Collection trend + by package */}
-      <div className="grid2">
+      {/* Collection trend + by package + pending invoices by age */}
+      <div className="grid3">
         <Panel title="Collection overview" sub={periodLabel}>
           {trend.length ? (
             <ChartBox><Line data={lineData} options={lineOpts} /></ChartBox>
@@ -263,6 +293,55 @@ export default function Dashboard() {
             </>
           ) : (
             <Empty icon="ti-chart-donut" text="No package revenue yet." />
+          )}
+        </Panel>
+        <Panel
+          title="Pending invoices by age"
+          sub={aged ? `${aged.total.toLocaleString()} inv · QAR ${fmtMoney(aged.balance)}` : 'Oldest first'}
+          toolbar={
+            <select
+              value={minAge}
+              onChange={(e) => { setMinAge(Number(e.target.value)); setAgePage(1); }}
+              style={{
+                border: '1px solid var(--line)', borderRadius: 8, padding: '3px 6px',
+                fontSize: 12, fontWeight: 700, background: 'var(--panel)', color: 'inherit', outline: 'none',
+              }}
+            >
+              {AGE_FILTERS.map((f) => <option key={f.key} value={f.key}>{f.label}</option>)}
+            </select>
+          }
+        >
+          {agedLoading && !aged ? (
+            <Loader />
+          ) : aged?.rows?.length ? (
+            <>
+              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                {aged.rows.map((r) => (
+                  <div
+                    key={r.InvoiceCode}
+                    onClick={() => navigate(`/invoices?code=${r.InvoiceCode}`)}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer',
+                      padding: '7px 0', borderBottom: '1px solid var(--line)',
+                    }}
+                  >
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 12.5, fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {r.CustomerName}
+                      </div>
+                      <div className="muted" style={{ fontSize: 11 }}>
+                        {docNo('invoice', r.InvoiceNo, r.InvoiceDate, r.CreatedAt)} · {fmtDate(r.InvoiceDate)}
+                      </div>
+                    </div>
+                    <Badge tone={ageTone(Number(r.AgeDays))}>{Number(r.AgeDays)}d</Badge>
+                    <strong style={{ fontSize: 12.5, minWidth: 58, textAlign: 'right' }}>{fmtMoney(r.Balance)}</strong>
+                  </div>
+                ))}
+              </div>
+              <Pager page={aged.page} pageSize={aged.pageSize} total={aged.total} onPage={setAgePage} />
+            </>
+          ) : (
+            <Empty icon="ti-clock-hour-4" text="No pending invoices in this age range." />
           )}
         </Panel>
       </div>

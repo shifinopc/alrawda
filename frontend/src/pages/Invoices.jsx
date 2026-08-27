@@ -192,6 +192,30 @@ export default function Invoices() {
     }
   };
 
+  // Deep link from elsewhere in the app (e.g. the dashboard's pending-invoice list):
+  // ?code=<InvoiceCode> opens that invoice AND filters the list so its row is visible
+  // and highlighted — an old invoice would otherwise sit pages deep in the list.
+  const deepCode = new URLSearchParams(location.search).get('code');
+  useEffect(() => {
+    if (!deepCode) return;
+    let alive = true;
+    (async () => {
+      try {
+        const d = await api.get(`/api/invoices/${deepCode}`);
+        if (!alive) return;
+        setDetail(d);
+        setView('preview');
+        const no = d.invoice?.InvoiceNo;
+        if (no != null) {
+          setConds([{ id: `code-invNo-${deepCode}`, field: 'invNo', value: String(no), mode: 'equals' }]);
+        }
+      } catch (e) {
+        if (alive) toast(e.message);
+      }
+    })();
+    return () => { alive = false; };
+  }, [deepCode]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const startNew = () => {
     setForm(blankForm());
     setPassengers([blankPassenger()]);

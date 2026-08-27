@@ -21,6 +21,49 @@ router.get('/counts', async (_req, res) => {
   res.json({ unbookedReceipts: unbooked.c, invoicesToApprove: toApprove.c });
 });
 
+// Pending (unsettled) invoices, oldest first, filtered by how many days old the invoice is.
+// GET /api/dashboard/pending-invoices?minAge=30&maxAge=&page=1&pageSize=8
+router.get('/pending-invoices', requirePermission('Dashboard', 'View'), async (req, res) => {
+  const minAge = Math.max(0, Number(req.query.minAge) || 0);
+  const maxAge = req.query.maxAge === '' || req.query.maxAge == null ? null : Number(req.query.maxAge);
+  const page = Math.max(1, Number(req.query.page) || 1);
+  const pageSize = Math.min(50, Math.max(1, Number(req.query.pageSize) || 8));
+
+  const where = [
+    'i.is_deleted = 0',
+    `TRIM(IFNULL(i.CancelYesNo,'N')) <> 'Y'`,
+    '(i.NetAmount - IFNULL(r.received,0)) > 0',
+    'DATEDIFF(CURDATE(), DATE(i.InvoiceDate)) >= ?',
+  ];
+  const params = [minAge];
+  if (Number.isFinite(maxAge)) { where.push('DATEDIFF(CURDATE(), DATE(i.InvoiceDate)) <= ?'); params.push(maxAge); }
+  const whereSql = where.join(' AND ');
+  const joinSql = `FROM UmrahInvoice i
+     LEFT JOIN (SELECT InvoiceCode, SUM(RecievedAmount) received FROM UmrahReciept WHERE is_deleted=0 GROUP BY InvoiceCode) r
+       ON r.InvoiceCode = i.InvoiceCode
+     WHERE ${whereSql}`;
+
+  const rows = await query(
+    `SELECT i.InvoiceCode, i.InvoiceNo, i.InvoiceDate, i.created_at AS CreatedAt, i.CustomerName, i.Mobile1,
+            i.NetAmount AS InvoiceAmount, IFNULL(r.received,0) AS ReceivedAmount,
+            (i.NetAmount - IFNULL(r.received,0)) AS Balance,
+            DATEDIFF(CURDATE(), DATE(i.InvoiceDate)) AS AgeDays
+     ${joinSql}
+     ORDER BY AgeDays DESC, i.InvoiceNo DESC
+     LIMIT ? OFFSET ?`,
+    [...params, pageSize, (page - 1) * pageSize]
+  );
+  const [summary] = await query(
+    `SELECT COUNT(*) AS total, IFNULL(SUM(i.NetAmount - IFNULL(r.received,0)),0) AS balance ${joinSql}`,
+    params
+  );
+  res.json({
+    rows, page, pageSize,
+    total: Number(summary.total),
+    balance: Number(summary.balance),
+  });
+});
+
 // GET /api/dashboard?from=YYYY-MM-DD&to=YYYY-MM-DD  (full dashboard — needs Dashboard → View)
 router.get('/', requirePermission('Dashboard', 'View'), async (req, res) => {
   const to = req.query.to || new Date().toLocaleDateString('en-CA');
