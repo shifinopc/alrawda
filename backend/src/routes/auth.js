@@ -63,7 +63,8 @@ async function ensureAppUsers() {
     const initial = process.env.SEED_ADMIN_PASSWORD || 'admin@123';
     const hash = await bcrypt.hash(initial, 10);
     await query(
-      `INSERT INTO app_users (username, password_hash, display_name, role, active, must_change_password) VALUES (?,?,?,?,1,1)`,
+      // IGNORE: two app processes can start together on a fresh database and both pass the check above
+      `INSERT IGNORE INTO app_users (username, password_hash, display_name, role, active, must_change_password) VALUES (?,?,?,?,1,1)`,
       ['admin', hash, 'Admin', 'Super Admin']
     );
     console.log(process.env.SEED_ADMIN_PASSWORD

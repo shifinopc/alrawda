@@ -245,13 +245,41 @@ router.delete('/:code', requirePermission('Receipt', 'Delete'), async (req, res)
   res.json({ ok: true });
 });
 
-// POST /api/receipts/:code/restore — bring back from recycle bin
+// POST /api/receipts/:code/restore — bring back from recycle bin.
+// The invoice may have been receipted again while this one sat in the bin, so re-check that
+// it still fits; without this the same money is counted twice against one invoice.
 router.post('/:code/restore', requirePermission('Receipt', 'Delete'), async (req, res) => {
-  const result = await query(
-    `UPDATE UmrahReciept SET is_deleted=0, deleted_at=NULL, deleted_by_name=NULL WHERE RecieptCode=? AND is_deleted=1`,
-    [req.params.code]);
-  if (!result.affectedRows) return res.status(404).json({ error: 'Deleted receipt not found' });
-  res.json({ ok: true });
+  const conn = await pool.getConnection();
+  try {
+    await conn.beginTransaction();
+    const [[r]] = await conn.query(
+      'SELECT InvoiceCode, RecievedAmount FROM UmrahReciept WHERE RecieptCode=? AND is_deleted=1 FOR UPDATE',
+      [req.params.code]);
+    if (!r) { await conn.rollback(); return res.status(404).json({ error: 'Deleted receipt not found' }); }
+    const [[inv]] = await conn.query(
+      `SELECT i.NetAmount, IFNULL(SUM(o.RecievedAmount),0) AS otherReceived
+       FROM UmrahInvoice i LEFT JOIN UmrahReciept o ON o.InvoiceCode=i.InvoiceCode AND o.is_deleted=0
+       WHERE i.InvoiceCode=? GROUP BY i.NetAmount`, [r.InvoiceCode]);
+    if (!inv) { await conn.rollback(); return res.status(404).json({ error: 'Linked invoice not found' }); }
+    const room = Number(inv.NetAmount) - Number(inv.otherReceived);
+    const amount = Number(r.RecievedAmount);
+    if (amount > room) {
+      await conn.rollback();
+      return res.status(400).json({
+        error: `Cannot restore this receipt (QAR ${amount}): the invoice has only QAR ${room} left unpaid — a newer receipt already covers it.`,
+      });
+    }
+    await conn.query(
+      'UPDATE UmrahReciept SET is_deleted=0, deleted_at=NULL, deleted_by_name=NULL, PreBalanceAmount=?, CurrentBalanceAmount=? WHERE RecieptCode=?',
+      [room, room - amount, req.params.code]);
+    await conn.commit();
+    res.json({ ok: true });
+  } catch (e) {
+    await conn.rollback();
+    throw e;
+  } finally {
+    conn.release();
+  }
 });
 
 // POST /api/receipts/approve  { codes: [..] } — manager approval, locks receipts
