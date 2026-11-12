@@ -9,7 +9,9 @@ const pool = mysql.createPool({
   database: process.env.DB_NAME || 'travels',
   waitForConnections: true,
   connectionLimit: 10,
-  dateStrings: false,
+  // Dates come back as plain strings ('2026-10-31 00:00:00'), not JS Dates. A Date is sent as a
+  // UTC instant, so a browser in a timezone behind the server showed the previous day.
+  dateStrings: true,
   supportBigNumbers: true,
   namedPlaceholders: true,
 });
