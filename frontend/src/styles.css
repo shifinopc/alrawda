@@ -741,8 +741,24 @@ input[type='number'] { -moz-appearance: textfield; appearance: textfield; }
 .rcv-sigs { display: flex; gap: 44px; margin: 16mm 0 6px; padding-top: 12px; }
 .rcv-sigs > div {
   flex: 1; border-top: 1.4px dashed #777; text-align: center; padding-top: 7px;
-  font-weight: 700; font-size: 12px;
+  font-weight: 700; font-size: 12px; position: relative;
 }
+/* signature / seal sit above the dashed line, in the gap left for signing */
+.rcv-sig-img {
+  position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%);
+  max-height: 16mm; max-width: 80%; margin-bottom: 2px; object-fit: contain;
+}
+/* a round company seal reads as official only at roughly its real size */
+.rcv-sig-img.seal { max-height: 28mm; max-width: 100%; }
+/* Invoice only: the stamp sits IN FLOW above the line, so the row grows to fit it and
+   can never overlap the notes above — whatever the stamp's size or the print scale. */
+.rcv-inv .rcv-sigs { margin-top: 8mm; }
+.rcv-inv .rcv-sigs > div {
+  border-top: none; padding-top: 0; min-height: 18mm;
+  display: flex; flex-direction: column; justify-content: flex-end;
+}
+.rcv-inv .rcv-sig-label { border-top: 1.4px dashed #777; padding-top: 7px; }
+.rcv-inv .rcv-sig-img { position: static; transform: none; margin: 0 auto 2px; max-width: 100%; }
 .rcv-foot {
   background: var(--acc); color: #fff; text-align: center; font-weight: 800;
   font-size: 13px; padding: 6px; direction: rtl; border-radius: 7px;

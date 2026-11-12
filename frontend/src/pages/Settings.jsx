@@ -348,6 +348,18 @@ function TemplateTab({ prefs, savePrefs }) {
             <SwtRow label="Show receipts (paid history)" on={it.showReceipts} onChange={setI('showReceipts')} />
             <SwtRow label="Show signature lines" on={it.showSignatures} onChange={setI('showSignatures')} />
           </div>
+          {it.showSignatures && (
+            <div className="fgrid" style={{ gridTemplateColumns: '1fr 1fr', marginTop: 8 }}>
+              <ImageUpload
+                label="Signature image (optional)" sub="Printed above the Prepared by line — PNG with a clear background"
+                value={it.signatureImage} onChange={setI('signatureImage')} toast={toast}
+              />
+              <ImageUpload
+                label="Company seal (optional)" sub="Printed above the Manager line — PNG with a clear background"
+                value={it.sealImage} onChange={setI('sealImage')} toast={toast}
+              />
+            </div>
+          )}
           <div className="fgrid" style={{ gridTemplateColumns: '1fr 1fr', marginTop: 8 }}>
             <Field label="Footer band (Arabic)">
               <input className="ar" value={it.footerBandText} onChange={setIE('footerBandText')} />

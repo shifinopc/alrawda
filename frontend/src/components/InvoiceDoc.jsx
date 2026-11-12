@@ -137,9 +137,15 @@ export default function InvoiceDoc({ invoice, passengers = [], receipts = [], re
       {/* signatures */}
       {it.showSignatures && (
         <div className="rcv-sigs">
-          <div>Manager <span className="rcv-rtl">مدير</span></div>
-          <div>Customer <span className="rcv-rtl">عميل</span></div>
-          <div>Prepared by <span className="rcv-rtl">المحاسب</span></div>
+          <div>
+            {it.sealImage && <img className="rcv-sig-img seal" src={it.sealImage} alt="" />}
+            <span className="rcv-sig-label">Manager <span className="rcv-rtl">مدير</span></span>
+          </div>
+          <div><span className="rcv-sig-label">Customer <span className="rcv-rtl">عميل</span></span></div>
+          <div>
+            {it.signatureImage && <img className="rcv-sig-img" src={it.signatureImage} alt="" />}
+            <span className="rcv-sig-label">Prepared by <span className="rcv-rtl">المحاسب</span></span>
+          </div>
         </div>
       )}
 

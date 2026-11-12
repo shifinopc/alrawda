@@ -317,6 +317,8 @@ export const PrintStyle = ({ id, paper = 'a4', landscape = false }) => (
     #${id} .rcv-notes { font-size: 8px; padding: 4px 9px; margin-top: 6px; line-height: 1.5; }
     #${id} .rcv-sigs { gap: 20px; margin: 16mm 0 8px; }
     #${id} .rcv-sigs > div { font-size: 9.5px; }
+    #${id} .rcv-inv .rcv-sigs { margin-top: 6mm; }
+    #${id} .rcv-inv .rcv-sigs > div { min-height: 14mm; }
     #${id} .rcv-foot { font-size: 10.5px; padding: 4px; }
     #${id} .rcv-cases { font-size: 9px; padding: 4px 0 0; }
     #${id} .rcv-printmeta { font-size: 8px; margin-top: 5px; }

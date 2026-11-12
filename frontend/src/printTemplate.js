@@ -80,6 +80,8 @@ export const INVOICE_DEFAULTS = {
   showPassengers: true,
   showReceipts: true,
   showSignatures: true,
+  signatureImage: null, // drawn above the Prepared by line
+  sealImage: null,      // drawn above the Manager line
   footerBandText: TEMPLATE_DEFAULTS.footerBandText,
   footerCasesText: TEMPLATE_DEFAULTS.footerCasesText,
 };

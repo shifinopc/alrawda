@@ -37,6 +37,7 @@ const RECEIPT_DEFAULTS = {
 const INVOICE_DEFAULTS = {
   accentColor: '#8a1538', titleEn: 'Invoice', titleAr: 'فاتورة', currencyLabel: 'QAR',
   showPassengers: true, showReceipts: true, showSignatures: true,
+  signatureImage: null, sealImage: null,
   footerBandText: RECEIPT_DEFAULTS.footerBandText, footerCasesText: RECEIPT_DEFAULTS.footerCasesText,
 };
 const PAYMENT_DEFAULTS = {
@@ -89,6 +90,7 @@ function logoSrc(t) {
 /* ---- helpers ---- */
 const esc = (v) => String(v == null ? '' : v)
   .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+const sigImg = (v, cls = '') => (typeof v === 'string' && v.startsWith('data:image/') ? `<img class="${cls}" src="${esc(v)}" alt="">` : '');
 const money = (v) => Number(v ?? 0).toLocaleString('en-QA', { maximumFractionDigits: 2 });
 const fdate = (v) => {
   if (!v) return '—';
@@ -161,7 +163,13 @@ function shell(accent, t, inner, titleband, footer) {
     table.items td { border-bottom: 1px solid #eee; font-size: 10px; padding: 4px 7px; }
     .notes { font-size: 8.5px; color: #444; border-top: 1px dashed #ccc; padding: 5px 0; line-height: 1.6; }
     .sigs { display: flex; gap: 24px; margin: 18px 0 6px; }
-    .sigs > div { flex: 1; border-top: 1px solid #999; padding-top: 4px; font-size: 9.5px; text-align: center; }
+    .sigs > div { flex: 1; border-top: 1px solid #999; padding-top: 4px; font-size: 9.5px; text-align: center; position: relative; }
+    .sigs img { position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); max-height: 45px; max-width: 80%; margin-bottom: 2px; object-fit: contain; }
+    .sigs img.seal { max-height: 80px; max-width: 100%; }
+    /* invoice stamp sits in flow, so the row grows to fit it and never overlaps the notes */
+    .sigs.inv > div { border-top: none; padding-top: 0; min-height: 50px; display: flex; flex-direction: column; justify-content: flex-end; }
+    .sigs.inv > div > span { border-top: 1px solid #999; padding-top: 4px; }
+    .sigs.inv img { position: static; transform: none; margin: 0 auto 2px; max-width: 100%; }
     .foot { text-align: center; font-size: 10.5px; color: ${accent}; font-weight: 700; padding: 4px; }
     .cases { text-align: center; font-size: 9px; color: #555; }
     .printmeta { margin-top: 6px; border-top: 1px solid #eee; padding-top: 4px; font-size: 8px; color: #999; display: flex; justify-content: space-between; }
@@ -321,7 +329,7 @@ function invoiceHtml(inv, passengers, receipts, tpl) {
         <div class="row acc"><span>Balance Due</span><b>${money(inv.balance)} ${esc(cur)}</b></div>
       </div>
     </div>
-    ${it.showSignatures ? '<div class="sigs"><div>Manager مدير</div><div>Customer عميل</div><div>Authorised Signature التوقيع المعتمد</div></div>' : ''}
+    ${it.showSignatures ? `<div class="sigs inv"><div>${sigImg(it.sealImage, "seal")}<span>Manager مدير</span></div><div><span>Customer عميل</span></div><div>${sigImg(it.signatureImage)}<span>Authorised Signature التوقيع المعتمد</span></div></div>` : ''}
   `;
   return shell(accent, t, inner, titleband, footerBlock(t, it) + printMeta(inv));
 }
