@@ -170,15 +170,28 @@ function invoiceParams(b) {
   };
 }
 
+/* UmrahPassengers.VisaTypeCode is NOT NULL, so an unpicked visa type can only ever
+   fail at the insert — catch it here and name the row instead of returning a 500. */
+function badPassenger(passengers) {
+  let n = 0;
+  for (const p of passengers || []) {
+    if (!p.passengerName || !String(p.passengerName).trim()) continue;
+    n += 1;
+    if (!Number(p.visaTypeCode)) return `Passenger ${n} (${String(p.passengerName).trim()}): pick a visa type.`;
+  }
+  return null;
+}
+
 async function replacePassengers(conn, invoiceCode, passengers) {
   await conn.query('DELETE FROM UmrahPassengers WHERE InvoiceCode = ?', [invoiceCode]);
   let sl = 1;
   for (const p of passengers || []) {
-    if (!p.passengerName) continue;
+    const name = String(p.passengerName || '').trim();
+    if (!name) continue; // same blank-row rule as badPassenger(), or its skip lets a null through
     await conn.query(
       `INSERT INTO UmrahPassengers (InvoiceCode, SlNo, PassengerName, VisaTypeCode, VisaRequiredCode)
        VALUES (?,?,?,?,?)`,
-      [invoiceCode, sl++, p.passengerName, p.visaTypeCode || null, p.visaRequiredCode != null ? p.visaRequiredCode : 1]
+      [invoiceCode, sl++, name, p.visaTypeCode || null, Number(p.visaRequiredCode) === 2 ? 2 : 1] // VisaRequiredTable: 1=Yes, 2=No
     );
   }
 }
@@ -187,6 +200,8 @@ async function replacePassengers(conn, invoiceCode, passengers) {
 router.post('/', requirePermission('Invoice', 'Create'), async (req, res) => {
   const b = req.body || {};
   if (!b.customerName) return res.status(400).json({ error: 'Customer name is required' });
+  const paxErr = badPassenger(b.passengers);
+  if (paxErr) return res.status(400).json({ error: paxErr });
   const conn = await pool.getConnection();
   try {
     await conn.beginTransaction();
@@ -238,6 +253,11 @@ router.put('/:code', requirePermission('Invoice', 'Edit'), async (req, res) => {
       return res.status(403).json({ error: 'This invoice is approved and locked. Ask an administrator to edit it.' });
     }
     const p = invoiceParams(b);
+    const paxErr = badPassenger(b.passengers);
+    if (paxErr) {
+      await conn.rollback();
+      return res.status(400).json({ error: paxErr });
+    }
     if (!(Number(p.NetAmount) > 0)) {
       await conn.rollback();
       return res.status(400).json({ error: 'Net amount must be greater than zero' });

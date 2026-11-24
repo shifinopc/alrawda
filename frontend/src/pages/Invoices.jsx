@@ -416,7 +416,7 @@ export default function Invoices() {
         .map((p) => ({
           passengerName: p.passengerName.trim(),
           visaTypeCode: p.visaTypeCode || null,
-          visaRequiredCode: Number(p.visaRequiredCode) ? 1 : 0,
+          visaRequiredCode: Number(p.visaRequiredCode) === 1 ? 1 : 2,
         })),
     };
     setSaving(true);
@@ -693,9 +693,9 @@ export default function Invoices() {
                         <td>
                           <Select
                             className="cellinput"
-                            value={Number(p.visaRequiredCode) ? 1 : 0}
+                            value={Number(p.visaRequiredCode) === 1 ? 1 : 2}
                             onChange={(v) => setPax(i, 'visaRequiredCode', Number(v))}
-                            options={[{ value: 1, label: 'Yes' }, { value: 0, label: 'No' }]}
+                            options={[{ value: 1, label: 'Yes' }, { value: 2, label: 'No' }]}
                           />
                         </td>
                         <td>
