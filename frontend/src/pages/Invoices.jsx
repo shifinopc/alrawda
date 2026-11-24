@@ -761,7 +761,7 @@ export default function Invoices() {
                     && (detail.plan || Number(inv.balance) > 0) && (
                     <button className="btn" onClick={() => setShowPlan(true)}>
                       <i className="ti ti-calendar-repeat" />{' '}
-                      {detail.plan ? `EMI ${detail.plan.paidCount}/${detail.plan.count}` : 'Make this EMI'}
+                      {detail.plan ? `EMI plan ${detail.plan.paidCount}/${detail.plan.count}` : 'Create EMI plan'}
                     </button>
                   )}
                   {(inv.ApprovalStatus !== 'Approved' || isAdmin) && inv.status !== 'Cancelled' && (
