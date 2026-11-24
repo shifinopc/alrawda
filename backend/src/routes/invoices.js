@@ -5,6 +5,7 @@ const { ADMINS } = require('../middleware/auth');
 const { notifyInvoiceCreated } = require('../notify');
 const { invoiceTimeline } = require('../invoiceTimeline');
 const { nextNumber, peekNumber } = require('../docNumber');
+const { ensureTables: ensurePlanTables, getPlan, getPlanSummaries, validateLines, allocate, isStale, MAX_INSTALMENTS } = require('../paymentPlan');
 
 const router = express.Router();
 const isAdmin = (req) => ADMINS.includes(req.user?.role);
@@ -102,7 +103,9 @@ router.get('/', async (req, res) => {
       [...params, ...havingParams]);
     total = c.total;
   }
-  res.json({ rows, page, pageSize, total });
+  // plan badges for this page only (one extra query, no join on the hot list path)
+  const plans = await getPlanSummaries(rows.map((r) => r.InvoiceCode));
+  res.json({ rows, page, pageSize, total, plans });
 });
 
 // GET /api/invoices/next-no
@@ -133,7 +136,8 @@ router.get('/:code', async (req, res) => {
      FROM UmrahPayment WHERE InvoiceCode = ? AND TRIM(TypeOfPayment) = 'Refund' AND is_deleted=0 ORDER BY PaymentCode`,
     [req.params.code]
   );
-  res.json({ invoice, passengers, receipts, refunds });
+  const plan = await getPlan(req.params.code);
+  res.json({ invoice, passengers, receipts, refunds, plan });
 });
 
 // GET /api/invoices/:code/history — full chronological timeline (shared builder in invoiceTimeline.js)
@@ -309,6 +313,157 @@ router.post('/:code/restore', requirePermission('Invoice', 'Delete'), async (req
     `UPDATE UmrahInvoice SET is_deleted=0, deleted_at=NULL, deleted_by_name=NULL WHERE InvoiceCode=? AND is_deleted=1`,
     [req.params.code]);
   if (!result.affectedRows) return res.status(404).json({ error: 'Deleted invoice not found' });
+  res.json({ ok: true });
+});
+
+/* ------------------------- instalment (EMI) plans ------------------------- *
+ * The schedule only. No money is written here — see src/paymentPlan.js.
+ * -------------------------------------------------------------------------- */
+
+// GET /api/invoices/:code/plan — the active plan with each instalment's state, or null
+router.get('/:code/plan', async (req, res) => {
+  res.json({ plan: await getPlan(req.params.code) });
+});
+
+// POST /api/invoices/:code/plan   { lines: [{ dueDate, amount }, …] }
+router.post('/:code/plan', requirePermission('Invoice', 'Edit'), async (req, res) => {
+  await ensurePlanTables();
+  const lines = (req.body?.lines || []).map((l) => ({ dueDate: String(l.dueDate || ''), amount: Number(l.amount) }));
+  const conn = await pool.getConnection();
+  try {
+    await conn.beginTransaction();
+    // lock the invoice so the balance can't move between validating and writing
+    const [[inv]] = await conn.query(
+      `SELECT InvoiceCode, NetAmount, DATE(InvoiceDate) AS InvoiceDate, DATE(DepartureDate) AS DepartureDate,
+              TRIM(IFNULL(CancelYesNo,'N')) AS CancelYesNo,
+              TRIM(IFNULL(ApprovalStatus,'Pending')) AS ApprovalStatus
+       FROM UmrahInvoice WHERE InvoiceCode=? AND is_deleted=0 FOR UPDATE`, [req.params.code]);
+    if (!inv) { await conn.rollback(); return res.status(404).json({ error: 'Invoice not found' }); }
+    if (inv.CancelYesNo === 'Y') { await conn.rollback(); return res.status(400).json({ error: 'This invoice is cancelled.' }); }
+    if (inv.ApprovalStatus !== 'Approved') {
+      await conn.rollback();
+      return res.status(400).json({ error: 'Approve the invoice before setting up a payment plan.' });
+    }
+    const [[act]] = await conn.query(
+      `SELECT invoice_code FROM payment_plan WHERE invoice_code=? AND status='Active'`, [req.params.code]);
+    if (act) { await conn.rollback(); return res.status(400).json({ error: 'This invoice already has a payment plan. Cancel it first.' }); }
+
+    const [[sum]] = await conn.query(
+      `SELECT IFNULL(SUM(RecievedAmount),0) AS received FROM UmrahReciept WHERE InvoiceCode=? AND is_deleted=0`,
+      [req.params.code]);
+    const received = Number(sum.received);
+    const balance = Number(inv.NetAmount) - received;
+    if (!(balance > 0)) { await conn.rollback(); return res.status(400).json({ error: 'This invoice has nothing left to pay.' }); }
+
+    const bad = validateLines(lines, balance, inv.InvoiceDate);
+    if (bad) { await conn.rollback(); return res.status(400).json({ error: bad }); }
+
+    await conn.query(
+      `INSERT INTO payment_plan (invoice_code, opening_paid, planned_amount, net_at_creation, status, created_by, created_by_name)
+       VALUES (?,?,?,?, 'Active', ?, ?)
+       ON DUPLICATE KEY UPDATE opening_paid=VALUES(opening_paid), planned_amount=VALUES(planned_amount),
+         net_at_creation=VALUES(net_at_creation), status='Active', created_by=VALUES(created_by),
+         created_by_name=VALUES(created_by_name), created_at=NOW(), cancelled_by_name=NULL, cancelled_at=NULL`,
+      [req.params.code, received, balance, inv.NetAmount, req.user?.id ?? null, req.user?.name ?? null]);
+    await conn.query(`DELETE FROM payment_plan_dtl WHERE invoice_code=?`, [req.params.code]);
+    await conn.query(
+      `INSERT INTO payment_plan_dtl (invoice_code, seq, due_date, amount) VALUES ?`,
+      [lines.map((l, i) => [req.params.code, i + 1, l.dueDate, l.amount])]);
+    await conn.commit();
+
+    const lastDue = lines[lines.length - 1].dueDate;
+    res.json({
+      ok: true,
+      // not an error: the office may knowingly schedule past the flight
+      warning: inv.DepartureDate && lastDue > inv.DepartureDate
+        ? `The last instalment (${lastDue}) falls after the departure date (${inv.DepartureDate}).` : null,
+    });
+  } catch (e) {
+    await conn.rollback();
+    throw e;
+  } finally {
+    conn.release();
+  }
+});
+
+// PUT /api/invoices/:code/plan   { lines: [{ dueDate, amount }, …] }
+// Reschedules the instalments that are NOT yet settled. Rows already covered by
+// receipts are untouched, so a customer who has paid two months keeps those two
+// on the schedule and only the rest moves.
+router.put('/:code/plan', requirePermission('Invoice', 'Edit'), async (req, res) => {
+  await ensurePlanTables();
+  const tail = (req.body?.lines || []).map((l) => ({ dueDate: String(l.dueDate || ''), amount: Number(l.amount) }));
+  const conn = await pool.getConnection();
+  try {
+    await conn.beginTransaction();
+    const [[inv]] = await conn.query(
+      `SELECT NetAmount, DATE(DepartureDate) AS DepartureDate, TRIM(IFNULL(CancelYesNo,'N')) AS CancelYesNo
+       FROM UmrahInvoice WHERE InvoiceCode=? AND is_deleted=0 FOR UPDATE`, [req.params.code]);
+    if (!inv) { await conn.rollback(); return res.status(404).json({ error: 'Invoice not found' }); }
+    if (inv.CancelYesNo === 'Y') { await conn.rollback(); return res.status(400).json({ error: 'This invoice is cancelled.' }); }
+
+    const [[plan]] = await conn.query(
+      `SELECT opening_paid, planned_amount FROM payment_plan WHERE invoice_code=? AND status='Active'`, [req.params.code]);
+    if (!plan) { await conn.rollback(); return res.status(404).json({ error: 'No active payment plan on this invoice' }); }
+
+    const [[sum]] = await conn.query(
+      `SELECT IFNULL(SUM(RecievedAmount),0) AS received FROM UmrahReciept WHERE InvoiceCode=? AND is_deleted=0`,
+      [req.params.code]);
+    const received = Number(sum.received);
+    const planned = Number(plan.planned_amount);
+    if (isStale(planned, Number(inv.NetAmount) - received, Math.max(0, received - Number(plan.opening_paid)))) {
+      await conn.rollback();
+      return res.status(400).json({ error: 'This invoice changed after the plan was made. Cancel the plan and issue a new one.' });
+    }
+
+    const [rows] = await conn.query(
+      `SELECT seq, DATE_FORMAT(due_date,'%Y-%m-%d') AS due_date, amount FROM payment_plan_dtl
+       WHERE invoice_code=? ORDER BY seq`, [req.params.code]);
+    const current = allocate(rows, Math.max(0, received - Number(plan.opening_paid)));
+    const settled = current.filter((i) => i.status === 'Paid');   // fully covered — these stay put
+    const settledTotal = settled.reduce((t, i) => t + i.amount, 0);
+
+    if (!tail.length) { await conn.rollback(); return res.status(400).json({ error: 'Keep at least one instalment to reschedule.' }); }
+    if (settled.length + tail.length > MAX_INSTALMENTS) {
+      await conn.rollback();
+      return res.status(400).json({ error: `A plan cannot have more than ${MAX_INSTALMENTS} instalments.` });
+    }
+    // the rescheduled rows must still add up to whatever the plan has left to collect
+    const lastSettledDate = settled.length ? settled[settled.length - 1].dueDate : null;
+    const bad = validateLines(tail, planned - settledTotal, lastSettledDate || null);
+    if (bad) { await conn.rollback(); return res.status(400).json({ error: bad }); }
+    if (lastSettledDate && tail[0].dueDate <= lastSettledDate) {
+      await conn.rollback();
+      return res.status(400).json({ error: `The first rescheduled instalment must fall after ${lastSettledDate}, the last one already paid.` });
+    }
+
+    await conn.query(`DELETE FROM payment_plan_dtl WHERE invoice_code=? AND seq > ?`,
+      [req.params.code, settled.length]);
+    await conn.query(`INSERT INTO payment_plan_dtl (invoice_code, seq, due_date, amount) VALUES ?`,
+      [tail.map((l, i) => [req.params.code, settled.length + i + 1, l.dueDate, l.amount])]);
+    await conn.commit();
+
+    const lastDue = tail[tail.length - 1].dueDate;
+    res.json({
+      ok: true, kept: settled.length, rescheduled: tail.length,
+      warning: inv.DepartureDate && lastDue > inv.DepartureDate
+        ? `The last instalment (${lastDue}) falls after the departure date (${inv.DepartureDate}).` : null,
+    });
+  } catch (e) {
+    await conn.rollback();
+    throw e;
+  } finally {
+    conn.release();
+  }
+});
+
+// DELETE /api/invoices/:code/plan — cancel (the row is kept for the audit trail)
+router.delete('/:code/plan', requirePermission('Invoice', 'Edit'), async (req, res) => {
+  await ensurePlanTables();
+  const result = await query(
+    `UPDATE payment_plan SET status='Cancelled', cancelled_by_name=?, cancelled_at=NOW()
+     WHERE invoice_code=? AND status='Active'`, [req.user?.name ?? null, req.params.code]);
+  if (!result.affectedRows) return res.status(404).json({ error: 'No active payment plan on this invoice' });
   res.json({ ok: true });
 });
 

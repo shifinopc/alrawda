@@ -258,6 +258,43 @@ export default function Receipts() {
     refreshFormData();
   };
 
+  /** Select an invoice on the form and pre-fill what the invoice already knows.
+   *  Shared by the picker and by the ?invoice= deep link from a payment plan. */
+  const pickInvoice = (inv, amount = 0) => {
+    setForm((f) => ({ ...f, invoiceCode: String(inv.InvoiceCode), receivedAmount: amount || 0 }));
+    setErrors((er) => ({ ...er, invoiceCode: undefined, receivedAmount: undefined }));
+    api.get(`/api/invoices/${inv.InvoiceCode}`)
+      .then((d) => {
+        // receipt Room Details holds the full descriptor: "Normal" / "Separate - 2 BEDS" / "Nil"
+        const rtype = (d.invoice?.RoomType || '').trim();
+        const rdet = (d.invoice?.RoomDetails || '').trim();
+        const room = rtype && rdet ? `${rtype} - ${rdet}` : (rtype || rdet);
+        setForm((f) => ({
+          ...f,
+          passengerDetails: paxDetailsText(d.passengers),
+          roomDetails: room,
+          remarks: f.remarks || (d.invoice?.Remarks || '').trim(),
+        }));
+      })
+      .catch(() => {});
+  };
+
+  // Deep link from an invoice's payment plan: ?invoice=<code>&amount=<n> opens a new
+  // receipt with that invoice selected and the instalment's amount filled in. Applied
+  // once, after the open-invoice list has loaded, so the read-only fields resolve.
+  const deepInvoice = sp.get('invoice');
+  const deepApplied = useRef(false);
+  useEffect(() => {
+    if (!deepInvoice || deepApplied.current || !openInvoices.length) return;
+    const inv = openInvoices.find((i) => String(i.InvoiceCode) === String(deepInvoice));
+    deepApplied.current = true;
+    if (!inv) { toast('That invoice is no longer open for receipts'); return; }
+    setEditing(false);
+    setEditCode(null);
+    setView('form');
+    pickInvoice(inv, Number(sp.get('amount')) || 0);
+  }, [deepInvoice, openInvoices.length]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const startEdit = () => {
     if (!sel) return;
     setEditing(true);
@@ -501,25 +538,7 @@ export default function Receipts() {
                     invoices={openInvoices}
                     value={form.invoiceCode}
                     error={errors.invoiceCode}
-                    onSelect={(inv) => {
-                      setForm((f) => ({ ...f, invoiceCode: String(inv.InvoiceCode), receivedAmount: 0 }));
-                      setErrors((er) => ({ ...er, invoiceCode: undefined, receivedAmount: undefined }));
-                      // pre-fill passenger + room details from the invoice
-                      api.get(`/api/invoices/${inv.InvoiceCode}`)
-                        .then((d) => {
-                          // receipt Room Details holds the full descriptor: "Normal" / "Separate - 2 BEDS" / "Nil"
-                          const rtype = (d.invoice?.RoomType || '').trim();
-                          const rdet = (d.invoice?.RoomDetails || '').trim();
-                          const room = rtype && rdet ? `${rtype} - ${rdet}` : (rtype || rdet);
-                          setForm((f) => ({
-                            ...f,
-                            passengerDetails: paxDetailsText(d.passengers),
-                            roomDetails: room,
-                            remarks: f.remarks || (d.invoice?.Remarks || '').trim(),
-                          }));
-                        })
-                        .catch(() => {});
-                    }}
+                    onSelect={(inv) => pickInvoice(inv)}
                   />
                 )}
               </Field>

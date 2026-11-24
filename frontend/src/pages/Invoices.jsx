@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom';
 import { api, fmtMoney, fmtDate, fmtDateTimeOr0, toInputDate, todayStr, invoiceStatusBadge, downloadPdf, getUser } from '../api';
 import { Select, useToast, useConfirm, Badge, Panel, Field, Empty, PrintStyle, PaperToggle, usePaper, Pager, Drawer, Loader } from '../components/ui';
 import InvoiceDoc from '../components/InvoiceDoc';
+import PaymentPlanModal from '../components/PaymentPlanModal';
 import DocTimeline from '../components/DocTimeline';
 import { usePerms } from '../permissions';
 import { docNo, useDocNo } from '../docNumber';
@@ -53,13 +54,13 @@ export default function Invoices() {
   const { can } = usePerms();
   useDocNo();
   const isAdmin = ['Super Admin', 'Admin'].includes(getUser()?.role);
-  const [templates, setTemplates] = useState({ print: null, invoice: null });
+  const [templates, setTemplates] = useState({ print: null, invoice: null, plan: null });
   const [paper, setPaper] = usePaper();
 
   useEffect(() => {
     api.get('/api/settings/prefs')
-      .then((d) => setTemplates({ print: d.prefs?.printTemplate || {}, invoice: d.prefs?.invoiceTemplate || {} }))
-      .catch(() => setTemplates({ print: {}, invoice: {} }));
+      .then((d) => setTemplates({ print: d.prefs?.printTemplate || {}, invoice: d.prefs?.invoiceTemplate || {}, plan: d.prefs?.planTemplate || {} }))
+      .catch(() => setTemplates({ print: {}, invoice: {}, plan: {} }));
   }, []);
 
   /* ---- list ---- */
@@ -90,6 +91,8 @@ export default function Invoices() {
   const [detail, setDetail] = useState(null); // {invoice, passengers, receipts, refunds}
   const [editingCode, setEditingCode] = useState(null);
   const [showDeleted, setShowDeleted] = useState(false);
+  const [plans, setPlans] = useState({}); // InvoiceCode -> {paidCount,count,overdue,stale} for list badges
+  const [showPlan, setShowPlan] = useState(false);
   const [listLoading, setListLoading] = useState(true);
   const [nextNo, setNextNo] = useState(null);
   const [form, setForm] = useState(blankForm());
@@ -136,6 +139,7 @@ export default function Invoices() {
       p.set('page', String(page));
       const d = await api.get(`/api/invoices?${p.toString()}`);
       setRows(d.rows || []);
+      setPlans(d.plans || {});
       setTotal(d.total || 0);
     } catch (e) {
       toast(e.message);
@@ -501,7 +505,17 @@ export default function Invoices() {
                         </button>
                       ) : r.ApprovalStatus !== 'Approved' && r.status !== 'Cancelled'
                         ? <Badge tone="warn">Draft</Badge>
-                        : <Badge tone={invoiceStatusBadge(r.status)}>{r.status}</Badge>}
+                        : (
+                          <span className="badges">
+                            <Badge tone={invoiceStatusBadge(r.status)}>{r.status}</Badge>
+                            {plans[r.InvoiceCode] && (
+                              <Badge tone={plans[r.InvoiceCode].overdue ? 'red' : undefined}>
+                                EMI {plans[r.InvoiceCode].paidCount}/{plans[r.InvoiceCode].count}
+                              </Badge>
+                            )}
+                            {plans[r.InvoiceCode]?.stale && <Badge tone="warn">stale</Badge>}
+                          </span>
+                        )}
                     </td>
                   </tr>
                 ))}
@@ -743,6 +757,13 @@ export default function Invoices() {
                   {inv.ApprovalStatus !== 'Approved' && inv.status !== 'Cancelled' && can('Invoice', 'Approve') && (
                     <button className="btn success" onClick={approveInvoice}><i className="ti ti-check" /> Approve</button>
                   )}
+                  {inv.ApprovalStatus === 'Approved' && inv.status !== 'Cancelled'
+                    && (detail.plan || Number(inv.balance) > 0) && (
+                    <button className="btn" onClick={() => setShowPlan(true)}>
+                      <i className="ti ti-calendar-repeat" />{' '}
+                      {detail.plan ? `EMI ${detail.plan.paidCount}/${detail.plan.count}` : 'Make this EMI'}
+                    </button>
+                  )}
                   {(inv.ApprovalStatus !== 'Approved' || isAdmin) && inv.status !== 'Cancelled' && (
                     <button className="btn" onClick={startEdit}><i className="ti ti-pencil" /> Edit</button>
                   )}
@@ -770,6 +791,18 @@ export default function Invoices() {
           )
         )}
       </div>
+
+      {showPlan && detail && (
+        <PaymentPlanModal
+          invoice={detail.invoice}
+          plan={detail.plan}
+          canEdit={can('Invoice', 'Edit')}
+          printTemplate={templates.print}
+          planTemplate={templates.plan}
+          onClose={() => setShowPlan(false)}
+          onSaved={() => { setShowPlan(false); loadDetail(detail.invoice.InvoiceCode); fetchList(); }}
+        />
+      )}
 
       {showHistory && detail && (
         <Drawer title={`History — Invoice ${docNo('invoice', detail.invoice.InvoiceNo, detail.invoice.InvoiceDate)}`} onClose={() => setShowHistory(false)}>
