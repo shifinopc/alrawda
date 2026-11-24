@@ -34,6 +34,13 @@ const ACCENT = '#7c00ff';
 
 /* Age filters for the pending-invoice list. Default: over 30 days.
    Values are 31/61/91 so a filter never double-counts the boundary day. */
+const INST_PAGE_SIZE = 6;
+const INST_SCOPES = [
+  { key: 'overdue', label: 'Overdue' },
+  { key: 'week', label: 'Next 7 days' },
+  { key: 'month', label: 'Next 30 days' },
+];
+
 const AGE_FILTERS = [
   { key: 31, label: 'Over 30 days' },
   { key: 61, label: 'Over 60 days' },
@@ -96,6 +103,23 @@ export default function Dashboard() {
       .finally(() => { if (alive) setLoading(false); });
     return () => { alive = false; };
   }, [range]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  /* ---- instalments due (EMI plans) ---- */
+  const [instScope, setInstScope] = useState('overdue');
+  const [instPage, setInstPage] = useState(1);
+  const [inst, setInst] = useState(null);
+  const [instLoading, setInstLoading] = useState(true);
+
+  useEffect(() => {
+    let alive = true;
+    setInstLoading(true);
+    api
+      .get(`/api/dashboard/instalments?scope=${instScope}&page=${instPage}&pageSize=${INST_PAGE_SIZE}`)
+      .then((d) => { if (alive) setInst(d); })
+      .catch((e) => { if (alive) push(e.message || 'Failed to load instalments'); })
+      .finally(() => { if (alive) setInstLoading(false); });
+    return () => { alive = false; };
+  }, [instScope, instPage]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     let alive = true;
@@ -342,6 +366,73 @@ export default function Dashboard() {
             </>
           ) : (
             <Empty icon="ti-clock-hour-4" text="No pending invoices in this age range." />
+          )}
+        </Panel>
+      </div>
+
+      {/* what the office has to collect, and what is late */}
+      <div className="grid1">
+        <Panel
+          title="Instalments due"
+          sub={inst
+            ? `${inst.totals[instScope].count} instalment${inst.totals[instScope].count === 1 ? '' : 's'} · QAR ${fmtMoney(inst.totals[instScope].amount)}`
+            : 'EMI payment plans'}
+          toolbar={
+            <div style={{ display: 'flex', gap: 6 }}>
+              {INST_SCOPES.map((sc) => (
+                <button
+                  key={sc.key}
+                  className={`btn sm${instScope === sc.key ? ' primary' : ''}`}
+                  onClick={() => { setInstScope(sc.key); setInstPage(1); }}
+                >
+                  {sc.label}
+                  {inst ? ` (${inst.totals[sc.key].count})` : ''}
+                </button>
+              ))}
+            </div>
+          }
+        >
+          {instLoading && !inst ? (
+            <Loader />
+          ) : inst?.rows?.length ? (
+            <>
+              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                {inst.rows.map((r) => (
+                  <div
+                    key={`${r.InvoiceCode}-${r.seq}`}
+                    onClick={() => navigate(`/invoices?code=${r.InvoiceCode}`)}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer',
+                      padding: '7px 0', borderBottom: '1px solid var(--line)',
+                    }}
+                  >
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 12.5, fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {r.CustomerName}
+                      </div>
+                      <div className="muted" style={{ fontSize: 11 }}>
+                        {docNo('invoice', r.InvoiceNo, r.InvoiceDate, r.CreatedAt)} · instalment {r.seq} · due {fmtDate(r.dueDate)}
+                      </div>
+                    </div>
+                    {Number(r.daysLate) > 0
+                      ? <Badge tone={ageTone(Number(r.daysLate))}>{Number(r.daysLate)}d late</Badge>
+                      : <Badge tone={Number(r.daysLate) === 0 ? 'warn' : undefined}>
+                          {Number(r.daysLate) === 0 ? 'today' : `in ${-Number(r.daysLate)}d`}
+                        </Badge>}
+                    <strong style={{ fontSize: 12.5, minWidth: 58, textAlign: 'right' }}>{fmtMoney(r.outstanding)}</strong>
+                  </div>
+                ))}
+              </div>
+              <Pager page={inst.page} pageSize={inst.pageSize} total={inst.total} onPage={setInstPage} />
+            </>
+          ) : (
+            <Empty icon="ti-calendar-check" text={instScope === 'overdue' ? 'No overdue instalments.' : 'Nothing due in this period.'} />
+          )}
+          {inst?.staleCount > 0 && (
+            <div className="muted" style={{ fontSize: 11.5, marginTop: 8, display: 'flex', gap: 6, alignItems: 'center' }}>
+              <i className="ti ti-alert-triangle" style={{ color: 'var(--warn)' }} />
+              {inst.staleCount} plan{inst.staleCount === 1 ? '' : 's'} left out — the invoice changed after the plan was made.
+            </div>
           )}
         </Panel>
       </div>

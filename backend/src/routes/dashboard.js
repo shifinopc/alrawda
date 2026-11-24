@@ -22,6 +22,80 @@ router.get('/counts', async (_req, res) => {
 });
 
 // Pending (unsettled) invoices, oldest first, filtered by how many days old the invoice is.
+/* ---- instalments due (EMI plans) ----
+ * Which instalments are still owed, and when. A row's paid share is the plan's
+ * allocation (oldest first) landing on it, so this matches what the plan modal
+ * and the printed schedule show, without storing anything twice.
+ * Plans that no longer add up are left out and counted separately — chasing a
+ * figure we know is wrong would be worse than saying nothing. */
+const INSTALMENT_SQL = `
+  WITH rows_ AS (
+    SELECT d.invoice_code, d.seq, d.due_date, d.amount,
+           SUM(d.amount) OVER (PARTITION BY d.invoice_code ORDER BY d.seq
+                               ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS cum,
+           GREATEST(0, IFNULL(r.received,0) - p.opening_paid) AS allocated,
+           (i.NetAmount - IFNULL(r.received,0)) + GREATEST(0, IFNULL(r.received,0) - p.opening_paid)
+             <> p.planned_amount AS is_stale,
+           i.InvoiceNo, i.InvoiceDate, i.created_at AS CreatedAt, i.CustomerName, i.Mobile1
+    FROM payment_plan_dtl d
+    JOIN payment_plan p   ON p.invoice_code = d.invoice_code AND p.status = 'Active'
+    JOIN UmrahInvoice i   ON i.InvoiceCode = d.invoice_code
+                         AND i.is_deleted = 0 AND TRIM(IFNULL(i.CancelYesNo,'N')) <> 'Y'
+    LEFT JOIN (SELECT InvoiceCode, SUM(RecievedAmount) received FROM UmrahReciept
+               WHERE is_deleted = 0 GROUP BY InvoiceCode) r ON r.InvoiceCode = d.invoice_code
+  )
+  SELECT invoice_code AS InvoiceCode, InvoiceNo, InvoiceDate, CreatedAt, CustomerName, Mobile1,
+         seq, due_date AS dueDate, amount,
+         amount - LEAST(amount, GREATEST(0, allocated - (cum - amount))) AS outstanding,
+         DATEDIFF(CURDATE(), due_date) AS daysLate, is_stale
+  FROM rows_
+  WHERE is_stale = 0 AND amount - LEAST(amount, GREATEST(0, allocated - (cum - amount))) > 0`;
+
+const SCOPES = {
+  overdue: 'due_date < CURDATE()',
+  // inclusive of the last day: an instalment due exactly 30 days out is still
+  // "in the next 30 days", and silently dropping it would under-report collections
+  week: 'due_date >= CURDATE() AND due_date <= CURDATE() + INTERVAL 7 DAY',
+  month: 'due_date >= CURDATE() AND due_date <= CURDATE() + INTERVAL 30 DAY',
+};
+
+// GET /api/dashboard/instalments?scope=overdue|week|month&page=1&pageSize=6
+router.get('/instalments', requirePermission('Dashboard', 'View'), async (req, res) => {
+  const scope = SCOPES[req.query.scope] ? req.query.scope : 'overdue';
+  const page = Math.max(1, Number(req.query.page) || 1);
+  const pageSize = Math.min(50, Math.max(1, Number(req.query.pageSize) || 6));
+
+  const rows = await query(
+    `SELECT * FROM (${INSTALMENT_SQL}) t WHERE ${SCOPES[scope].replace(/due_date/g, 't.dueDate')}
+     ORDER BY t.dueDate ASC, t.InvoiceNo ASC LIMIT ? OFFSET ?`,
+    [pageSize, (page - 1) * pageSize]
+  );
+  // headline numbers for all three ranges, so the chips can carry their own totals
+  const [tot] = await query(
+    `SELECT
+       SUM(${SCOPES.overdue.replace(/due_date/g, 't.dueDate')}) AS overdueCount,
+       SUM(CASE WHEN ${SCOPES.overdue.replace(/due_date/g, 't.dueDate')} THEN t.outstanding ELSE 0 END) AS overdueAmount,
+       SUM(${SCOPES.week.replace(/due_date/g, 't.dueDate')}) AS weekCount,
+       SUM(CASE WHEN ${SCOPES.week.replace(/due_date/g, 't.dueDate')} THEN t.outstanding ELSE 0 END) AS weekAmount,
+       SUM(${SCOPES.month.replace(/due_date/g, 't.dueDate')}) AS monthCount,
+       SUM(CASE WHEN ${SCOPES.month.replace(/due_date/g, 't.dueDate')} THEN t.outstanding ELSE 0 END) AS monthAmount
+     FROM (${INSTALMENT_SQL}) t`);
+  const [stale] = await query(
+    `SELECT COUNT(*) AS n FROM payment_plan p
+     JOIN UmrahInvoice i ON i.InvoiceCode = p.invoice_code AND i.is_deleted = 0
+     LEFT JOIN (SELECT InvoiceCode, SUM(RecievedAmount) received FROM UmrahReciept
+                WHERE is_deleted = 0 GROUP BY InvoiceCode) r ON r.InvoiceCode = p.invoice_code
+     WHERE p.status = 'Active'
+       AND (i.NetAmount - IFNULL(r.received,0)) + GREATEST(0, IFNULL(r.received,0) - p.opening_paid)
+           <> p.planned_amount`);
+  const totals = {
+    overdue: { count: Number(tot?.overdueCount || 0), amount: Number(tot?.overdueAmount || 0) },
+    week: { count: Number(tot?.weekCount || 0), amount: Number(tot?.weekAmount || 0) },
+    month: { count: Number(tot?.monthCount || 0), amount: Number(tot?.monthAmount || 0) },
+  };
+  res.json({ rows, scope, page, pageSize, total: totals[scope].count, totals, staleCount: Number(stale?.n || 0) });
+});
+
 // GET /api/dashboard/pending-invoices?minAge=30&maxAge=&page=1&pageSize=8
 router.get('/pending-invoices', requirePermission('Dashboard', 'View'), async (req, res) => {
   const minAge = Math.max(0, Number(req.query.minAge) || 0);
