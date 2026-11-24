@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { api, fmtDate, fmtDateTime, getUser, clearSession } from '../api';
 import { Select, useToast, Badge, Panel, Field, Empty, Loader } from '../components/ui';
-import { TEMPLATE_DEFAULTS, mergeReceiptTemplate, mergeReportTemplate, mergeInvoiceTemplate, mergePaymentTemplate } from '../printTemplate';
+import { TEMPLATE_DEFAULTS, mergeReceiptTemplate, mergeReportTemplate, mergeInvoiceTemplate, mergePaymentTemplate, mergePlanTemplate } from '../printTemplate';
 import ReceiptVoucher from '../components/ReceiptVoucher';
 import ReportDoc from '../components/ReportDoc';
 import InvoiceDoc from '../components/InvoiceDoc';
@@ -1713,12 +1713,65 @@ function EmailTemplateTab({ prefs, savePrefs }) {
   );
 }
 
+function PlanTemplateTab({ prefs, savePrefs }) {
+  const toast = useToast();
+  const [pt, setPt] = useState(mergePlanTemplate(prefs.planTemplate));
+  const [saving, setSaving] = useState(false);
+  const setE = (key) => (e) => setPt((x) => ({ ...x, [key]: e.target.value }));
+
+  const onSave = async () => {
+    setSaving(true);
+    try {
+      await savePrefs({ planTemplate: pt });
+      toast('Payment plan template saved');
+    } catch (e) {
+      toast(e.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <Panel
+      title="Payment plan sheet"
+      sub="The instalment schedule handed to the pilgrim — printed from an invoice's EMI plan"
+      toolbar={
+        <button className="btn primary" onClick={onSave} disabled={saving}>
+          <i className="ti ti-device-floppy" /> Save plan template
+        </button>
+      }
+    >
+      <div className="msection">Where to pay</div>
+      <div className="fgrid" style={{ gridTemplateColumns: '1fr 1fr' }}>
+        <Field label="Fawran number"><input value={pt.fawranNo} onChange={setE('fawranNo')} /></Field>
+        <Field label="Account name"><input value={pt.accountName} onChange={setE('accountName')} /></Field>
+      </div>
+      <div className="fgrid" style={{ gridTemplateColumns: '1fr', marginTop: 8 }}>
+        <Field label="IBAN"><input value={pt.iban} onChange={setE('iban')} style={{ direction: 'ltr' }} /></Field>
+        <Field label="Transfer note (Arabic)"><input className="ar" value={pt.transferNote} onChange={setE('transferNote')} /></Field>
+      </div>
+
+      <div className="msection" style={{ marginTop: 16 }}>Arabic labels</div>
+      <div className="fgrid" style={{ gridTemplateColumns: '1fr 1fr' }}>
+        <Field label="Pilgrim name"><input className="ar" value={pt.labelName} onChange={setE('labelName')} /></Field>
+        <Field label="Room type"><input className="ar" value={pt.labelRoom} onChange={setE('labelRoom')} /></Field>
+        <Field label="Invoice amount"><input className="ar" value={pt.labelTotal} onChange={setE('labelTotal')} /></Field>
+        <Field label="Paid"><input className="ar" value={pt.labelPaid} onChange={setE('labelPaid')} /></Field>
+        <Field label="Remaining"><input className="ar" value={pt.labelRemaining} onChange={setE('labelRemaining')} /></Field>
+        <Field label="Paid marker"><input className="ar" value={pt.paidMark} onChange={setE('paidMark')} /></Field>
+        <Field label="Part paid marker"><input className="ar" value={pt.partMark} onChange={setE('partMark')} /></Field>
+      </div>
+    </Panel>
+  );
+}
+
 /* =================== merged Templates tab =================== */
 const TEMPLATE_KINDS = [
   { id: 'invoice', label: 'Invoice', icon: 'ti-file-invoice', desc: 'Branding + printed invoice' },
   { id: 'receipt', label: 'Receipt', icon: 'ti-receipt', desc: 'Receipt voucher' },
   { id: 'payment', label: 'Payment', icon: 'ti-businessplan', desc: 'Payment voucher' },
   { id: 'report', label: 'Report', icon: 'ti-chart-bar', desc: 'All reports' },
+  { id: 'plan', label: 'Payment plan', icon: 'ti-calendar-repeat', desc: 'EMI schedule sheet' },
   { id: 'email', label: 'Email', icon: 'ti-mail', desc: 'Branded outgoing emails' },
 ];
 
@@ -1740,7 +1793,7 @@ function TemplatesTab({ prefs, savePrefs }) {
             <i className={`ti ${k.icon}`} /> {k.label}
           </button>
         ))}
-        {['receipt', 'payment', 'report'].includes(kind) && (
+        {['receipt', 'payment', 'report', 'plan'].includes(kind) && (
           <span className="muted" style={{ fontSize: 12 }}>
             Header, logo &amp; watermark are shared — edit them under <b>Invoice</b>.
           </span>
@@ -1750,6 +1803,7 @@ function TemplatesTab({ prefs, savePrefs }) {
       {kind === 'receipt' && <ReceiptTemplateTab prefs={prefs} savePrefs={savePrefs} />}
       {kind === 'payment' && <PaymentTemplateTab prefs={prefs} savePrefs={savePrefs} />}
       {kind === 'report' && <ReportTemplateTab prefs={prefs} savePrefs={savePrefs} />}
+      {kind === 'plan' && <PlanTemplateTab prefs={prefs} savePrefs={savePrefs} />}
       {kind === 'email' && <EmailTemplateTab prefs={prefs} savePrefs={savePrefs} />}
     </div>
   );

@@ -111,3 +111,24 @@ export const REPORT_DEFAULTS = {
 };
 
 export const mergeReportTemplate = (saved) => ({ ...REPORT_DEFAULTS, ...(saved || {}) });
+
+/* ---- Instalment (EMI) schedule sheet — the one handed to the pilgrim.
+        Seeded from the office's existing paper form. ---- */
+export const PLAN_DEFAULTS = {
+  labelName: 'الاسم الحـاج',
+  labelRoom: 'نوع الغرفة',
+  labelTotal: 'مبلغ الباقة',
+  labelPaid: 'مدفوع',
+  labelRemaining: 'المتبقي',
+  paidMark: 'مدفوع',
+  partMark: 'مدفوع جزئياً',
+  transferNote: 'يتحول الى حساب  حملة الروضة للحج والعمرة .',
+  labelFawran: 'رقم فورا',
+  fawranNo: 'CL 26154',
+  labelIban: 'رقم الايبان',
+  iban: 'QA12QISB000000000156411810015',
+  labelAccount: 'اسم الحساب',
+  accountName: 'AL RAWDA GROUP HAJJ UMRAH',
+};
+
+export const mergePlanTemplate = (saved) => ({ ...PLAN_DEFAULTS, ...(saved || {}) });
