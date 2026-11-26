@@ -760,6 +760,12 @@ input[type='number'] { -moz-appearance: textfield; appearance: textfield; }
 }
 .rcv-inv .rcv-sig-label { border-top: 1.4px dashed #777; padding-top: 7px; }
 .rcv-inv .rcv-sig-img { position: static; transform: none; margin: 0 auto 2px; max-width: 100%; }
+/* Invoice: size by WHICH LINE the image prints over, not by which settings field it
+   came from — the office puts the seal on the right and a signature on the left, and
+   has them uploaded in the opposite fields. A seal only reads as official near its real
+   size; a signature at that size looks wrong. */
+.rcv-inv .rcv-sigs > div:first-child .rcv-sig-img { max-height: 16mm; }  /* Manager — signature */
+.rcv-inv .rcv-sigs > div:last-child  .rcv-sig-img { max-height: 28mm; }  /* Prepared by — seal */
 .rcv-foot {
   background: var(--acc); color: #fff; text-align: center; font-weight: 800;
   font-size: 13px; padding: 6px; direction: rtl; border-radius: 7px;

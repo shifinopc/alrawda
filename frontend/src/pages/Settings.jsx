@@ -351,11 +351,11 @@ function TemplateTab({ prefs, savePrefs }) {
           {it.showSignatures && (
             <div className="fgrid" style={{ gridTemplateColumns: '1fr 1fr', marginTop: 8 }}>
               <ImageUpload
-                label="Signature image (optional)" sub="Printed above the Prepared by line — PNG with a clear background"
+                label="Right image (optional)" sub="Printed above the Prepared by line, sized for a company seal — PNG with a clear background"
                 value={it.signatureImage} onChange={setI('signatureImage')} toast={toast}
               />
               <ImageUpload
-                label="Company seal (optional)" sub="Printed above the Manager line — PNG with a clear background"
+                label="Left image (optional)" sub="Printed above the Manager line, sized for a signature — PNG with a clear background"
                 value={it.sealImage} onChange={setI('sealImage')} toast={toast}
               />
             </div>
